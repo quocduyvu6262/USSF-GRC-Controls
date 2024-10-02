@@ -1,0 +1,18 @@
+<div class="signin-container">
+  <div class="top-left-image">
+    <%= image_tag "ussf_logo.png", alt: "Logo", class: "ussf-logo"%>
+  </div>
+
+  <h1>Sign in to USSF</h1>
+
+  <p>
+    <%= image_tag "google_logo.png", alt: "Google Logo", class: "google-logo" %>
+  </p>
+
+  <p>
+    <%= button_to "Login with Google", "/auth/google_oauth2",
+                  method: :post,
+                  class: "google-login-button",
+                  data: { turbo: "false" } %>
+  </p>
+</div>

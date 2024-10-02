@@ -13,3 +13,57 @@
  *= require_tree .
  *= require_self
  */
+
+.signin-container {
+    text-align: center;
+    margin-top: 50px;
+    font-family: Arial, sans-serif;
+}
+
+.top-left-image {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.top-left-image img {
+    width: 50px;
+    height: auto;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.google-login-button {
+    display: inline-block;
+    background-color: #4285f4;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.google-login-button:hover {
+    background-color: #357ae8;
+}
+
+
+.google-logo {
+    width: 40px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.ussf-logo {
+    width: 40px;
+    height: auto;
+    margin-bottom: 10px;
+}
