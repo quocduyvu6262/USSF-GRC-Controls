@@ -52,7 +52,7 @@
       }
 
       .title {
-          padding-left: 5%;
+          padding-left: 2%;
       }
       .info-container {
           display: flex;
@@ -73,6 +73,13 @@
       .info-box label {
           font-weight: bold;
       }
+      .btn-container {
+          display: flex;
+          flex-direction: column;
+          margin-left: 2%;
+          margin-top: 2%;
+          gap: 10px;
+      }
       .report-button {
           background-color: #333; /* Adjust the background color as needed */
           color: #fff;
@@ -82,8 +89,6 @@
           font-size: 16px;
           width: 200px;
           padding: 1.3%;
-          margin-left: 2%;
-          margin-top: 2%;
       }
   </style>
 </head>
@@ -112,7 +117,10 @@
         <label>Description:</label>
         <p>My First Image</p>
       </div>
-      <button class="report-button">View GRC Report</button>
+      <div class="btn-container">
+        <button class="report-button">View GRC Report</button>
+        <%= link_to "Go back", user_path(@user)%>
+      </div>
     </div>
   </div>
 
