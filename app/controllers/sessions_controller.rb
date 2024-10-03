@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
   # GET /logout
   def logout
     reset_session
-    redirect_to welcome_path, notice: 'You are logged out.'
+    redirect_to welcome_path#, notice: 'You are logged out.'
   end
 
   # GET /auth/google_oauth2/callback
@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
 
     if @user.valid?
       session[:user_id] = @user.id
-      redirect_to user_path(@user), notice: 'You are logged in.'
+      redirect_to user_path(@user)#, notice: 'You are logged in.'
     else
       redirect_to welcome_path, alert: 'Login failed.'
     end
