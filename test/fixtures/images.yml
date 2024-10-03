@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  tag: MyString
+  report: MyText
+  run_time_object: one
+
+two:
+  tag: MyString
+  report: MyText
+  run_time_object: two

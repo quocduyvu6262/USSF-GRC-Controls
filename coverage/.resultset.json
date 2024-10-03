@@ -1,0 +1,370 @@
+{
+  "Cucumber Features": {
+    "coverage": {
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/channels/application_cable/channel.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/channels/application_cable/connection.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/application_controller.rb": {
+        "lines": [
+          0,
+          null,
+          0,
+          null,
+          0,
+          null,
+          0,
+          null,
+          0,
+          null,
+          null,
+          null,
+          0,
+          0,
+          null,
+          0,
+          null,
+          null,
+          0,
+          0,
+          null,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/sessions_controller.rb": {
+        "lines": [
+          0,
+          null,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          null,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/users_controller.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/welcome_controller.rb": {
+        "lines": [
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/helpers/application_helper.rb": {
+        "lines": [
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/jobs/application_job.rb": {
+        "lines": [
+          0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/mailers/application_mailer.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/application_record.rb": {
+        "lines": [
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/image.rb": {
+        "lines": [
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/run_time_object.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/user.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      }
+    },
+    "timestamp": 1727909677
+  },
+  "RSpec": {
+    "coverage": {
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/helpers/application_helper.rb": {
+        "lines": [
+          1,
+          null
+        ]
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/run_time_object.rb": {
+        "lines": [
+          1,
+          1,
+          1,
+          null
+        ]
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/application_record.rb": {
+        "lines": [
+          1,
+          1,
+          null
+        ]
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/channels/application_cable/channel.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/channels/application_cable/connection.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/application_controller.rb": {
+        "lines": [
+          0,
+          null,
+          0,
+          null,
+          0,
+          null,
+          0,
+          null,
+          0,
+          null,
+          null,
+          null,
+          0,
+          0,
+          null,
+          0,
+          null,
+          null,
+          0,
+          0,
+          null,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/sessions_controller.rb": {
+        "lines": [
+          0,
+          null,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          null,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/users_controller.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/controllers/welcome_controller.rb": {
+        "lines": [
+          0,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/jobs/application_job.rb": {
+        "lines": [
+          0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/mailers/application_mailer.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/image.rb": {
+        "lines": [
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      },
+      "/Users/sahilfayaz/Documents/TAMU/I_Sem/SE/Project/USSF-CSCE606/app/models/user.rb": {
+        "lines": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {
+        }
+      }
+    },
+    "timestamp": 1727909669
+  }
+}
