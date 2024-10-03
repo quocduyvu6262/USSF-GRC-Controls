@@ -8,7 +8,7 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 # Create run_time_objects associated with users
-me = User.find_by(email: "maitreya.niranjan@gmail.com")
+me = User.find_by(email: "quocduyvu6262@gmail.com")
 puts me.inspect  # This will output the user or nil if not found
 
 

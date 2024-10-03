@@ -24,5 +24,5 @@ Rails.application.routes.draw do
   get '/auth/google_oauth2/callback', to: 'sessions#omniauth'
 
 
-  resources :tags, only: [:show]  # This creates a show route for tags
+  resources :tags, only: [:show, :new, :create]  # This creates a show route for tags
 end

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Image</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <style>
+      .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 8%;
+      }
+      .logo {
+          width: 100px;
+          height: auto;
+      }
+      h1 {
+          font-size: 36px;
+          font-family: 'Times', serif;
+          text-align: center; /* Center the header text */
+      }
+      .form-group {
+          margin-bottom: 15px;
+      }
+      .form-container {
+          border: 1px solid #ccc;
+          border-radius: 15px;
+          background-color: #fff;
+          padding: 50px;
+          display: flex;
+          flex-direction: column;
+          align-content: flex-start;
+      }
+      .form-control {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+      }
+      .btn {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s; /* Smooth transition on hover */
+      }
+      .btn:hover {
+          background-color: #45a049;
+      }
+      .actions {
+          margin-top: 20px;
+          display: flex; /* Flexbox for actions */
+          justify-content: space-between; /* Space between buttons */
+      }
+      .header {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px; /* Space between buttons */
+          margin: 10px;
+      }
+      .top-left-image {
+          position: absolute; /* Positioning the logo */
+          top: 20px; /* Adjust the position */
+          left: 20px; /* Adjust the position */
+      }
+  </style>
+</head>
+<body>
+<div class="top-left-image">
+  <%= image_tag "ussf_logo.png", alt: "Logo", class: "logo" %>
+</div>
+
+<div class="header">
+  <button id="profileBtn" class="btn btn-profile">Profile</button>
+</div>
+
+<%= form_with model: @image, local: true do |form| %>
+  <div class="container">
+    <h1>New Image</h1>
+    <div class="form-container">
+      <div class="form-group">
+        <%= form.label :name, "Image Name" %>
+        <%= form.text_field :name, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :version, "Version" %>
+        <%= form.text_field :version, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :url, "URL" %>
+        <%= form.text_field :url, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :description, "Description" %>
+        <%= form.text_area :description, class: "form-control" %>
+      </div>
+
+      <div class="actions">
+        <%= form.submit "Submit", class: "btn btn-success" %>
+        <%= link_to "Go back", class: "btn btn-secondary" %> <!-- Link to go back -->
+      </div>
+    </div>
+  </div>
+<% end %>
+</body>
+</html>
