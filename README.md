@@ -1,3 +1,3 @@
 # USSF GRC Controls
 
-# Team Working Agreement : [Team Working Agreemen t](documentation/TeamWorkingAgreement.md)
+### Team Working Agreement : [Team Working Agreement](documentation/Fall2024/TeamWorkingAgreement.md)
