@@ -1,4 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Image</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <style>
 
-<!-- app/views/tags/show.html.erb -->
-<h1>Tag: <%= @tag %></h1>
-<!-- Add additional details about the tag here -->
+      h1 {
+          font-size: 36px;
+          font-family: 'Times', serif;
+      }
+
+      .btn {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s; /* Smooth transition on hover */
+      }
+      .btn:hover {
+          background-color: #45a049;
+      }
+      .header {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px; /* Space between buttons */
+          margin: 10px;
+      }
+      .top-left-image {
+          position: absolute; /* Positioning the logo */
+          top: 20px; /* Adjust the position */
+          left: 20px; /* Adjust the position */
+      }
+
+      hr {
+          border: none; /* Remove default border */
+          height: 2px; /* Height of the line */
+          background-color: #ccc; /* Color of the line */
+          margin: 10px 0; /* Spacing around the line */
+      }
+
+      .container {
+          display: flex;
+          flex-direction: column;
+          padding: 8%;
+      }
+
+      .title {
+          padding-left: 5%;
+      }
+      .info-container {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding-top: 2%
+      }
+
+      .info-box {
+          border: 1px solid #ccc;
+          padding: 10px;
+          margin-bottom: 20px;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          background-color: #E9E1E5;
+      }
+
+      .info-box label {
+          font-weight: bold;
+      }
+      .report-button {
+          background-color: #333; /* Adjust the background color as needed */
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 16px;
+          width: 200px;
+          padding: 1.3%;
+          margin-left: 2%;
+          margin-top: 2%;
+      }
+  </style>
+</head>
+<body>
+  <div class="top-left-image">
+    <%= image_tag "ussf_logo.png", alt: "Logo", class: "logo" %>
+  </div>
+
+  <div class="header">
+    <button id="profileBtn" class="btn btn-profile">Profile</button>
+  </div>
+
+  <div class="container">
+    <h1 class="title"><%= @tag %></h1>
+    <hr>
+    <div class="info-container">
+      <div class="info-box">
+        <label>URL:</label>
+        <p>https://image</p>
+      </div>
+      <div class="info-box">
+        <label>Version:</label>
+        <p>1.1.1</p>
+      </div>
+      <div class="info-box">
+        <label>Description:</label>
+        <p>My First Image</p>
+      </div>
+      <button class="report-button">View GRC Report</button>
+    </div>
+  </div>
+
+
+
+
+</body>
+</html>
