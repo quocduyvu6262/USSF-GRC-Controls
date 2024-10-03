@@ -9,6 +9,7 @@
 #   end
 # Create run_time_objects associated with users
 me = User.find_by(email: "maitreya.niranjan@gmail.com")
+puts me.inspect  # This will output the user or nil if not found
 
 
 run_time_objects = RunTimeObject.create!([
@@ -37,19 +38,19 @@ run_time_objects = RunTimeObject.create!([
 # Create images associated with run_time_objects
 Image.create!([
   {
-    tag: "tag_1",
+    tag: "image 1",
     report: "This is a report for image 1.",
     run_time_object_id: run_time_objects[0].id
   },
   {
-    tag: "tag_2",
+    tag: "image 2",
     report: "This is a report for image 2.",
-    run_time_object_id: run_time_objects[1].id
+    run_time_object_id: run_time_objects[0].id
   },
   {
-    tag: "tag_3",
+    tag: "image 3",
     report: "This is a report for image 3.",
-    run_time_object_id: run_time_objects[2].id
+    run_time_object_id: run_time_objects[0].id
   }
 ])
 

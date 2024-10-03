@@ -80,6 +80,20 @@
     </div>
   </div>
 
+  <div>
+  <h2>Images for Run Time Objects</h2>
+  <% if @image_list.present? %>
+    <% @image_list.each do |image| %>
+      <div class="image-item">
+        <p><strong>Tag:</strong> <%= link_to image.tag, tag_path(image.tag) %></p>
+        <hr>
+      </div>
+    <% end %>
+  <% else %>
+    <p>No images found for this user's Run Time Objects.</p>
+  <% end %>
+</div>
+
   <script>
     // Get the modal
     var modal = document.getElementById("myModal");
