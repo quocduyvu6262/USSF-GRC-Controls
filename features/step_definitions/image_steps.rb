@@ -54,8 +54,8 @@ When('I select {string} from the {string}') do |option, dropdown|
   select option, from: dropdown
 end
 
-When('I click the {string} button') do |button_text|
-  click_button button_text
+When('I click {string} button') do |button_text|
+  click_on button_text
 end
 
 Then('I should see {string}') do |arg|
@@ -64,4 +64,8 @@ end
 
 Then('I should be on the image details page with title {string}') do |content|
   expect(page).to have_content(content)
+end
+
+Then('I should be on the images page') do
+  visit root_path
 end

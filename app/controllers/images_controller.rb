@@ -27,7 +27,7 @@ class ImagesController < ApplicationController
     if @image.save  # Try to save the image
       redirect_to @image, notice: "Image was successfully scanned."  # Redirect on success
     else
-      render :new  # Render the new template if there are validation errors
+      redirect_to new_image_path  # Render the new template if there are validation errors
     end
   end
 

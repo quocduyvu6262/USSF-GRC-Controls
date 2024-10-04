@@ -16,6 +16,6 @@ Feature: search for movies by director
     Then I should see the title "New Image"
     When I fill in "Image Name" with "alpine"
     And I select "Object 1" from the "Select Run Time Object"
-    And I click the "Submit" button
+    And I click "Submit" button
     Then I should see "Image was successfully scanned."
     Then I should be on the image details page with title "alpine"

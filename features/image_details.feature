@@ -15,3 +15,5 @@ Scenario: Viewing image details
   When I go to the details page for "image 1"
   Then I should see the title "image 1"
   Then I should see the report button "View GRC Report"
+  When I click "Go back" button
+  Then I should be on the images page
