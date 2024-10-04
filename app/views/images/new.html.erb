@@ -112,25 +112,14 @@
       <h1>New Image</h1>
       <div class="form-container">
         <div class="form-group">
-          <%= form.label :name, "Image Name" %>
-          <%= form.text_field :name, class: "form-control" %>
+          <%= form.label :tag, "Image Name" %>
+          <%= form.text_field :tag, class: "form-control" %>
         </div>
 
         <div class="form-group">
-          <%= form.label :version, "Version" %>
-          <%= form.text_field :version, class: "form-control" %>
-        </div>
-
-        <div class="form-group">
-          <%= form.label :url, "URL" %>
-          <%= form.text_field :url, class: "form-control" %>
-        </div>
-
-        <div class="form-group">
-          <%= form.label :description, "Description" %>
-          <%= form.text_area :description, class: "form-control" %>
-        </div>
-
+        <%= form.label :run_time_object_id, "Select Run Time Object" %>
+        <%= form.collection_select :run_time_object_id, RunTimeObject.all, :id, :name, prompt: 'Select a Run Time Object', class: "form-control" %>
+      </div>
         <div class="actions">
           <%= form.submit "Submit", class: "btn btn-profile" %>
           <%= link_to "Go back", user_path(@user)%>
