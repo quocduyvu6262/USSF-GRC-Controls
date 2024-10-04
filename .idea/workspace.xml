@@ -5,10 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9f6bfda9-8f1d-4176-9ca3-5305bfafd620" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/features/image_details.feature" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/features/new_image.feature" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/features/step_definitions/image_details_steps.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/images/show.html.erb" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/images/show.html.erb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views/users/show.html.erb" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/users/show.html.erb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes.rb" beforeDir="false" afterPath="$PROJECT_DIR$/config/routes.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coverage/.resultset.json" beforeDir="false" afterPath="$PROJECT_DIR$/coverage/.resultset.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coverage/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/coverage/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/features/image_details.feature" beforeDir="false" afterPath="$PROJECT_DIR$/features/image_details.feature" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/features/step_definitions/image_details_steps.rb" beforeDir="false" afterPath="$PROJECT_DIR$/features/step_definitions/image_details_steps.rb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +47,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "dev",
+    "git-widget-placeholder": "image-test",
     "last_opened_file_path": "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/models",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -173,7 +177,9 @@
       <workItem from="1727755031776" duration="1685000" />
       <workItem from="1727896829833" duration="16870000" />
       <workItem from="1727976522625" duration="2877000" />
-      <workItem from="1727979415865" duration="21981000" />
+      <workItem from="1727979415865" duration="22558000" />
+      <workItem from="1728063018966" duration="315000" />
+      <workItem from="1728063336907" duration="647000" />
     </task>
     <servers />
   </component>
