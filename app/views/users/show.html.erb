@@ -7,18 +7,23 @@
     z-index: 1; /* Sit on top */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
 }
+
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 90vw; /* Optional: Restrict maximum size */
+    max-height: 90vh; /* Optional: Restrict maximum size */
+    overflow: auto; /* Enable scroll inside modal if content overflows */
+    width: auto; /* Width adapts to content */
+    height: auto; /* Height adapts to content */
 }
 .close {
     color: #aaa;
@@ -28,7 +33,7 @@
 }
 .close:hover,
 .close:focus {
-    color: black;
+    color: #FF0000;
     text-decoration: none;
     cursor: pointer;
 }
@@ -40,23 +45,73 @@
     gap: 10px; /* Space between buttons */
     margin: 10px;
 }
-.btn {
-    padding: 10px 15px; /* Add some padding */
-    border: none;
-    border-radius: 5px; /* Rounded corners */
-    color: white;
-    cursor: pointer;
-    font-size: 16px; /* Larger font size */
-}
+
 .btn-profile {
     background-color: #4CAF50; /* Green background */
+    color: white; /* Text color */
+    padding: 10px 20px; /* Padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition */
 }
+
+.btn-profile:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
 .btn-logout {
+    text-decoration: none; /* Remove underline */
     background-color: #f44336; /* Red background */
+    color: white; /* Text color */
+    padding: 10px 20px; /* Padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition */
 }
+
+.btn-logout:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
 .btn-create {
-    background-color: #008CBA; /* Blue background (for the Create Image button) */
+    background-color: #008CBA; /* Blue background */
+    color: white; /* Text color */
+    padding: 10px 20px; /* Padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition */
 }
+
+.btn-create:hover {
+    background-color: #007bb5; /* Darker blue on hover */
+}
+
+.image-list {
+    display: block;
+    padding: 20px;
+    text-align: center; /* Center the entire list */
+}
+
+.image-tile {
+    display: flex;
+    background-color: #fffafa;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: left;
+    width: 50%; /* Adjust the width to make the tiles smaller */
+    margin: 0 auto 20px auto; /* Center the tile horizontally */
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+.image-tile:hover {
+    background-color: #f9f9f9; /* Correct hover effect */
+}
+
 </style>
 
 <body>
@@ -80,19 +135,21 @@
     </div>
   </div>
 
-  <div>
-  <h2>Images for Run Time Objects</h2>
-  <% if @image_list.present? %>
-    <% @image_list.each do |image| %>
-      <div class="image-item">
-        <p><strong>Tag:</strong> <%= link_to image.tag, tag_path(image.tag) %></p>
-        <hr>
-      </div>
-    <% end %>
-  <% else %>
-    <p>No images found for this user's Run Time Objects.</p>
-  <% end %>
-</div>
+	<div class="image-list">
+		<h2>Images for Run Time Objects</h2>
+		<% if @image_list.present? %>
+			<% @image_list.each do |image| %>
+			<div class="image-tile">
+				<div class="image-content">
+						<p><strong>Tag:</strong> <%= link_to image.tag, tag_path(image.tag) %></p>
+				</div>
+			</div>
+		<% end %>
+		<% else %>
+			<p>No images found for this user's Run Time Objects.</p>
+		<% end %>
+	</div>
+
 
   <script>
     // Get the modal
@@ -106,7 +163,7 @@
 
     // When the user clicks the button, open the modal 
     btn.onclick = function() {
-      modal.style.display = "block";
+      modal.style.display = "flex";
     }
 
     // When the user clicks on <span> (x), close the modal
