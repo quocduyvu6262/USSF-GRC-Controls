@@ -15,6 +15,7 @@
       <change beforePath="$PROJECT_DIR$/coverage/.last_run.json" beforeDir="false" afterPath="$PROJECT_DIR$/coverage/.last_run.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coverage/.resultset.json" beforeDir="false" afterPath="$PROJECT_DIR$/coverage/.resultset.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coverage/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/coverage/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/features/image_details.feature" beforeDir="false" afterPath="$PROJECT_DIR$/features/image_details.feature" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/features/new_image.feature" beforeDir="false" afterPath="$PROJECT_DIR$/features/new_image.feature" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/spec/controllers/images_controller_spec.rb" beforeDir="false" afterPath="$PROJECT_DIR$/spec/controllers/images_controller_spec.rb" afterDir="false" />
     </list>
@@ -194,7 +195,7 @@
       <workItem from="1728063018966" duration="315000" />
       <workItem from="1728063336907" duration="8946000" />
       <workItem from="1728079849436" duration="812000" />
-      <workItem from="1728080667722" duration="93000" />
+      <workItem from="1728080667722" duration="737000" />
     </task>
     <servers />
   </component>

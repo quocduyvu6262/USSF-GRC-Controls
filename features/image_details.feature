@@ -1,4 +1,4 @@
-Feature: search for movies by director
+Feature: Viewing image
 
   As a user
   I want to view the details of an image

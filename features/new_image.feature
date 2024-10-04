@@ -1,4 +1,4 @@
-Feature: search for movies by director
+Feature: Create a new image
 
   As a user
   I want to create a new image
