@@ -21,6 +21,7 @@
 /tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
+/.idea
 
 # Ignore storage (uploaded files in development and any SQLite databases).
 /storage/*
@@ -33,3 +34,5 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+.DS_Store

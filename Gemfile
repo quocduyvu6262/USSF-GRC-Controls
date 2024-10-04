@@ -74,6 +74,8 @@ group :test do
   gem "rspec-rails"
   gem "simplecov", require: false
   gem "ZenTest"
+  gem "omniauth"
+  gem "omniauth-test"
 end
 
 group :production do

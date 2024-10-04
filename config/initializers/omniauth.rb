@@ -9,4 +9,9 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     image_aspect_ratio: "square", # Ensures the profile picture is a square.
     image_size: 50 # Sets the profile picture size to 50x50 pixels.
   }
+
+  # #If user clicks on cancel during sign, it will redirect user to index page
+  OmniAuth.config.on_failure = Proc.new { |env|
+  OmniAuth::FailureEndpoint.new(env).redirect_to_failure
+}
 end

@@ -1,24 +1,21 @@
-# README
+# USSF GRC Controls
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### Team Working Agreement : [Team Working Agreement](documentation/Fall2024/TeamWorkingAgreement.md)
 
-Things you may want to cover:
 
-* Ruby version
+Custom Buildpack for installing trivy : [GitHub](https://github.com/tamu-edu-students/buildpack-trivy) 
 
-* System dependencies
+Buildpacks installs `trivy` for scanning container images in addition to depenedencies listed in Gemfile. [Documentation]()
+### Start the deployment to heroku 
 
-* Configuration
+1. heroku login 
+2. git init && git add . && git commit -m "initial commit"
+3. heroku create <app-name>
+4. heroku buildpacks:set heroku/ruby --index 1 <app-name>
+5. heroku buildpacks:add https://github.com/tamu-edu-students/buildpack-trivy --index 2  -a <app-name>
+6. git push heroku master
 
-* Database creation
+## updates tp application 
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+1. verify heroku - git remote -v 
+2. git add . && git commit -m "commit message" && git push heroku master 
