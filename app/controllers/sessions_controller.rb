@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  skip_before_action :require_login, only: [:omniauth, :failure]
+  skip_before_action :require_login, only: [ :omniauth, :failure ]
   # GET /logout
   def logout
     reset_session
@@ -8,12 +8,11 @@ class SessionsController < ApplicationController
 
   # GET /auth/google_oauth2/callback
   def omniauth
-
     if params[:error] == "access_denied"
       redirect_to welcome_path
       return
     end
-    
+
     auth = request.env["omniauth.auth"]
     @user = User.find_or_create_by(uid: auth["uid"], provider: auth["provider"]) do |u|
       u.email = auth["info"]["email"]

@@ -25,7 +25,7 @@ class ImagesController < ApplicationController
     @image = Image.new(image_params)
     @image.report = `trivy image python:3.4-alpine 2>&1`
     if @image.save  # Try to save the image
-      redirect_to @image, notice: 'Image was successfully scanned.'  # Redirect on success
+      redirect_to @image, notice: "Image was successfully scanned."  # Redirect on success
     else
       render :new  # Render the new template if there are validation errors
     end
@@ -63,6 +63,6 @@ class ImagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def image_params
-      params.require(:image).permit(:tag, :run_time_object_id ,:created_at, :updated_at)
+      params.require(:image).permit(:tag, :run_time_object_id, :created_at, :updated_at)
     end
 end

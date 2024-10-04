@@ -255,17 +255,142 @@
         }
       }
     },
-    "timestamp": 1728065476
+    "timestamp": 1728066614
   },
   "RSpec": {
     "coverage": {
-      "/home/maitreya/se/project/USSF-CSCE606/app/helpers/application_helper.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/helpers/application_helper.rb": {
         "lines": [
           1,
           null
         ]
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/models/run_time_object.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/helpers/images_helper.rb": {
+        "lines": [
+          1,
+          null
+        ]
+      },
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/controllers/images_controller.rb": {
+        "lines": [
+          1,
+          1,
+          null,
+          null,
+          1,
+          0,
+          null,
+          null,
+          1,
+          0,
+          0,
+          null,
+          null,
+          1,
+          0,
+          0,
+          null,
+          null,
+          null,
+          1,
+          null,
+          null,
+          null,
+          1,
+          1,
+          1,
+          1,
+          1,
+          null,
+          0,
+          null,
+          null,
+          null,
+          null,
+          1,
+          0,
+          0,
+          0,
+          0,
+          null,
+          0,
+          0,
+          null,
+          null,
+          null,
+          null,
+          null,
+          1,
+          0,
+          null,
+          0,
+          0,
+          0,
+          null,
+          null,
+          null,
+          1,
+          null,
+          1,
+          0,
+          null,
+          null,
+          null,
+          null,
+          1,
+          1,
+          null,
+          null
+        ]
+      },
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/controllers/application_controller.rb": {
+        "lines": [
+          1,
+          null,
+          null,
+          1,
+          null,
+          1,
+          null,
+          1,
+          null,
+          1,
+          null,
+          null,
+          null,
+          1,
+          null,
+          null,
+          1,
+          null,
+          null,
+          1,
+          null,
+          null,
+          1,
+          null,
+          1,
+          0,
+          null,
+          null,
+          null
+        ]
+      },
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/models/image.rb": {
+        "lines": [
+          1,
+          1,
+          null
+        ]
+      },
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/models/application_record.rb": {
+        "lines": [
+          1,
+          1,
+          null
+        ]
+      },
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/models/run_time_object.rb": {
         "lines": [
           1,
           1,
@@ -273,14 +398,15 @@
           null
         ]
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/models/application_record.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/models/user.rb": {
         "lines": [
+          1,
           1,
           1,
           null
         ]
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/channels/application_cable/channel.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/channels/application_cable/channel.rb": {
         "lines": [
           0,
           0,
@@ -290,7 +416,7 @@
         "branches": {
         }
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/channels/application_cable/connection.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/channels/application_cable/connection.rb": {
         "lines": [
           0,
           0,
@@ -300,32 +426,40 @@
         "branches": {
         }
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/application_controller.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/controllers/sessions_controller.rb": {
         "lines": [
           0,
-          null,
           0,
           null,
           0,
-          null,
-          0,
-          null,
-          0,
-          null,
-          null,
-          null,
           0,
           0,
-          null,
           0,
           null,
           null,
           0,
+          null,
+          0,
+          0,
+          0,
           0,
           null,
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
           null,
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          null,
           0,
           0,
           0,
@@ -334,28 +468,8 @@
         "branches": {
         }
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/sessions_controller.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/controllers/users_controller.rb": {
         "lines": [
-          0,
-          null,
-          0,
-          null,
-          0,
-          0,
-          0,
-          0,
-          null,
-          null,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          null,
-          0,
           0,
           0,
           0,
@@ -367,21 +481,9 @@
         "branches": {
         }
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/users_controller.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/controllers/welcome_controller.rb": {
         "lines": [
           0,
-          0,
-          0,
-          0,
-          0
-        ],
-        "branches": {
-        }
-      },
-      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/welcome_controller.rb": {
-        "lines": [
-          0,
-          null,
           0,
           0,
           0,
@@ -393,7 +495,7 @@
         "branches": {
         }
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/jobs/application_job.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/jobs/application_job.rb": {
         "lines": [
           0,
           null,
@@ -406,26 +508,7 @@
         "branches": {
         }
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/mailers/application_mailer.rb": {
-        "lines": [
-          0,
-          0,
-          0,
-          0
-        ],
-        "branches": {
-        }
-      },
-      "/home/maitreya/se/project/USSF-CSCE606/app/models/image.rb": {
-        "lines": [
-          0,
-          0,
-          0
-        ],
-        "branches": {
-        }
-      },
-      "/home/maitreya/se/project/USSF-CSCE606/app/models/user.rb": {
+      "/Users/duyvuquoc/RubymineProjects/USSF-CSCE606/app/mailers/application_mailer.rb": {
         "lines": [
           0,
           0,
@@ -436,6 +519,6 @@
         }
       }
     },
-    "timestamp": 1727970845
+    "timestamp": 1728066608
   }
 }

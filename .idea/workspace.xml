@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9f6bfda9-8f1d-4176-9ca3-5305bfafd620" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/spec/controllers/images_controller_spec.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/views/images/show.html.erb" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/images/show.html.erb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/views/users/show.html.erb" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/users/show.html.erb" afterDir="false" />
@@ -180,7 +181,7 @@
       <workItem from="1727976522625" duration="2877000" />
       <workItem from="1727979415865" duration="22558000" />
       <workItem from="1728063018966" duration="315000" />
-      <workItem from="1728063336907" duration="2149000" />
+      <workItem from="1728063336907" duration="3280000" />
     </task>
     <servers />
   </component>

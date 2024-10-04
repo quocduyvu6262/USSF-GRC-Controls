@@ -22,7 +22,7 @@ Rails.application.routes.draw do
 
   get "/logout", to: "sessions#logout", as: "logout"
   get "/auth/google_oauth2/callback", to: "sessions#omniauth"
-  get "/auth/failure", to: 'sessions#failure', as:"failure"
+  get "/auth/failure", to: "sessions#failure", as: "failure"
 
 
   resources :images
