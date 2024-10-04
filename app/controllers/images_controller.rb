@@ -16,7 +16,7 @@ class ImagesController < ApplicationController
     @user = current_user
     @image_report = @image.report  # This will be displayed as HTML in the view
   end
-  
+
 
   def new
     @user = current_user
@@ -42,21 +42,21 @@ class ImagesController < ApplicationController
   def create
     @user = current_user  # Ensure @user is set
     @image = Image.new(image_params)
-  
+
     # Fetch the image name from the tag (which is provided as a URL field input)
     image_name = params[:image][:tag]
-  
+
     # Perform trivy scan for the image from URL
     @image.report = `trivy image #{image_name} 2>&1` # Run trivy scan on the provided image name
     puts @image.report
-  
+
     if @image.save
       redirect_to @image
     else
       redirect_to new_image_path
     end
   end
-  
+
 
   # PATCH/PUT /images/1 or /images/1.json
   def update
