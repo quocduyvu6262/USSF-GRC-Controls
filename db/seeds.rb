@@ -8,9 +8,10 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 # Create run_time_objects associated with users
-me = User.find_by(email: "quocduyvu6262@gmail.com")
+me = User.find_by(email: "maitreya.niranjan@gmail.com")
 puts me.inspect  # This will output the user or nil if not found
-
+RunTimeObject.destroy_all
+Image.destroy_all
 
 run_time_objects = RunTimeObject.create!([
   {
