@@ -7,34 +7,30 @@ When("I click on the {string} button") do |button|
 end
 
 When("I authorize the application on Google's consent screen") do
-  OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
-                                                                     provider: 'google_oauth2',
-                                                                     uid: '123456789',
-                                                                     info: {
-                                                                       email: 'test@example.com',
-                                                                       first_name: 'John',
-                                                                       last_name: 'Doe',
-                                                                       name: 'John Doe'
-                                                                     },
-                                                                     credentials: {
-                                                                       token: 'mock_token',
-                                                                       refresh_token: 'mock_refresh_token',
-                                                                       expires_at: Time.now + 1.week
-                                                                     }
-                                                                   })
+  mock_auth_hash(valid: true)
   visit '/auth/google_oauth2/callback'
 end
 
-Then("I am on the user page") do
-  puts page
+Then("I should be redirected to the user page") do
   expect(page).to have_content("Name: John Doe")
 end
 
 When("I authorize the application with invalid credentials") do
-  OmniAuth.config.mock_auth[:google_oauth2] = :invalid_credentials
+  mock_auth_hash(valid: false)
   visit '/auth/google_oauth2/callback'
 end
 
-Then("I should be redirected to the home page") do
+Then("I should be redirected to the index page") do
+  visit root_path
+end
+
+Given("I have successfully logged in") do
+  visit root_path
+  click_on "Login with Google"
+  mock_auth_hash(valid: true)
+  visit '/auth/google_oauth2/callback'
+end
+
+When("I visit the index page") do
   visit root_path
 end
