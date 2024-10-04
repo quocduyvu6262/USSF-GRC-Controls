@@ -14,3 +14,4 @@ Scenario: Viewing image details
   Given I am logged in
   When I go to the details page for "image 1"
   Then I should see the title "image 1"
+  Then I should see the report button "View GRC Report"

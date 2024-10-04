@@ -38,3 +38,7 @@ end
 Then('I should see the title {string}') do |string|
   expect(page).to have_content(string)
 end
+
+Then('I should see the report button {string}') do |string|
+  expect(page).to have_content(string)
+end
