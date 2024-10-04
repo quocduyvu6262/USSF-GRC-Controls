@@ -58,4 +58,64 @@ RSpec.describe ImagesController, type: :controller do
       }.to change(Image, :count).by(-1)
     end
   end
+  ######
+  describe "create with dynamic image name" do
+    it 'scans the image based on dynamic tag provided' do
+      allow(controller).to receive(:`).and_return("Mock scan result")
+      post :create, params: { image: { tag: 'python:3.4-alpine', run_time_object_id: run_time_object.id } }
+      expect(assigns(:image).report).to eq("Mock scan result")
+    end
+    it 'redirects to right page' do
+      allow(controller).to receive(:`).and_return("Mock scan result")
+      post :create, params: { image: { tag: 'python:3.4-alpine', run_time_object_id: run_time_object.id } }
+      expect(response).to redirect_to(Image.last)
+    end
+  end
+
+  describe "show" do
+    it "displays the report for a scanned image" do
+      image = Image.create(tag: "python:3.4-alpine", report: "Mock scan result", run_time_object: run_time_object)
+      get :show, params: { id: image.id }
+      expect(assigns(:image_report)).to eq(image.report)
+    end
+
+    it "response is successful" do
+      image = Image.create(tag: "python:3.4-alpine", report: "Mock scan result", run_time_object: run_time_object)
+      get :show, params: { id: image.id }
+      expect(response).to be_successful
+    end
+  end
+
+  describe "create without running scan" do
+    it 'creates image without running a scan' do
+      allow(controller).to receive(:`).and_return(nil)  # No scan is performed
+      post :create, params: { image: { tag: 'ubuntu:latest', run_time_object_id: run_time_object.id } }
+      expect(assigns(:image).report).to be_nil
+    end
+    it 'redirects to right page' do
+      allow(controller).to receive(:`).and_return(nil)  # No scan is performed
+      post :create, params: { image: { tag: 'ubuntu:latest', run_time_object_id: run_time_object.id } }
+      expect(response).to redirect_to(Image.last)
+    end
+  end
+
+  describe "new" do
+    it "sets the correct user for new action" do
+      get :new
+      expect(assigns(:user)).to eq(user)
+    end
+
+    it "renders the new template" do
+      get :new
+      expect(response).to render_template(:new)
+    end
+  end
+
+  describe "response formats" do
+    it "returns HTML format for show" do
+      image = Image.create(tag: "python:3.4-alpine", report: "Mock scan result", run_time_object: run_time_object)
+      get :show, params: { id: image.id }, format: :html
+      expect(response.content_type).to eq("text/html; charset=utf-8")
+    end
+  end
 end
