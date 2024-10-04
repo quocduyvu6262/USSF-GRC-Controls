@@ -128,29 +128,61 @@
       <!-- Add other user details as needed -->
     </div>
   </div>
+#####
+    <div class="container" style="width: 100%; padding: 20px;">
+      <h1 class="title"><%= @tag %></h1>
+      <hr>
+      <div class="info-container">
+        <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+          <label>URL:</label>
+          <p>https://image</p>
+        </div>
+        <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+          <label>Version:</label>
+          <p>1.1.1</p>
+        </div>
+        <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+          <label>Description:</label>
+          <p>My First Image</p>
+        </div>
 
-  <div class="container">
-    <h1 class="title"><%= @image.tag %></h1>
-    <hr>
-    <div class="info-container">
-      <div class="info-box">
-        <label>URL:</label>
-        <p>https://image</p>
-      </div>
-      <div class="info-box">
-        <label>Version:</label>
-        <p>1.1.1</p>
-      </div>
-      <div class="info-box">
-        <label>Description:</label>
-        <p>My First Image</p>
-      </div>
-      <div class="btn-container">
-        <button class="report-button">View GRC Report</button>
-        <%= link_to "Go back", user_path(@user)%>
+        <!-- Add a button to toggle the visibility of the scan report -->
+        <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+          <button id="showReportBtn" class="btn report-button" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Show Report</button>
+        </div>
+
+        <!-- Scan report, initially hidden, revealed when the button is clicked -->
+        <div id="scanReport" class="info-box" style="display: none; background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+          <label>Scan Report:</label>
+          <pre style="white-space: pre-wrap; word-wrap: break-word; background-color: #fff; border: 1px solid #ddd; padding: 10px; width: 100%;"> <%= raw @image_report %> </pre>
+        </div>
+
+        <div class="btn-container" style="margin-top: 20px;">
+          <%= link_to "Go back", user_path(@user), class: "btn btn-profile", style: "background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;" %>
+        </div>
       </div>
     </div>
-  </div>
+
+    <script>
+      // Get the button and the report element
+      var showReportBtn = document.getElementById('showReportBtn');
+      var scanReport = document.getElementById('scanReport');
+
+      // Toggle the display of the scan report when the button is clicked
+      showReportBtn.onclick = function() {
+        if (scanReport.style.display === "none") {
+          scanReport.style.display = "block";
+          showReportBtn.textContent = "Hide Report";  // Change button text to "Hide Report"
+        } else {
+          scanReport.style.display = "none";
+          showReportBtn.textContent = "Show Report";  // Change button text back to "Show Report"
+        }
+      }
+    </script>
+
+
+
+#####
 
   <script>
       // Get the modal
