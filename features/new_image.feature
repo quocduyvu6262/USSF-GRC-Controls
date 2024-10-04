@@ -11,7 +11,7 @@ Feature: Create a new image
       | hello-world     | None      | 1                   |
 
   Scenario: Create a new image
-    Given I am logged in
+    Given I have successfully logged in
     When I go to new image page
     Then I should see the title "New Image"
     When I fill in "Image Name" with "alpine"
