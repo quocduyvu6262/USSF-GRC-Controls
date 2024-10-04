@@ -120,7 +120,7 @@
   </div>
   <div class="header">
     <button id="profileBtn" class="btn btn-profile">Profile</button>
-    <button id="createImageBtn" class="btn btn-create">Create Image</button>
+    <%= link_to "Create Image", new_tag_path, class: "btn btn-create" %>
     <%= link_to "Logout", logout_path, class: "btn btn-logout" %>
   </div>
 
