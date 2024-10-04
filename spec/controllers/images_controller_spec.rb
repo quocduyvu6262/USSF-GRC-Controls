@@ -23,7 +23,6 @@ RSpec.describe ImagesController, type: :controller do
         run_time_object_id: run_time_object.id
       } }
       expect(response).to redirect_to(Image.last)
-      expect(flash[:notice]).to match('Image was successfully scanned')
     end
 
     it 'creates image with invalid parameters' do

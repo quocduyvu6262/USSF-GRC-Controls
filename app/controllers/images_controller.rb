@@ -51,9 +51,9 @@ class ImagesController < ApplicationController
     puts @image.report
   
     if @image.save
-      redirect_to @image, notice: 'Image was successfully scanned and report generated.'
+      redirect_to @image
     else
-      render :new
+      redirect_to new_image_path
     end
   end
   

@@ -128,9 +128,8 @@
       <!-- Add other user details as needed -->
     </div>
   </div>
-#####
     <div class="container" style="width: 100%; padding: 20px;">
-      <h1 class="title"><%= @tag %></h1>
+      <h1 class="title"><%= @image.tag %></h1>
       <hr>
       <div class="info-container">
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
@@ -148,7 +147,7 @@
 
         <!-- Add a button to toggle the visibility of the scan report -->
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-          <button id="showReportBtn" class="btn report-button" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Show Report</button>
+          <button id="showReportBtn" class="btn report-button" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">View GRC Report</button>
         </div>
 
         <!-- Scan report, initially hidden, revealed when the button is clicked -->
@@ -179,10 +178,6 @@
         }
       }
     </script>
-
-
-
-#####
 
   <script>
       // Get the modal
