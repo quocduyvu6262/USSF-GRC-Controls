@@ -22,4 +22,5 @@ Rails.application.routes.draw do
 
   get "/logout", to: "sessions#logout", as: "logout"
   get "/auth/google_oauth2/callback", to: "sessions#omniauth"
+  resources :tags, only: [ :show, :new, :create ]  # This creates a show route for tags
 end
