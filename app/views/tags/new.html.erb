@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Image</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <style>
+      .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 8%;
+      }
+      .logo {
+          width: 100px;
+          height: auto;
+      }
+      h1 {
+          font-size: 36px;
+          font-family: 'Times', serif;
+          text-align: center; /* Center the header text */
+      }
+      .form-group {
+          margin-bottom: 15px;
+      }
+      .form-container {
+          border: 1px solid #ccc;
+          border-radius: 15px;
+          background-color: #fff;
+          padding: 50px;
+          display: flex;
+          flex-direction: column;
+          align-content: flex-start;
+      }
+      .form-control {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+      }
+      .btn {
+          padding: 10px 15px; /* Add some padding */
+          border: none;
+          border-radius: 5px; /* Rounded corners */
+          color: white;
+          cursor: pointer;
+          font-size: 16px; /* Larger font size */
+      }
+      .btn-profile {
+          background-color: #4CAF50; /* Green background */
+      }
+
+      .actions {
+          margin-top: 20px;
+          display: flex; /* Flexbox for actions */
+          justify-content: space-between; /* Space between buttons */
+      }
+      .header {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px; /* Space between buttons */
+          margin: 10px;
+      }
+      .top-left-image {
+          position: absolute; /* Positioning the logo */
+          top: 20px; /* Adjust the position */
+          left: 20px; /* Adjust the position */
+      }
+      .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 1; /* Sit on top */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      }
+      .modal-content {
+          background-color: #fefefe;
+          margin: 15% auto; /* 15% from the top and centered */
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%; /* Could be more or less, depending on screen size */
+      }
+  </style>
+</head>
+<body>
+  <div class="top-left-image">
+    <%= image_tag "ussf_logo.png", alt: "Logo", class: "ussf-logo"%>
+  </div>
+  <div class="header">
+    <button id="profileBtn" class="btn btn-profile">Profile</button>
+  </div>
+
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2>User Details</h2>
+      <p>Name: <%= @current_user.first_name %> <%= @current_user.last_name %></p>
+      <p>Email: <%= @current_user.email %></p>
+      <!-- Add other user details as needed -->
+    </div>
+  </div>
+
+  <%= form_with model: @image, local: true do |form| %>
+    <div class="container">
+      <h1>New Image</h1>
+      <div class="form-container">
+        <div class="form-group">
+          <%= form.label :name, "Image Name" %>
+          <%= form.text_field :name, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :version, "Version" %>
+          <%= form.text_field :version, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :url, "URL" %>
+          <%= form.text_field :url, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= form.label :description, "Description" %>
+          <%= form.text_area :description, class: "form-control" %>
+        </div>
+
+        <div class="actions">
+          <%= form.submit "Submit", class: "btn btn-profile" %>
+          <%= link_to "Go back", user_path(@user)%>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <script>
+      // Get the modal
+      var modal = document.getElementById("myModal");
+
+      // Get the button that opens the modal
+      var btn = document.getElementById("profileBtn");
+
+      // Get the <span> element that closes the modal
+      var span = document.getElementById("closeModal");
+
+      // When the user clicks the button, open the modal
+      btn.onclick = function() {
+          modal.style.display = "block";
+      }
+
+      // When the user clicks on <span> (x), close the modal
+      span.onclick = function() {
+          modal.style.display = "none";
+      }
+
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = function(event) {
+          if (event.target == modal) {
+              modal.style.display = "none";
+          }
+      }
+  </script>
+</body>
+</html>

@@ -1,19 +1,182 @@
-<h2>Howdy <%= @current_user.first_name %>!</h2>
-<div id="user-details">
-  <p>
-    <strong>Email:</strong>
-    <%= @current_user.email %>
-  </p>
 
-  <p>
-    <strong>First name:</strong>
-    <%= @current_user.first_name %>
-  </p>
+<style>
+/* Basic styling for the modal */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
 
-  <p>
-    <strong>Last name:</strong>
-    <%= @current_user.last_name %>
-  </p>
-</div>
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    max-width: 90vw; /* Optional: Restrict maximum size */
+    max-height: 90vh; /* Optional: Restrict maximum size */
+    overflow: auto; /* Enable scroll inside modal if content overflows */
+    width: auto; /* Width adapts to content */
+    height: auto; /* Height adapts to content */
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.close:hover,
+.close:focus {
+    color: #FF0000;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-<%= link_to "Logout", logout_path %>
+/* Button styles */
+.header {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px; /* Space between buttons */
+    margin: 10px;
+}
+
+.btn-profile {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* Text color */
+    padding: 10px 20px; /* Padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.btn-profile:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.btn-logout {
+    text-decoration: none; /* Remove underline */
+    background-color: #f44336; /* Red background */
+    color: white; /* Text color */
+    padding: 10px 20px; /* Padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.btn-logout:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+.btn-create {
+    background-color: #008CBA; /* Blue background */
+    color: white; /* Text color */
+    padding: 10px 20px; /* Padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.btn-create:hover {
+    background-color: #007bb5; /* Darker blue on hover */
+}
+
+.image-list {
+    display: block;
+    padding: 20px;
+    text-align: center; /* Center the entire list */
+}
+
+.image-tile {
+    display: flex;
+    background-color: #fffafa;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: left;
+    width: 50%; /* Adjust the width to make the tiles smaller */
+    margin: 0 auto 20px auto; /* Center the tile horizontally */
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+.image-tile:hover {
+    background-color: #f9f9f9; /* Correct hover effect */
+}
+
+</style>
+
+<body>
+  <div class="top-left-image">
+    <%= image_tag "ussf_logo.png", alt: "Logo", class: "ussf-logo"%>
+  </div>
+  <div class="header">
+    <button id="profileBtn" class="btn btn-profile">Profile</button>
+    <%= link_to "Create Image", new_tag_path, class: "btn btn-create" %>
+    <%= link_to "Logout", logout_path, class: "btn btn-logout" %>
+  </div>
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2>User Details</h2>
+      <p>Name: <%= @current_user.first_name %> <%= @current_user.last_name %></p>
+      <p>Email: <%= @current_user.email %></p>
+      <!-- Add other user details as needed -->
+    </div>
+  </div>
+
+	<div class="image-list">
+		<h2>Images for Run Time Objects</h2>
+		<% if @image_list.present? %>
+			<% @image_list.each do |image| %>
+			<div class="image-tile">
+				<div class="image-content">
+						<p><strong>Tag:</strong> <%= link_to image.tag, tag_path(image.tag) %></p>
+				</div>
+			</div>
+		<% end %>
+		<% else %>
+			<p>No images found for this user's Run Time Objects.</p>
+		<% end %>
+	</div>
+
+
+  <script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("profileBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementById("closeModal");
+
+    // When the user clicks the button, open the modal 
+    btn.onclick = function() {
+      modal.style.display = "flex";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
+</body>
+

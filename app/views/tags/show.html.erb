@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Image</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <style>
+
+      h1 {
+          font-size: 36px;
+          font-family: 'Times', serif;
+      }
+
+      .btn {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s; /* Smooth transition on hover */
+      }
+      .btn:hover {
+          background-color: #45a049;
+      }
+      .header {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px; /* Space between buttons */
+          margin: 10px;
+      }
+      .top-left-image {
+          position: absolute; /* Positioning the logo */
+          top: 20px; /* Adjust the position */
+          left: 20px; /* Adjust the position */
+      }
+
+      hr {
+          border: none; /* Remove default border */
+          height: 2px; /* Height of the line */
+          background-color: #ccc; /* Color of the line */
+          margin: 10px 0; /* Spacing around the line */
+      }
+
+      .container {
+          display: flex;
+          flex-direction: column;
+          padding: 8%;
+      }
+
+      .title {
+          padding-left: 2%;
+      }
+      .info-container {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding-top: 2%
+      }
+
+      .info-box {
+          border: 1px solid #ccc;
+          padding: 10px;
+          margin-bottom: 20px;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          background-color: #E9E1E5;
+      }
+
+      .info-box label {
+          font-weight: bold;
+      }
+      .btn-container {
+          display: flex;
+          flex-direction: column;
+          margin-left: 2%;
+          margin-top: 2%;
+          gap: 10px;
+      }
+      .report-button {
+          background-color: #333; /* Adjust the background color as needed */
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 16px;
+          width: 200px;
+          padding: 1.3%;
+      }
+      .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 1; /* Sit on top */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      }
+      .modal-content {
+          background-color: #fefefe;
+          margin: 15% auto; /* 15% from the top and centered */
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%; /* Could be more or less, depending on screen size */
+      }
+  </style>
+</head>
+<body>
+  <div class="top-left-image">
+    <%= image_tag "ussf_logo.png", alt: "Logo", class: "logo" %>
+  </div>
+
+  <div class="header">
+    <button id="profileBtn" class="btn btn-profile">Profile</button>
+  </div>
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2>User Details</h2>
+      <p>Name: <%= @current_user.first_name %> <%= @current_user.last_name %></p>
+      <p>Email: <%= @current_user.email %></p>
+      <!-- Add other user details as needed -->
+    </div>
+  </div>
+
+  <div class="container">
+    <h1 class="title"><%= @tag %></h1>
+    <hr>
+    <div class="info-container">
+      <div class="info-box">
+        <label>URL:</label>
+        <p>https://image</p>
+      </div>
+      <div class="info-box">
+        <label>Version:</label>
+        <p>1.1.1</p>
+      </div>
+      <div class="info-box">
+        <label>Description:</label>
+        <p>My First Image</p>
+      </div>
+      <div class="btn-container">
+        <button class="report-button">View GRC Report</button>
+        <%= link_to "Go back", user_path(@user)%>
+      </div>
+    </div>
+  </div>
+
+  <script>
+      // Get the modal
+      var modal = document.getElementById("myModal");
+
+      // Get the button that opens the modal
+      var btn = document.getElementById("profileBtn");
+
+      // Get the <span> element that closes the modal
+      var span = document.getElementById("closeModal");
+
+      // When the user clicks the button, open the modal
+      btn.onclick = function() {
+          modal.style.display = "block";
+      }
+
+      // When the user clicks on <span> (x), close the modal
+      span.onclick = function() {
+          modal.style.display = "none";
+      }
+
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = function(event) {
+          if (event.target == modal) {
+              modal.style.display = "none";
+          }
+      }
+  </script>
+
+
+</body>
+</html>
