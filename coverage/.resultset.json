@@ -194,6 +194,12 @@
           null
         ]
       },
+      "/home/maitreya/se/project/USSF-CSCE606/app/helpers/tags_helper.rb": {
+        "lines": [
+          1,
+          null
+        ]
+      },
       "/home/maitreya/se/project/USSF-CSCE606/app/models/run_time_object.rb": {
         "lines": [
           1,
@@ -206,6 +212,98 @@
         "lines": [
           1,
           1,
+          null
+        ]
+      },
+      "/home/maitreya/se/project/USSF-CSCE606/app/models/user.rb": {
+        "lines": [
+          1,
+          1,
+          1,
+          null
+        ]
+      },
+      "/home/maitreya/se/project/USSF-CSCE606/app/models/image.rb": {
+        "lines": [
+          1,
+          1,
+          null
+        ]
+      },
+      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/sessions_controller.rb": {
+        "lines": [
+          1,
+          1,
+          null,
+          1,
+          0,
+          0,
+          null,
+          null,
+          null,
+          1,
+          3,
+          3,
+          0,
+          0,
+          0,
+          0,
+          null,
+          null,
+          3,
+          3,
+          3,
+          null,
+          0,
+          null,
+          null,
+          null
+        ]
+      },
+      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/application_controller.rb": {
+        "lines": [
+          1,
+          null,
+          1,
+          null,
+          1,
+          null,
+          1,
+          null,
+          1,
+          null,
+          null,
+          null,
+          3,
+          null,
+          null,
+          1,
+          null,
+          null,
+          3,
+          null,
+          null,
+          1,
+          null,
+          3,
+          0,
+          null,
+          null,
+          null
+        ]
+      },
+      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/users_controller.rb": {
+        "lines": [
+          1,
+          1,
+          3,
+          3,
+          null,
+          3,
+          3,
+          3,
+          null,
+          null,
           null
         ]
       },
@@ -229,76 +327,15 @@
         "branches": {
         }
       },
-      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/application_controller.rb": {
+      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/tags_controller.rb": {
         "lines": [
-          0,
-          null,
-          0,
-          null,
-          0,
-          null,
-          0,
-          null,
-          0,
-          null,
-          null,
-          null,
-          0,
-          0,
-          null,
-          0,
-          null,
-          null,
-          0,
-          0,
-          null,
-          0,
-          null,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        "branches": {
-        }
-      },
-      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/sessions_controller.rb": {
-        "lines": [
-          0,
-          null,
-          0,
-          null,
-          0,
-          0,
-          0,
-          0,
-          null,
           null,
           0,
           0,
           0,
           0,
           0,
-          0,
-          0,
-          0,
           null,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
-        "branches": {
-        }
-      },
-      "/home/maitreya/se/project/USSF-CSCE606/app/controllers/users_controller.rb": {
-        "lines": [
-          0,
           0,
           0,
           0,
@@ -310,7 +347,6 @@
       "/home/maitreya/se/project/USSF-CSCE606/app/controllers/welcome_controller.rb": {
         "lines": [
           0,
-          null,
           0,
           0,
           0,
@@ -344,27 +380,8 @@
         ],
         "branches": {
         }
-      },
-      "/home/maitreya/se/project/USSF-CSCE606/app/models/image.rb": {
-        "lines": [
-          0,
-          0,
-          0
-        ],
-        "branches": {
-        }
-      },
-      "/home/maitreya/se/project/USSF-CSCE606/app/models/user.rb": {
-        "lines": [
-          0,
-          0,
-          0,
-          0
-        ],
-        "branches": {
-        }
       }
     },
-    "timestamp": 1727970845
+    "timestamp": 1728076504
   }
 }
