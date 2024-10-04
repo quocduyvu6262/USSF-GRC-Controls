@@ -15,11 +15,11 @@ Rails.application.routes.draw do
   #
   # # Defines the root path route ("/")
   # # root "posts#index"
-  root 'welcome#index'
-  get 'welcome/index', to: 'welcome#index', as: 'welcome'
+  root "welcome#index"
+  get "welcome/index", to: "welcome#index", as: "welcome"
 
-  get '/users/:id', to: 'users#show', as: 'user'
+  get "/users/:id", to: "users#show", as: "user"
 
-  get '/logout', to: 'sessions#logout', as: 'logout'
-  get '/auth/google_oauth2/callback', to: 'sessions#omniauth'
+  get "/logout", to: "sessions#logout", as: "logout"
+  get "/auth/google_oauth2/callback", to: "sessions#omniauth"
 end
