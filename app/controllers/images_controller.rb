@@ -40,7 +40,7 @@ class ImagesController < ApplicationController
   # end
 
   def create
-    #comment 
+    # comment
     @user = current_user  # Ensure @user is set
     @image = Image.new(image_params)
 

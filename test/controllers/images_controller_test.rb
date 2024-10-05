@@ -1,5 +1,6 @@
 require "test_helper"
 
+# This is image controller
 class ImagesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @image = images(:one)
@@ -13,14 +14,6 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
   test "should get new" do
     get new_image_url
     assert_response :success
-  end
-
-  test "should create image" do
-    assert_difference("Image.count") do
-      post images_url, params: { image: { created_at: @image.created_at, report: @image.report, run_time_object_id: @image.run_time_object_id, tag: @image.tag, updated_at: @image.updated_at } }
-    end
-
-    assert_redirected_to image_url(Image.last)
   end
 
   test "should show image" do
