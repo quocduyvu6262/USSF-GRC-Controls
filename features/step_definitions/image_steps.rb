@@ -67,12 +67,12 @@ Then('I should see an error message for invalid tag') do
   expect(page).to have_content("Trivy scan failed")
 end
 
-# Step to ensure the user sees the success message
+
 Then('I should see the success message {string}') do |message|
   expect(page).to have_content(message)
 end
 
-# Step to ensure the user is redirected to the details page after a successful scan
+
 Then('I should be on the details page for {string}') do |image_tag|
   image = Image.find_by(tag: image_tag)
   expect(page).to have_current_path(image_path(image))
