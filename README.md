@@ -1,7 +1,7 @@
 # USSF GRC Controls
 
 ### Heroku app link : [app link](https://csce606-ussf-d5f4faa6ca5f.herokuapp.com/)
-### Code Climate : [View RubyCritic Report](docs/rubycritic/overview.html)
+### Code Climate : [View RubyCritic Report](docs/rubycritic/index.html)
 ### Team Working Agreement : [Team Working Agreement](documentation/Fall2024/TeamWorkingAgreement.md)
 
 
