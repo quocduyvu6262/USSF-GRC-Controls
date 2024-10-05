@@ -124,14 +124,12 @@
     <%= link_to "Logout", logout_path, class: "btn btn-logout" %>
   </div>
 
-  <!-- The Modal -->
   <div id="myModal" class="modal">
     <div class="modal-content">
       <span class="close" id="closeModal">&times;</span>
       <h2>User Details</h2>
       <p>Name: <%= @current_user.first_name %> <%= @current_user.last_name %></p>
       <p>Email: <%= @current_user.email %></p>
-      <!-- Add other user details as needed -->
     </div>
   </div>
 

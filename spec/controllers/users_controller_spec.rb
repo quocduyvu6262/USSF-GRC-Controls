@@ -2,7 +2,6 @@
 require 'rails_helper'
 
 RSpec.describe "Users", type: :request do
-  # Create a user to be used in the tests
   let!(:user) do
     User.create!(
       email: "testuser@gmail.com",
