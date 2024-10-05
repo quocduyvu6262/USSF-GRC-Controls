@@ -54,17 +54,16 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
   # DatabaseCleaner configuration
   config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation)  
-    DatabaseCleaner.strategy = :transaction    
-
+    DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner.strategy = :transaction
   end
 
   config.before(:each) do
-    DatabaseCleaner.start   
+    DatabaseCleaner.start
   end
 
   config.after(:each) do
-    DatabaseCleaner.clean   
+    DatabaseCleaner.clean
   end
   OmniAuth.config.test_mode = true
   OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
