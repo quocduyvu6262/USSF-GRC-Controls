@@ -120,7 +120,7 @@
   </div>
   <div class="header">
     <button id="profileBtn" class="btn btn-profile">Profile</button>
-    <%= link_to "Create Image", new_tag_path, class: "btn btn-create" %>
+    <%= link_to "Create Image", new_image_path, class: "btn btn-create" %>
     <%= link_to "Logout", logout_path, class: "btn btn-logout" %>
   </div>
 
@@ -141,7 +141,7 @@
 			<% @image_list.each do |image| %>
 			<div class="image-tile">
 				<div class="image-content">
-						<p><strong>Tag:</strong> <%= link_to image.tag, tag_path(image.tag) %></p>
+						<p><strong>Tag:</strong> <%= link_to image.tag, image_path(image.id) %></p>
 				</div>
 			</div>
 		<% end %>

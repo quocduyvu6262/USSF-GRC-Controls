@@ -52,7 +52,30 @@ RSpec.configure do |config|
   # The different available types are documented in the features, such as in
   # https://relishapp.com/rspec/rspec-rails/docs
   config.infer_spec_type_from_file_location!
+  # DatabaseCleaner configuration
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation)  # Clean the database before the suite runs
+    DatabaseCleaner.strategy = :transaction    # Use transactions for tests
+    # Load the test seeds
+  end
 
+  config.before(:each) do
+    DatabaseCleaner.start   # Start the database cleaner before each test
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean   # Clean up after each test
+  end
+  OmniAuth.config.test_mode = true
+  OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new({
+    provider: 'google_oauth2',
+    uid: '123456789',
+    info: {
+      email: 'testuser@gmail.com',
+      first_name: 'Test',
+      last_name: 'User'
+    }
+  })
   # See https://github.com/rails/rails/issues/34790#issuecomment-450502805
   if RUBY_VERSION >= '2.6.0' && Rails.version < ('5')
     class ActionController::TestResponse < ActionDispatch::TestResponse
