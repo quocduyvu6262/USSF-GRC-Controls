@@ -290,7 +290,7 @@ GEM
       omniauth (~> 2.0)
     omniauth-test (0.0.11)
       omniauth-oauth2 (~> 1.2)
-    pagy (3.11.0)
+    pagy (9.1.0)
     parallel (1.26.3)
     parser (3.3.5.0)
       ast (~> 2.4.1)
@@ -525,7 +525,7 @@ DEPENDENCIES
   omniauth-google-oauth2
   omniauth-rails_csrf_protection
   omniauth-test
-  pagy (~> 3.5)
+  pagy (~> 9.1)
   pg
   puma (>= 5.0)
   rails (~> 7.2.1)
