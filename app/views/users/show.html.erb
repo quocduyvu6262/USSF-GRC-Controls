@@ -140,9 +140,11 @@
 
 	<div class="image-list">
 		<h2>Images for Run Time Objects</h2>
-    <div class="pagy-nav">
-      <%== pagy_nav(@pagy) %>
-    </div>
+    <% if @pagy.pages > 1 %>
+      <div class="pagy-nav">
+        <%== pagy_nav(@pagy) %>
+      </div>
+    <% end %>
 		<% if @image_list.present? %>
 			<% @image_list.each do |image| %>
 			<div class="image-tile">
