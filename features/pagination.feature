@@ -45,3 +45,8 @@ Feature: Pagination
     And I have successfully logged in
     Then I should not see pagination controls
     Then I should see 5 images
+    And I add 3 more images
+    And I refresh the page
+    Then I should see next and previous arrow when there are more than 1 page
+    Then I click on next page
+    Then I should see 1 images

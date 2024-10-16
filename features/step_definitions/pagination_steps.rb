@@ -24,3 +24,19 @@ end
 Then("I should not see pagination controls") do
   expect(page).to_not have_css('.pagy-nav', visible: true)
 end
+
+And("I add {int} more images") do |num|
+  run_time_object = RunTimeObject.find(1)  # Assuming the run_time_object_id is 1
+  total_images = Image.count  # Get the current total number of images
+  num.times do |i|
+    Image.create!(
+      tag: "additional image #{i + 1 + total_images}",
+      report: "None",
+      run_time_object: run_time_object
+    )
+  end
+end
+
+And("I refresh the page") do
+  visit current_path
+end
