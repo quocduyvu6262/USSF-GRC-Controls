@@ -95,6 +95,10 @@
     text-align: center; /* Center the entire list */
 }
 
+.pagy-nav {
+    padding: 1%;
+}
+
 .image-tile {
     display: flex;
     background-color: #fffafa;
@@ -135,6 +139,9 @@
 
 	<div class="image-list">
 		<h2>Images for Run Time Objects</h2>
+    <div class="pagy-nav">
+      <%== pagy_nav(@pagy) %>
+    </div>
 		<% if @image_list.present? %>
 			<% @image_list.each do |image| %>
 			<div class="image-tile">
@@ -147,6 +154,7 @@
 			<p>No images found for this user's Run Time Objects.</p>
 		<% end %>
 	</div>
+
 
 
   <script>
