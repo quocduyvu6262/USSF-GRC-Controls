@@ -1,4 +1,11 @@
 class ImagesController < ApplicationController
+  SEVERITY_ORDER = {
+  'CRITICAL' => 1,
+  'HIGH' => 2,
+  'MEDIUM' => 3,
+  'LOW' => 4,
+  'UNKNOWN' => 5
+}
   before_action :set_image, only: %i[ show edit update destroy ]
 
   # GET /images or /images.json
@@ -19,6 +26,7 @@ class ImagesController < ApplicationController
     @image_report["Results"].each do |result|
       target = result["Target"]
       next if result["Vulnerabilities"].nil?
+      result['Vulnerabilities'].sort_by! { |vuln| SEVERITY_ORDER[vuln['Severity']] || 99 }
       @vulnerability_summary[target] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
                                                                 .transform_values(&:count)
     end
@@ -33,18 +41,6 @@ class ImagesController < ApplicationController
   # GET /images/1/edit
   def edit
   end
-
-  # POST /images or /images.json
-  # def create
-  #   @image = Image.new(image_params)
-  #   @image.report = `trivy image python:3.4-alpine 2>&1`
-  #   puts @image.report
-  #   if @image.save  # Try to save the image
-  #     redirect_to @image, notice: 'Image was successfully scanned.'  # Redirect on success
-  #   else
-  #     render :new  # Render the new template if there are validation errors
-  #   end
-  # end
 
   def create
     # comment
