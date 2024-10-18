@@ -97,11 +97,11 @@ body{
 }
 
   .line {
-    width: 100%;              /* Extend the line across the entire width */
-    height: 1px;              /* Set the height for the line */
-    background-color: #707070;  /* Black line color */
+    width: 100%;              
+    height: 1px;             
+    background-color: #707070;  
     margin: 0;    
-    margin-top: 10px;            /* Remove any margin */
+    margin-top: 10px;            
   }
   
 .body-controller {
@@ -328,7 +328,7 @@ a {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s; /* Smooth transition on hover */
+    transition: background-color 0.3s; 
 }
 .btn:hover {
     background-color: #45a049;
@@ -336,10 +336,10 @@ a {
 
 
 hr {
-    border: none; /* Remove default border */
-    height: 2px; /* Height of the line */
-    background-color: #ccc; /* Color of the line */
-    margin: 10px 0; /* Spacing around the line */
+    border: none;
+    height: 2px; 
+    background-color: #ccc; 
+    margin: 10px 0; 
 }
 
 
@@ -374,7 +374,7 @@ hr {
     gap: 10px;
 }
 .report-button {
-    background-color: #333; /* Adjust the background color as needed */
+    background-color: #333; 
     color: #fff;
     border: none;
     border-radius: 5px;
