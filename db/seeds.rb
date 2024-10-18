@@ -8,10 +8,12 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 # Create run_time_objects associated with users
-User.create!(
-  email: "testuser@gmail.com",
+require 'csv'
+
+User.find_or_create_by!(
+  email: "shrabhat@tamu.edu",
 )
-me = User.find_by(email: "testuser@gmail.com")
+me = User.find_by(email: "shrabhat@tamu.edu")
 puts me.inspect  # This will output the user or nil if not found
 Image.destroy_all
 RunTimeObject.destroy_all
@@ -83,5 +85,15 @@ Image.create!([
     run_time_object_id: run_time_objects[0].id
   }
 ])
+
+CveNistMapping.delete_all
+csv_file_path = Rails.root.join('db', 'seeds', 'cve_nist_mappings.csv')
+
+CSV.foreach(csv_file_path, headers: true) do |row|
+  CveNistMapping.create!(
+    cve_id: row['cve_id'],
+    nist_control_identifiers: row['nist_control_identifiers'].split(',')
+  )
+end
 
 puts "Seeding completed successfully!"

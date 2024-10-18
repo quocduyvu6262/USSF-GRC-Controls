@@ -156,19 +156,25 @@
 
        <h1>Vulnerability Report for <%= @tag %></h1>
 
-<div id="summary">
-  <h2 class="summary-title">Summary</h2>
-  <% @vulnerability_summary.each do |target, summary| %>
-    <h3 class="target-title"><%= target %></h3>
-    <ul class="severity-list">
-      <% summary.each do |severity, count| %>
-        <li class="severity-item" data-severity="<%= severity %>">
-          <%= severity %>: <%= count %>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
-</div>
+        <div id="summary">
+          <h2 class="summary-title">Summary</h2>
+          <% @vulnerability_summary.each do |target, summary| %>
+            <h3 class="target-title"><%= target %></h3>
+            <ul class="severity-list">
+              <% summary.each do |severity, count| %>
+                <li class="severity-item" data-severity="<%= severity %>">
+                  <%= severity %>: <%= count %>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+
+          <% if @fixable_vulnerabilities_count > 0 %>
+            <div class="fixable-vulnerabilities-note">
+              <p><strong>Note:</strong> <%= @fixable_vulnerabilities_count %> vulnerabilities in this image can be fixed by just updating to a fixed version!</p>
+            </div>
+          <% end %>
+        </div>
 
 <div id="filters">
   <h2>Filters</h2>
@@ -193,95 +199,152 @@
 </div>
 
 <div id="vulnerabilities">
-  <h2>Vulnerabilities</h2>
-  <% @image_report['Results'].each do |result| %>
-    <div class="target-vulnerabilities">
-      <pre><h3><%= result['Target'] %></h3></pre>
-      <% if result['Vulnerabilities'] %>
-        <table class="vulnerabilities-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Severity</th>
-              <th>ID</th>
-              <th>Installed Version</th>
-              <th>Fixed Version</th>
-              <th>Status</th>
-              <th>Description</th>
-              <th>More Info</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% result['Vulnerabilities'].each do |vuln| %>
-              <tr class="vulnerability" data-severity="<%= vuln['Severity'] %>" data-status="<%= vuln['Status'].downcase %>">
-                <td><%= vuln['Title'] %></td>
-                <td><%= vuln['Severity'] %></td>
-                <td><%= vuln['VulnerabilityID'] %></td>
-                <td><%= vuln['InstalledVersion'] %></td>
-                <td><%= vuln['FixedVersion'] || 'N/A' %></td>
-                <td><%= vuln['Status'] %></td>
-                <td>
-                  <div class="description-container">
-                    <span class="description"><%= vuln['Description'] %></span>
-                    <a href="#" class="toggle-description">Show</a>
-                  </div>
-                </td>
-                <td><a href="<%= vuln['PrimaryURL'] %>" target="_blank">More Info</a></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      <% end %>
-    </div>
-  <% end %>
-</div>
+          <h2>Vulnerabilities</h2>
+          <% @image_report['Results'].each do |result| %>
+            <div class="target-vulnerabilities">
+              <h3 class="target-title"><%= result['Target'] %></h3>
+              <% if result['Vulnerabilities'] %>
+                <table class="vulnerabilities-table">
+                  <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Severity</th>
+                    <th>ID</th>
+                    <th>Installed Version</th>
+                    <th>Fixed Version</th>
+                    <th>Status</th>
+                    <th>NIST Identifiers</th>
+                    <th>Description</th>
+                    <th>More Info</th>
+                  </tr>
+                  </thead>
+                  <tbody id="vulnerabilitiesTableBody">
+                  <!-- Table rows will be dynamically populated by JavaScript -->
+                  </tbody>
+                </table>
+                <div id="pagination">
+                  <button id="prevPage">Previous</button>
+                  <span id="pageInfo"></span>
+                  <button id="nextPage">Next</button>
+                </div>
+              <% else %>
+                <p class="no-vulnerabilities">No vulnerabilities found for this target.</p>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const severityFilter = document.getElementById('severityFilter');
-  const statusFilter = document.getElementById('statusFilter');
-  const vulnerabilities = document.querySelectorAll('.vulnerability');
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const vulnerabilities = <%= raw @image_report['Results'].first['Vulnerabilities'].to_json %>;
+                const itemsPerPage = 10;
+                let currentPage = 1;
+                let filteredVulnerabilities = [...vulnerabilities];
 
-  function applyFilters() {
-    const selectedSeverity = severityFilter.value;
-    const selectedStatus = statusFilter.value;
+                const tableBody = document.getElementById('vulnerabilitiesTableBody');
+                const prevButton = document.getElementById('prevPage');
+                const nextButton = document.getElementById('nextPage');
+                const pageInfo = document.getElementById('pageInfo');
+                const severityFilter = document.getElementById('severityFilter');
+                const statusFilter = document.getElementById('statusFilter');
 
-    vulnerabilities.forEach(function(vuln) {
-      const severityMatch = selectedSeverity === 'ALL' || vuln.dataset.severity === selectedSeverity;
-      const statusMatch = selectedStatus === 'ALL' || vuln.dataset.status === selectedStatus;
+                function displayVulnerabilities(page) {
+                    const start = (page - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+                    const pageVulnerabilities = filteredVulnerabilities.slice(start, end);
 
-      if (severityMatch && statusMatch) {
-        vuln.style.display = '';
-      } else {
-        vuln.style.display = 'none';
-      }
-    });
-  }
+                    tableBody.innerHTML = '';
+                    pageVulnerabilities.forEach(vuln => {
+                        const row = `
+        <tr class="vulnerability" data-severity="${vuln.Severity}" data-status="${vuln.Status.toLowerCase()}">
+          <td>${vuln.Title}</td>
+          <td><span class="severity-badge ${vuln.Severity.toLowerCase()}">${vuln.Severity}</span></td>
+          <td>${vuln.VulnerabilityID}</td>
+          <td>${vuln.InstalledVersion}</td>
+          <td>${vuln.FixedVersion || 'N/A'}</td>
+          <td><span class="status-badge ${vuln.Status.toLowerCase()}">${vuln.Status}</span></td>
+          <td>
+            ${vuln.NISTControlIdentifiers ?
+                            vuln.NISTControlIdentifiers.map(nist_id => {
+                                const parts = nist_id.split('-');
+                                return parts.length === 2 ?
+                                    `<a href="https://csf.tools/reference/nist-sp-800-53/r4/${parts[0].toLowerCase()}/${nist_id.toLowerCase()}/" target="_blank" class="nist-link">${nist_id}</a>` :
+                                    `<span class="nist-id">${nist_id}</span>`;
+                            }).join(' ') :
+                            '<span class="na">N/A</span>'
+                        }
+          </td>
+          <td>
+            <div class="description-container">
+              <span class="description">${vuln.Description}</span>
+              <a href="#" class="toggle-description">Read more</a>
+            </div>
+          </td>
+          <td><a href="${vuln.PrimaryURL}" target="_blank" class="more-info">More Info</a></td>
+        </tr>
+      `;
+                        tableBody.innerHTML += row;
+                    });
 
-  severityFilter.addEventListener('change', applyFilters);
-  statusFilter.addEventListener('change', applyFilters);
+                    pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(filteredVulnerabilities.length / itemsPerPage)}`;
+                    prevButton.disabled = currentPage === 1;
+                    nextButton.disabled = currentPage === Math.ceil(filteredVulnerabilities.length / itemsPerPage);
 
-  // Initial application of filters
-  applyFilters();
+                    attachDescriptionToggleListeners();
+                }
 
-  const toggleLinks = document.querySelectorAll('.toggle-description');
+                function attachDescriptionToggleListeners() {
+                    const toggleLinks = document.querySelectorAll('.toggle-description');
+                    toggleLinks.forEach(link => {
+                        link.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            const description = this.previousElementSibling;
+                            if (description.style.display === 'none' || description.style.display === '') {
+                                description.style.display = 'inline';
+                                this.textContent = 'Read less';
+                            } else {
+                                description.style.display = 'none';
+                                this.textContent = 'Read more';
+                            }
+                        });
+                    });
+                }
 
-  toggleLinks.forEach(link => {
-    link.addEventListener('click', function(event) {
-      event.preventDefault();
-      const description = link.previousElementSibling;
+                function applyFilters() {
+                    const selectedSeverity = severityFilter.value;
+                    const selectedStatus = statusFilter.value;
 
-      if (description.style.display === 'none' || description.style.display === '') {
-        description.style.display = 'inline';
-        link.textContent = 'Read less';
-      } else {
-        description.style.display = 'none';
-        link.textContent = 'Read more';
-      }
-    });
-  });
-});
-</script>
+                    filteredVulnerabilities = vulnerabilities.filter(vuln => {
+                        const severityMatch = selectedSeverity === 'ALL' || vuln.Severity === selectedSeverity;
+                        const statusMatch = selectedStatus === 'ALL' || vuln.Status.toLowerCase() === selectedStatus;
+                        return severityMatch && statusMatch;
+                    });
+
+                    currentPage = 1;
+                    displayVulnerabilities(currentPage);
+                }
+
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        displayVulnerabilities(currentPage);
+                    }
+                });
+
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < Math.ceil(filteredVulnerabilities.length / itemsPerPage)) {
+                        currentPage++;
+                        displayVulnerabilities(currentPage);
+                    }
+                });
+
+                severityFilter.addEventListener('change', applyFilters);
+                statusFilter.addEventListener('change', applyFilters);
+
+                // Initial display
+                displayVulnerabilities(currentPage);
+            });
+        </script>
 
 <style>
 .vulnerabilities-table {
@@ -359,6 +422,29 @@ document.addEventListener('DOMContentLoaded', function() {
 .severity-item[data-severity="MEDIUM"] { background-color: #fdc500; }
 .severity-item[data-severity="LOW"] { background-color: #00ac46; }
 .severity-item[data-severity="UNKNOWN"] { background-color: #808080; }
+#pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#pagination button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#pagination button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    margin: 0 10px;
+}
 </style>
 
 <script>
