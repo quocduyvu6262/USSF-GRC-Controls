@@ -6,17 +6,11 @@ class ImagesController < ApplicationController
     @images = Image.all
   end
 
-  # def show
-  #   @tag = params[:id]  # Assuming the tag is passed as the ID
-  #   @user = current_user
-  # end
-
   def show
     @tag = params[:id]
     @user = current_user
-
     begin
-      @image_report = JSON.parse(@image.report.gsub(/\n/, ""))
+      @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
     rescue JSON::ParserError
       @image_report = { "Results" => [ { "Target" => @image.report, "Vulnerabilities" => [] } ] }
     end
@@ -62,7 +56,7 @@ class ImagesController < ApplicationController
 
     # Perform trivy scan for the image from URL
     @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
-    @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
+    # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
     puts @image.report
 
     if @image.save
