@@ -8,7 +8,6 @@
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", media: "all" %>
   <style>
-
       h1 {
           font-size: 36px;
           font-family: 'Times', serif;
@@ -118,6 +117,11 @@
 
   <div class="header">
     <button id="profileBtn" class="btn btn-profile">Profile</button>
+    <div class="btn-container" style="margin-top: 20px;">
+          <%= link_to "Go back", user_path(@user), class: "btn btn-profile", style: "background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;" %>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="myModal" class="modal">
     <div class="modal-content">
@@ -150,56 +154,240 @@
           <button id="showReportBtn" class="btn report-button" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">View GRC Report</button>
         </div>
 
-        <!-- Scan report, initially hidden, revealed when the button is clicked -->
-        <div id="scanReport" class="info-box" style="display: none; background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-          <label>Scan Report:</label>
-          <pre style="white-space: pre-wrap; word-wrap: break-word; background-color: #fff; border: 1px solid #ddd; padding: 10px; width: 100%;"> <%= raw @image_report %> </pre>
-        </div>
+       <h1>Vulnerability Report for <%= @tag %></h1>
 
-        <div class="btn-container" style="margin-top: 20px;">
-          <%= link_to "Go back", user_path(@user), class: "btn btn-profile", style: "background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;" %>
-        </div>
-      </div>
+<div id="summary">
+  <h2 class="summary-title">Summary</h2>
+  <% @vulnerability_summary.each do |target, summary| %>
+    <h3 class="target-title"><%= target %></h3>
+    <ul class="severity-list">
+      <% summary.each do |severity, count| %>
+        <li class="severity-item" data-severity="<%= severity %>">
+          <%= severity %>: <%= count %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<div id="filters">
+  <h2>Filters</h2>
+  <label>Severity:
+    <select id="severityFilter">
+      <option value="ALL">All</option>
+      <option value="CRITICAL">Critical</option>
+      <option value="HIGH">High</option>
+      <option value="MEDIUM">Medium</option>
+      <option value="LOW">Low</option>
+      <option value="UNKNOWN">Unknown</option>
+    </select>
+  </label>
+  <label>Status:
+    <select id="statusFilter">
+      <option value="ALL">All</option>
+      <option value="affected">Affected</option>
+      <option value="fixed">Fixed</option>
+      <!-- Add other status options as needed -->
+    </select>
+  </label>
+</div>
+
+<div id="vulnerabilities">
+  <h2>Vulnerabilities</h2>
+  <% @image_report['Results'].each do |result| %>
+    <div class="target-vulnerabilities">
+      <pre><h3><%= result['Target'] %></h3></pre>
+      <% if result['Vulnerabilities'] %>
+        <table class="vulnerabilities-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Severity</th>
+              <th>ID</th>
+              <th>Installed Version</th>
+              <th>Fixed Version</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>More Info</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% result['Vulnerabilities'].each do |vuln| %>
+              <tr class="vulnerability" data-severity="<%= vuln['Severity'] %>" data-status="<%= vuln['Status'].downcase %>">
+                <td><%= vuln['Title'] %></td>
+                <td><%= vuln['Severity'] %></td>
+                <td><%= vuln['VulnerabilityID'] %></td>
+                <td><%= vuln['InstalledVersion'] %></td>
+                <td><%= vuln['FixedVersion'] || 'N/A' %></td>
+                <td><%= vuln['Status'] %></td>
+                <td>
+                  <div class="description-container">
+                    <span class="description"><%= vuln['Description'] %></span>
+                    <a href="#" class="toggle-description">Show</a>
+                  </div>
+                </td>
+                <td><a href="<%= vuln['PrimaryURL'] %>" target="_blank">More Info</a></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
     </div>
+  <% end %>
+</div>
 
-    <script>
-      // Get the button and the report element
-      var showReportBtn = document.getElementById('showReportBtn');
-      var scanReport = document.getElementById('scanReport');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const severityFilter = document.getElementById('severityFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const vulnerabilities = document.querySelectorAll('.vulnerability');
 
-      // Toggle the display of the scan report when the button is clicked
-      showReportBtn.onclick = function() {
-        if (scanReport.style.display === "none") {
-          scanReport.style.display = "block";
-          showReportBtn.textContent = "Hide Report";  // Change button text to "Hide Report"
-        } else {
-          scanReport.style.display = "none";
-          showReportBtn.textContent = "Show Report";  // Change button text back to "Show Report"
-        }
+  function applyFilters() {
+    const selectedSeverity = severityFilter.value;
+    const selectedStatus = statusFilter.value;
+
+    vulnerabilities.forEach(function(vuln) {
+      const severityMatch = selectedSeverity === 'ALL' || vuln.dataset.severity === selectedSeverity;
+      const statusMatch = selectedStatus === 'ALL' || vuln.dataset.status === selectedStatus;
+
+      if (severityMatch && statusMatch) {
+        vuln.style.display = '';
+      } else {
+        vuln.style.display = 'none';
       }
-    </script>
+    });
+  }
+
+  severityFilter.addEventListener('change', applyFilters);
+  statusFilter.addEventListener('change', applyFilters);
+
+  // Initial application of filters
+  applyFilters();
+
+  const toggleLinks = document.querySelectorAll('.toggle-description');
+
+  toggleLinks.forEach(link => {
+    link.addEventListener('click', function(event) {
+      event.preventDefault();
+      const description = link.previousElementSibling;
+
+      if (description.style.display === 'none' || description.style.display === '') {
+        description.style.display = 'inline';
+        link.textContent = 'Read less';
+      } else {
+        description.style.display = 'none';
+        link.textContent = 'Read more';
+      }
+    });
+  });
+});
+</script>
+
+<style>
+.vulnerabilities-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.vulnerabilities-table th,
+.vulnerabilities-table td {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+}
+
+.vulnerabilities-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  text-align: left;
+}
+
+.vulnerability[data-severity="CRITICAL"] { background-color: #dc0000; }
+.vulnerability[data-severity="HIGH"] { background-color: #fd8c00; }
+.vulnerability[data-severity="MEDIUM"] { background-color: #fdc500; }
+.vulnerability[data-severity="LOW"] { background-color: #00ac46; }
+.vulnerability[data-severity="UNKNOWN"] { background-color: #808080; }
+
+.description-container {
+  max-width: 300px;
+  overflow: hidden;
+}
+
+.description {
+  display: none;
+}
+
+.toggle-description {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
+
+#summary {
+  background-color: #f0fdf4;
+  border: 1px solid #d1fae5;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.summary-title {
+  font-size: 24px;
+}
+
+.target-title {
+  font-size: 20px;
+  color: #4caf50;
+  margin-top: 15px;
+}
+
+.severity-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.severity-item {
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 3px;
+  border-left: 5px solid;
+  color: #1f3f26;
+}
+
+.severity-item[data-severity="CRITICAL"] { background-color: #dc0000; }
+.severity-item[data-severity="HIGH"] { background-color: #fd8c00; }
+.severity-item[data-severity="MEDIUM"] { background-color: #fdc500; }
+.severity-item[data-severity="LOW"] { background-color: #00ac46; }
+.severity-item[data-severity="UNKNOWN"] { background-color: #808080; }
+</style>
+
+<script>
+  // Get the button and the report element
+  var showReportBtn = document.getElementById('showReportBtn');
+  var scanReport = document.getElementById('scanReport');
+
+  // Toggle the display of the scan report when the button is clicked
+  showReportBtn.onclick = function() {
+    if (scanReport.style.display === "none") {
+      scanReport.style.display = "block";
+      showReportBtn.textContent = "Hide Report";
+    } else {
+      scanReport.style.display = "none";
+      showReportBtn.textContent = "Show Report";
+    }
+  }
+</script>
 
   <script>
-
       var modal = document.getElementById("myModal");
-
-
       var btn = document.getElementById("profileBtn");
-
-
       var span = document.getElementById("closeModal");
-
-
       btn.onclick = function() {
           modal.style.display = "block";
       }
-
-
       span.onclick = function() {
           modal.style.display = "none";
       }
-
-
       window.onclick = function(event) {
           if (event.target == modal) {
               modal.style.display = "none";

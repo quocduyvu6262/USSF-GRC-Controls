@@ -1,4 +1,11 @@
 class ImagesController < ApplicationController
+  SEVERITY_ORDER = {
+  "CRITICAL" => 1,
+  "HIGH" => 2,
+  "MEDIUM" => 3,
+  "LOW" => 4,
+  "UNKNOWN" => 5
+}
   before_action :set_image, only: %i[ show edit update destroy ]
 
   # GET /images or /images.json
@@ -6,15 +13,23 @@ class ImagesController < ApplicationController
     @images = Image.all
   end
 
-  # def show
-  #   @tag = params[:id]  # Assuming the tag is passed as the ID
-  #   @user = current_user
-  # end
-
   def show
-    @tag = params[:id]  # Assuming the tag is passed as the ID
+    @tag = params[:id]
     @user = current_user
-    @image_report = @image.report  # This will be displayed as HTML in the view
+    begin
+      @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
+    rescue JSON::ParserError
+      @image_report = { "Results" => [ { "Target" => @image.report, "Vulnerabilities" => [] } ] }
+    end
+
+    @vulnerability_summary = {}
+    @image_report["Results"].each do |result|
+      target = result["Target"]
+      next if result["Vulnerabilities"].nil?
+      result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
+      @vulnerability_summary[target] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
+                                                                .transform_values(&:count)
+    end
   end
 
 
@@ -27,18 +42,6 @@ class ImagesController < ApplicationController
   def edit
   end
 
-  # POST /images or /images.json
-  # def create
-  #   @image = Image.new(image_params)
-  #   @image.report = `trivy image python:3.4-alpine 2>&1`
-  #   puts @image.report
-  #   if @image.save  # Try to save the image
-  #     redirect_to @image, notice: 'Image was successfully scanned.'  # Redirect on success
-  #   else
-  #     render :new  # Render the new template if there are validation errors
-  #   end
-  # end
-
   def create
     # comment
     @user = current_user  # Ensure @user is set
@@ -48,7 +51,8 @@ class ImagesController < ApplicationController
     image_name = params[:image][:tag]
 
     # Perform trivy scan for the image from URL
-    @image.report = `trivy image #{image_name} 2>&1` # Run trivy scan on the provided image name
+    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
+    # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
     puts @image.report
 
     if @image.save
