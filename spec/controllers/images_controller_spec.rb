@@ -74,13 +74,13 @@ RSpec.describe ImagesController, type: :controller do
 
   describe "show" do
     it "displays the report for a scanned image" do
-      image = Image.create(tag: "python:3.4-alpine", report: "Mock scan result", run_time_object: run_time_object)
+      image = Image.create(tag: "python:3.4-alpine", report: '{"Results":[{"Target":"ABC","Vulnerabilities":[]}]}', run_time_object: run_time_object)
       get :show, params: { id: image.id }
-      expect(assigns(:image_report)).to eq(image.report)
+      expect(assigns(:vulnerability_summary)).to be_present
     end
 
     it "response is successful" do
-      image = Image.create(tag: "python:3.4-alpine", report: "Mock scan result", run_time_object: run_time_object)
+      image = Image.create(tag: "python:3.4-alpine", report: '{"Results":[{"Target":"ABC","Vulnerabilities":[]}]}', run_time_object: run_time_object)
       get :show, params: { id: image.id }
       expect(response).to be_successful
     end
@@ -113,7 +113,7 @@ RSpec.describe ImagesController, type: :controller do
 
   describe "response formats" do
     it "returns HTML format for show" do
-      image = Image.create(tag: "python:3.4-alpine", report: "Mock scan result", run_time_object: run_time_object)
+      image = Image.create(tag: "python:3.4-alpine", report: '{"Results":[{"Target":"ABC","Vulnerabilities":[]}]}', run_time_object: run_time_object)
       get :show, params: { id: image.id }, format: :html
       expect(response.content_type).to eq("text/html; charset=utf-8")
     end
