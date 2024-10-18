@@ -31,4 +31,3 @@ end
 When('I click outside the dropdown menu') do
   find('body').click # Simulates clicking outside
 end
-
