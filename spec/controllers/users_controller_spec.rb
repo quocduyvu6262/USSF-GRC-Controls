@@ -48,4 +48,29 @@ RSpec.describe "Users", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
+
+  describe "Pagination" do
+    before do
+      Image.destroy_all
+      10.times do |i|
+        Image.create(
+          tag: "image#{i}",
+          report: "Mock scan result #{i}",
+          run_time_object: rto1
+        )
+      end
+    end
+
+    it "paginates the images for first page" do
+      get user_path(user.id)
+      expect(assigns(:pagy)).to be_a Pagy
+      expect(assigns(:image_list).size).to eq(7)
+    end
+
+    it "paginates the images for second page" do
+      get user_path(user.id), params: { page: 2 }
+      expect(assigns(:pagy)).to be_a Pagy
+      expect(assigns(:image_list).size).to eq(3)
+    end
+  end
 end
