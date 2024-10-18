@@ -6,15 +6,12 @@ When("I click on the {string} button") do |button|
   click_link_or_button button
 end
 
+
 When("I click on logout") do
   find('#dropdownButton').click
-
-
-  within('.dropdown-container') do               
-    puts page.html                         
-    click_link('Logout')                  
+  within('#dropdownMenu') do
+    click_link('Logout')
   end
-
 end
 
 When("I authorize the application on Google's consent screen") do

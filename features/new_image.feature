@@ -15,6 +15,8 @@ Feature: Create a new image
     When I go to new image page
     Then I should see the title "New Image"
     When I fill in "Image Name" with "alpine"
-    And I select "Object 1" from the "Select Run Time Object"
+    When I fill in "Image URL" with "alpine"
+    When I fill in "Run Time Object" with "1"
+    When I fill in "Description" with "test"
     And I click "Submit" button
     Then I should be on the image details page with title "alpine"
