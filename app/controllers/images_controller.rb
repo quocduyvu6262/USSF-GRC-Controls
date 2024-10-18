@@ -14,8 +14,9 @@ class ImagesController < ApplicationController
   def show
     @tag = params[:id]
     @user = current_user
+
     begin
-      @image_report = JSON.parse(@image.report)
+      @image_report = JSON.parse(@image.report.gsub(/\n/, ""))
     rescue JSON::ParserError
       @image_report = { "Results" => [ { "Target" => @image.report, "Vulnerabilities" => [] } ] }
     end

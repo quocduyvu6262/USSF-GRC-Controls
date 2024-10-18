@@ -188,7 +188,7 @@
   <h2>Vulnerabilities</h2>
   <% @image_report['Results'].each do |result| %>
     <div class="target-vulnerabilities">
-      <h3><%= result['Target'] %></h3>
+      <pre><h3><%= result['Target'] %></h3></pre>
       <% if result['Vulnerabilities'] %>
         <% result['Vulnerabilities'].each do |vuln| %>
           <div class="vulnerability" data-severity="<%= vuln['Severity'] %>" data-status="<%= vuln['Status'].downcase %>">
