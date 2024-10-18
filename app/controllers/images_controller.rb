@@ -1,10 +1,10 @@
 class ImagesController < ApplicationController
   SEVERITY_ORDER = {
-  'CRITICAL' => 1,
-  'HIGH' => 2,
-  'MEDIUM' => 3,
-  'LOW' => 4,
-  'UNKNOWN' => 5
+  "CRITICAL" => 1,
+  "HIGH" => 2,
+  "MEDIUM" => 3,
+  "LOW" => 4,
+  "UNKNOWN" => 5
 }
   before_action :set_image, only: %i[ show edit update destroy ]
 
@@ -26,7 +26,7 @@ class ImagesController < ApplicationController
     @image_report["Results"].each do |result|
       target = result["Target"]
       next if result["Vulnerabilities"].nil?
-      result['Vulnerabilities'].sort_by! { |vuln| SEVERITY_ORDER[vuln['Severity']] || 99 }
+      result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
       @vulnerability_summary[target] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
                                                                 .transform_values(&:count)
     end
