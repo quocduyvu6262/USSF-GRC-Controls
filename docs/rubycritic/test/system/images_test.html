@@ -118,7 +118,7 @@ class ImagesTest &lt; ApplicationSystemTestCase<ol class="nocode errors smells">
     fill_in &quot;Run time object&quot;, with: @image.run_time_object_id
     fill_in &quot;Tag&quot;, with: @image.tag
     fill_in &quot;Updated at&quot;, with: @image.updated_at
-    click_on &quot;Create Image&quot;
+    click_on &quot;New Image&quot;
 
     assert_text &quot;Image was successfully created&quot;
     click_on &quot;Back&quot;

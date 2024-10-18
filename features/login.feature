@@ -16,7 +16,7 @@ Feature: Google SSO Login
 
   Scenario: User successfully logs in and then logs out
     Given I have successfully logged in
-    When I click on the "Logout" button
+    When I click on logout
     Then I should be redirected to the index page
   
   Scenario: Logged-in user is redirected to their user page

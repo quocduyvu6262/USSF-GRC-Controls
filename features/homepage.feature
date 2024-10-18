@@ -3,9 +3,16 @@ Feature: Playing around with the home page
   Background: 
     Given I have successfully logged in
 
-  Scenario: Viewing user details in a modal
-    When I click on the profile button on the homepage
-    Then I should see the modal with my logged in details
-    And the modal should display my name
-    And the modal should display my email
+  Scenario: User opens the dropdown menu
+    When I click the dropdown button
+    Then I should see my name "John"
 
+  Scenario: User closes the dropdown menu
+    Given I have opened the dropdown menu
+    When I click the dropdown button again
+    Then I should not see the dropdown menu
+
+  Scenario: User clicks outside the dropdown menu
+    Given I have opened the dropdown menu
+    When I click outside the dropdown menu
+    Then I should not see the dropdown menu

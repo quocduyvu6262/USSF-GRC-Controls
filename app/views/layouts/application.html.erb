@@ -7,18 +7,24 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= yield :head %>
-
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
+  <header>
+    <%= image_tag 'ussf_logo.png', alt: 'Logo', id: 'logo', class: 'ussf-logo' %>
+    <div class="profile-class">
+    <% unless controller_name == 'welcome' %>
+    <%= render 'shared/profile_account' %>
+  <% end %>
+    </header>
+
     <%= render partial: 'shared/display_flash' if not flash.empty? %>
+
+    <div class="body-controller">
     <%= yield %>
+  </div>
+
   </body>
 </html>
