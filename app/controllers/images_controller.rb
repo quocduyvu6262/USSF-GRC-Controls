@@ -12,9 +12,17 @@ class ImagesController < ApplicationController
   # end
 
   def show
-    @tag = params[:id]  # Assuming the tag is passed as the ID
+    @tag = params[:id]
     @user = current_user
-    @image_report = @image.report  # This will be displayed as HTML in the view
+    @image_report = JSON.parse(@image.report)
+    
+    @vulnerability_summary = {}
+    @image_report['Results'].each do |result|
+      target = result['Target']
+      next if result['Vulnerabilities'].nil?
+      @vulnerability_summary[target] = result['Vulnerabilities'].group_by { |v| v['Severity'] }
+                                                                .transform_values(&:count)
+    end
   end
 
 
@@ -48,7 +56,7 @@ class ImagesController < ApplicationController
     image_name = params[:image][:tag]
 
     # Perform trivy scan for the image from URL
-    @image.report = `trivy image #{image_name} 2>&1` # Run trivy scan on the provided image name
+    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`.gsub(/\e\[([;\d]+)?m/, '') # Run trivy scan on the provided image name
     puts @image.report
 
     if @image.save
