@@ -42,7 +42,7 @@ run_time_objects = RunTimeObject.create!([
   }
 ])
 
-Create images associated with run_time_objects
+# Create images associated with run_time_objects
 Image.create!([
   {
     tag: "image 1",
