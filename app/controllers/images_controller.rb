@@ -6,7 +6,7 @@ class ImagesController < ApplicationController
   "LOW" => 4,
   "UNKNOWN" => 5
 }
-  before_action :set_image, only: %i[ show edit update destroy ]
+  before_action :set_image, only: %i[ show edit update destroy rescan ]
 
   # GET /images or /images.json
   def index
@@ -75,6 +75,21 @@ class ImagesController < ApplicationController
     end
   end
 
+  def rescan 
+    image_name = @image.tag
+    begin
+        @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
+        Rails.logger.debug "New Report: #{@image.report}"
+
+        if @image.save
+        redirect_to @image
+        else
+        redirect_to @image
+        end
+    rescue => e
+        redirect_to @image
+    end
+  end
 
   # PATCH/PUT /images/1 or /images/1.json
   def update
@@ -103,6 +118,7 @@ class ImagesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_image
       @image = Image.find(params[:id])
+      Rails.logger.debug "Image found: #{@image.inspect}"
     end
 
 
