@@ -24,5 +24,7 @@ Rails.application.routes.draw do
   get "/auth/google_oauth2/callback", to: "sessions#omniauth"
   get "/auth/failure", to: "sessions#failure", as: "failure"
 
-  resources :images
+  resources :images do
+    post 'rescan', on: :member
+  end
 end
