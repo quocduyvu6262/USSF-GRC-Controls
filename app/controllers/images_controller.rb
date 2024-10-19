@@ -75,7 +75,7 @@ class ImagesController < ApplicationController
     end
   end
 
-  def rescan 
+  def rescan
     image_name = @image.tag
     begin
         @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`

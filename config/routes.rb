@@ -25,6 +25,6 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure", as: "failure"
 
   resources :images do
-    post 'rescan', on: :member
+    post "rescan", on: :member
   end
 end

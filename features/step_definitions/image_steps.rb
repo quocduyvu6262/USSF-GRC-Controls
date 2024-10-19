@@ -79,13 +79,10 @@ Then('I should be on the details page for {string}') do |image_tag|
 end
 
 Given('I am on the image details page for {string}') do |image_tag|
-	image = Image.find_by(tag: image_tag)
-	visit image_path(image)
+  image = Image.find_by(tag: image_tag)
+  visit image_path(image)
 end
 
 When('I click the {string} button') do |button_name|
-	click_button(button_name)
+  click_button(button_name)
 end
-
-
-
