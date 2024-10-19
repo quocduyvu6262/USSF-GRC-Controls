@@ -66,8 +66,8 @@ class ImagesController < ApplicationController
     # Perform trivy scan for the image from URL
     @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
     # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
-    puts @image.report
-
+    # puts @image.report
+    
     if @image.save
       redirect_to @image
     else
