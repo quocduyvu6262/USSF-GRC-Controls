@@ -38,4 +38,11 @@ class ImagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to images_url
   end
+
+  test "should rescan image and redirect to show" do
+    post rescan_image_url(@image)
+    @image.reloa
+    assert_redirected_to image_url(@image)
+    assert_not_nil @image.report# assert_equal 'expected_report_value', @image.report # You can add an assertion to check the contents if needed
+  end
 end
