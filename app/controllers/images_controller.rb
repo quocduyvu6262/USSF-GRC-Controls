@@ -82,12 +82,10 @@ class ImagesController < ApplicationController
         Rails.logger.debug "New Report: #{@image.report}"
 
         if @image.save
-        redirect_to @image
+          redirect_to @image
         else
-        redirect_to @image
+          redirect_to new_image_path
         end
-    rescue => e
-        redirect_to @image
     end
   end
 
