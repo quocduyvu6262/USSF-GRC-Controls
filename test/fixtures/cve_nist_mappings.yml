@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  cve_id: MyString
+  nist_control_identifiers: MyText
+
+two:
+  cve_id: MyString
+  nist_control_identifiers: MyText

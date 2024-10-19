@@ -22,10 +22,23 @@ class ImagesController < ApplicationController
       @image_report = { "Results" => [ { "Target" => @image.report, "Vulnerabilities" => [] } ] }
     end
 
+    cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
+
     @vulnerability_summary = {}
+    @fixable_vulnerabilities_count = 0
     @image_report["Results"].each do |result|
       target = result["Target"]
       next if result["Vulnerabilities"].nil?
+
+      result["Vulnerabilities"].each do |vuln|
+        # Add NIST Control Identifiers to each vulnerability
+        cve_id = vuln["VulnerabilityID"]
+        vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[cve_id] || []
+        if vuln["FixedVersion"].present? && vuln["FixedVersion"] != ""
+          @fixable_vulnerabilities_count += 1
+        end
+      end
+
       result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
       @vulnerability_summary[target] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
                                                                 .transform_values(&:count)

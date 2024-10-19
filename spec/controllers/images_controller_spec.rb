@@ -74,7 +74,7 @@ RSpec.describe ImagesController, type: :controller do
 
   describe "show" do
     it "displays the report for a scanned image" do
-      image = Image.create(tag: "python:3.4-alpine", report: '{"Results":[{"Target":"ABC","Vulnerabilities":[]}]}', run_time_object: run_time_object)
+      image = Image.create(tag: "python:3.4-alpine", report: '{"Results":[{"Target":"ABC","Vulnerabilities":[{"VulnerabilityID": "CVE-2016-2781", "FixedVersion": "1.1.1"}]}]}', run_time_object: run_time_object)
       get :show, params: { id: image.id }
       expect(assigns(:vulnerability_summary)).to be_present
     end

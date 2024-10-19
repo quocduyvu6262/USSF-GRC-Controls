@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_01_034250) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_18_213708) do
+  create_table "cve_nist_mappings", force: :cascade do |t|
+    t.string "cve_id"
+    t.text "nist_control_identifiers"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cve_id"], name: "index_cve_nist_mappings_on_cve_id", unique: true
+  end
+
   create_table "images", force: :cascade do |t|
     t.string "tag"
     t.text "report"
