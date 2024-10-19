@@ -17,3 +17,8 @@ Feature: Scanning Docker Images with Dynamic Input
     And I fill in "Description" with "test"
     And I click "Submit" button
     Then I should be on the image details page with title "python"
+
+	Scenario: Rescan an existing image
+		Given I am on the image details page for "python:3.4-alpine"
+    When I click the "Rescan" button
+    Then I should be on the image details page with title "python"

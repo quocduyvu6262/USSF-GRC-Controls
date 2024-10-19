@@ -75,7 +75,7 @@ class ImagesController < ApplicationController
     end
   end
 
-  def rescan 
+  def rescan
     image_name = @image.tag
     begin
         @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
@@ -83,8 +83,6 @@ class ImagesController < ApplicationController
 
         if @image.save
           redirect_to @image
-        else
-          redirect_to new_image_path
         end
     end
   end
