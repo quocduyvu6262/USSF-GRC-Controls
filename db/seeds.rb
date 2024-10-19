@@ -43,48 +43,48 @@ run_time_objects = RunTimeObject.create!([
 ])
 
 # Create images associated with run_time_objects
-Image.create!([
-  {
-    tag: "image 1",
-    report: "This is a report for image 1.",
-    run_time_object_id: run_time_objects[0].id
-  },
-  {
-    tag: "image 2",
-    report: "This is a report for image 2.",
-    run_time_object_id: run_time_objects[0].id
-  },
-  {
-    tag: "image 3",
-    report: "This is a report for image 3.",
-    run_time_object_id: run_time_objects[0].id
-  },
-  {
-    tag: "image 4",
-    report: "This is a report for image 4.",
-    run_time_object_id: run_time_objects[0].id
-  },
-  {
-    tag: "image 5",
-    report: "This is a report for image 5.",
-    run_time_object_id: run_time_objects[0].id
-  },
-  {
-    tag: "image 6",
-    report: "This is a report for image 6.",
-    run_time_object_id: run_time_objects[0].id
-  },
-  {
-    tag: "image 7",
-    report: "This is a report for image 7.",
-    run_time_object_id: run_time_objects[0].id
-  },
-  {
-    tag: "image 8",
-    report: "This is a report for image 8.",
-    run_time_object_id: run_time_objects[0].id
-  }
-])
+# Image.create!([
+#   {
+#     tag: "image 1",
+#     report: "This is a report for image 1.",
+#     run_time_object_id: run_time_objects[0].id
+#   },
+#   {
+#     tag: "image 2",
+#     report: "This is a report for image 2.",
+#     run_time_object_id: run_time_objects[0].id
+#   },
+#   {
+#     tag: "image 3",
+#     report: "This is a report for image 3.",
+#     run_time_object_id: run_time_objects[0].id
+#   },
+#   {
+#     tag: "image 4",
+#     report: "This is a report for image 4.",
+#     run_time_object_id: run_time_objects[0].id
+#   },
+#   {
+#     tag: "image 5",
+#     report: "This is a report for image 5.",
+#     run_time_object_id: run_time_objects[0].id
+#   },
+#   {
+#     tag: "image 6",
+#     report: "This is a report for image 6.",
+#     run_time_object_id: run_time_objects[0].id
+#   },
+#   {
+#     tag: "image 7",
+#     report: "This is a report for image 7.",
+#     run_time_object_id: run_time_objects[0].id
+#   },
+#   {
+#     tag: "image 8",
+#     report: "This is a report for image 8.",
+#     run_time_object_id: run_time_objects[0].id
+#   }
+# ])
 
 CveNistMapping.delete_all
 csv_file_path = Rails.root.join('db', 'seeds', 'cve_nist_mappings.csv')
