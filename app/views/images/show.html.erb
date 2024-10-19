@@ -129,7 +129,9 @@
 
         <!-- Add a button to toggle the visibility of the scan report -->
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-          <button id="showReportBtn" class="btn report-button" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">View GRC Report</button>
+            <%= form_with url: rescan_image_path(@image), method: :post, local: true do %>
+                <%= button_tag 'Rescan', class: 'btn rescan-button', style: 'background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;' %>
+            <% end %>
         </div>
 
 
@@ -429,16 +431,7 @@
   var rescan = document.getElementById('rescan');
   var scanReport = document.getElementById('scanReport');
 
-  // Toggle the display of the scan report when the button is clicked
-  showReportBtn.onclick = function() {
-    if (scanReport.style.display === "none") {
-      scanReport.style.display = "block";
-      showReportBtn.textContent = "Hide Report";
-    } else {
-      scanReport.style.display = "none";
-      showReportBtn.textContent = "Show Report";
-    }
-  }
+  
 </script>
 
   <script>
