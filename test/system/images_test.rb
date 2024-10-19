@@ -19,7 +19,7 @@ class ImagesTest < ApplicationSystemTestCase
     fill_in "Run time object", with: @image.run_time_object_id
     fill_in "Tag", with: @image.tag
     fill_in "Updated at", with: @image.updated_at
-    click_on "Create Image"
+    click_on "New Image"
 
     assert_text "Image was successfully created"
     click_on "Back"

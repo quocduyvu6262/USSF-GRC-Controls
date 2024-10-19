@@ -1,0 +1,71 @@
+<style>
+.dropdownMenu {
+  position: absolute; 
+  right: 5%; 
+  top: 100%; 
+  margin-right: 10px;
+  border-radius: 10px;
+  background-color: white; 
+  z-index: 1000; 
+  display: none; 
+  width: auto; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+  border: 1px solid black; 
+  padding: 20px;
+}
+
+.menu-link {
+  display: inline-block;
+  color: black;
+  text-decoration: none;
+  text-align: center;
+  font-family: 'Noto Sans', sans-serif;
+}
+
+.menu-link:hover {
+  color: lightgrey;
+}
+
+.profile-test {
+  display: inline-block;
+  color: black;
+  text-decoration: none;
+  text-align: center;
+  font-family: 'Noto Sans', sans-serif;
+}
+
+
+</style>
+
+
+<div style="position: relative;">
+  <button id="dropdownButton" onclick="toggleMenu()" class="round-button">&#9776;</button>
+  <div id="dropdownMenu" class="dropdownMenu">
+    <p class="profile-test"><%= @current_user.first_name %><br/><%= @current_user.email %></p>
+    <div style="border-top: 1px solid lightgrey; margin: 10px 0;"></div>
+    <p class="menu-link">Settings</p>
+    <div style="border-top: 1px solid lightgrey; margin: 10px 0;"></div>
+    <%= link_to 'Logout', logout_path, method: :get, class: 'menu-link' %>
+  </div>
+</div>
+
+
+<script>
+function toggleMenu() {
+  const menu = document.getElementById('dropdownMenu');
+  if (menu.style.display === 'block') {
+    menu.style.display = 'none';  
+  } else {
+    menu.style.display = 'block';  
+  }
+}
+
+window.onclick = function(event) {
+  if (!event.target.matches('#dropdownButton')) {
+    const menu = document.getElementById('dropdownMenu');
+    if (menu.style.display === 'block') {
+      menu.style.display = 'none';
+    }
+  }
+}
+</script>
