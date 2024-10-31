@@ -1,31 +1,43 @@
-<h1>New Run Time Object</h1>
-
-<%= form_with(model: @run_time_object, local: true) do |form| %>
-  <% if @run_time_object.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@run_time_object.errors.count, "error") %> prohibited this run time object from being saved:</h2>
-
-      <ul>
-        <% @run_time_object.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <%= form.label :attribute1 %>
-    <%= form.text_field :attribute1 %> <!-- Replace with actual attribute -->
-  </div>
-
-  <div class="field">
-    <%= form.label :attribute2 %>
-    <%= form.text_field :attribute2 %> <!-- Replace with actual attribute -->
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
-<% end %>
-
-<%= link_to 'Back', run_time_objects_path %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Container Image</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", media: "all" %>
+</head>
+<body>
+    <%= form_with model: @run_time_object, url: run_time_objects_path(), local: true do |form| %>
+        <div class="image-page">
+            <p style="text-align: center; font-size: 40px;">New Container Image</p>
+            <div class="form-container">
+                <div class="form-group">
+                    <%= form.label :name, "Name", class: "form-label" %>
+                    <%= form.text_field :name, class: "form-control", placeholder: "Value", required: true %>
+                </div>
+                <div class="form-group">
+                    <%= form.label :description, "Description", class: "form-label" %>
+                    <%= form.text_field :description, class: "form-control-description", placeholder: "Value", description: nil %>
+                </div>
+                <div class="actions">
+                    <%= form.submit "Submit", class: "btn-submit" %>
+                    <%= link_to "Go back", run_time_objects_path(), class: "btn-go-back" %>
+                </div>
+            </div>
+        </div>
+    <% end %>
+    
+    <% if @run_time_object.errors.any? %>
+        <div id="error_explanation">
+            <h2><%= pluralize(@run_time_object.errors.count, "error") %> prohibited this image from being saved:</h2>
+            <ul>
+                <% @run_time_object.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                <% end %>
+            </ul>
+        </div>
+    <% end %>
+</body>
+</html>

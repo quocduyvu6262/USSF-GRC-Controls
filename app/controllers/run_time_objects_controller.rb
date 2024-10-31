@@ -56,8 +56,7 @@ class RunTimeObjectsController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:id])
   end
 
-  # Permit parameters for RunTimeObject
   def run_time_object_params
-    params.require(:run_time_object).permit(:attribute1, :attribute2) # Replace with actual attributes
+    params.require(:run_time_object).permit(:name, :description)
   end
 end

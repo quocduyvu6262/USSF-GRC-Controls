@@ -1,7 +1,10 @@
 <body>
     <div class="image-page">
-        <p class="heading">Tags</p>
-        <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
+        <p class="heading"><%= "#{@run_time_object.name} Tags" %></p>
+        <div class="button-container">
+          <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
+          <%= link_to "Go Back", run_time_objects_path, class: "btn-create" %>
+        </div>
         <div class="image-list">
             <% if @images.present? %>
                 <% @images.each do |image| %>
@@ -17,7 +20,7 @@
                     </div>
                 <% end %>
             <% else %>
-                <p>No images found for this user's Run Time Objects.</p>
+                <p>No tags found for this Container Image</p>
             <% end %>
         </div>
     </div>

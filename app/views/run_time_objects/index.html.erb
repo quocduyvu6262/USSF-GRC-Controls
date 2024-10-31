@@ -1,6 +1,6 @@
 <body>
     <div class="image-page">
-        <p class="heading">Container Image</p>
+        <p class="heading">Container Images</p>
         <%= link_to "New Container Image", new_run_time_object_path, class: "btn-create" %>
         <div class="image-list">
             <% if @run_time_objects.present? %>
@@ -8,10 +8,7 @@
                     <div class="image-tile">
                         <div class="image-content">
                             <p>
-                                <% if object.name.present? %>
-                                    <span class='letter-class'> <%= object.name %></span>
-                                <% end %>
-                                <%= link_to 'Show Images', run_time_object_images_path(run_time_object_id: object.id) %>
+                                <%= link_to object.name, run_time_object_images_path(run_time_object_id: object.id) %>
                             </p>
                         </div>
                     </div>

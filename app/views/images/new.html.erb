@@ -1,52 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Image</title>
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
-  <%= stylesheet_link_tag "application", media: "all" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tag</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
-  <%= form_with model: @image,url: run_time_object_images_path(@run_time_object.id), local: true do |form| %>
-    <div class="image-page">
-    <p style="text-align: center; font-size: 40px;">New Image</p>
-      <div class="form-container">
-      <div class="form-group">
-      <%= form.label :name, "Image Name", class: "form-label" %>
-      <%= form.text_field :name, class: "form-control", placeholder: "Value",name: nil%>
-      </div>
-      <div class="form-group">
-      <%= form.label :tag, "Image URL", class: "form-label" %>
-      <%= form.text_field :tag, class: "form-control", placeholder: "Value",required: true %>
-      </div>
-        <div class="form-group">
-        <%= form.label :run_time_object_id, "Run Time Object", class: "form-label" %>
-        <%= form.text_field :run_time_object_id, placeholder: "Value",class: "form-control" %>
-      </div>
-      <div class="form-group">
-      <%= form.label :name, "Description", class: "form-label" %>
-      <%= form.text_field :description, class: "form-control-description", placeholder: "Value", description: nil%>
-      </div>
-        <div class="actions">
-          <%= form.submit "Submit", class: "btn-submit" %>
-          <%= link_to "Go back", run_time_object_images_path(), class: "btn-go-back"%>
+    <%= form_with model: @image, url: run_time_object_images_path(@run_time_object.id), local: true do |form| %>
+        <div class="image-page">
+            <p style="text-align: center; font-size: 40px;">New Tag</p>
+            <div class="form-container">
+                <div class="form-group">
+                    <%= form.label :tag, "Tag URL", class: "form-label" %>
+                    <%= form.text_field :tag, class: "form-control", placeholder: "Value", required: true %>
+                </div>
+                <div class="form-group">
+                    <%= form.label :name, "Description", class: "form-label" %>
+                    <%= form.text_field :description, class: "form-control-description", placeholder: "Value", description: nil %>
+                </div>
+                <div class="actions">
+                    <%= form.submit "Submit", class: "btn-submit" %>
+                    <%= link_to "Go back", run_time_object_images_path(), class: "btn-go-back" %>
+                </div>
+            </div>
         </div>
-
-      </div>
-    </div>
-  <% end %>
-  <% if @image.errors.any? %>
-  <div id="error_explanation">
-    <h2><%= pluralize(@image.errors.count, "error") %> prohibited this image from being saved:</h2>
-
-    <ul>
-      <% @image.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  </div>
-<% end %>
+    <% end %>
+    
+    <% if @image.errors.any? %>
+        <div id="error_explanation">
+            <h2><%= pluralize(@image.errors.count, "error") %> prohibited this image from being saved:</h2>
+            <ul>
+                <% @image.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                <% end %>
+            </ul>
+        </div>
+    <% end %>
 </body>
 </html>
