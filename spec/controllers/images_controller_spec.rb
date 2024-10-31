@@ -124,27 +124,26 @@ RSpec.describe ImagesController, type: :controller do
 
   describe "rescan" do
     let!(:image) { Image.create(tag: "alpine", run_time_object: run_time_object) }
-  
+
     before do
       allow(controller).to receive(:current_user).and_return(user)
     end
-  
+
     context 'when the scan is successful' do
       before do
         allow(controller).to receive(:`).and_return('{"Results":[]}') # Mocking the scan output
         post :rescan, params: { run_time_object_id: run_time_object.id, id: image.id }
       end
-  
+
       it 'updates the image report' do
         image.reload
         expect(image.report).to eq('{"Results":[]}')
       end
-  
+
       it 'redirects to the image show page' do
         expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, image))
         expect(flash[:notice]).to eq("Rescan was successful.")
       end
     end
-  
-  end  
+  end
 end

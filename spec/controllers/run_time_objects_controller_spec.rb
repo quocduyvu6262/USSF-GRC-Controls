@@ -67,5 +67,4 @@ RSpec.describe RunTimeObjectsController, type: :controller do
       end
     end
   end
-
 end

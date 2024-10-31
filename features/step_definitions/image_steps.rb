@@ -1,7 +1,7 @@
 Given('the following images exist:') do |table|
   user = User.create!(email: 'quocduyvu6262@gmail.com', first_name: 'Test', last_name: 'User')
   @run_time_object = RunTimeObject.create!(name: "Object 1", description: "This is a description of Object 1.", user_id: user.id)
-  
+
   table.hashes.each do |image_data|
     Image.create!(
       tag: image_data['tag'],
