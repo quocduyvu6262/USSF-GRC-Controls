@@ -62,18 +62,18 @@ class ImagesController < ApplicationController
   def create
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the parent resource
     @image = @run_time_object.images.new(image_params)  # Associate the image with the parent
-  
+
     image_name = params[:image][:tag]
-  
+
     @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
-  
+
     if @image.save
-      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: 'Image was successfully created.'
+      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."
     else
       render :new
     end
   end
-  
+
 
   def rescan
     image_name = @image.tag
@@ -83,7 +83,7 @@ class ImagesController < ApplicationController
         Rails.logger.debug "New Report: #{@image.report}"
 
         if @image.save
-          redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: 'Rescan was successful.'
+          redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Rescan was successful."
         end
     end
   end

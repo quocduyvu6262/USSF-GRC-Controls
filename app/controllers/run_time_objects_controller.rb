@@ -1,5 +1,5 @@
 class RunTimeObjectsController < ApplicationController
-  before_action :set_run_time_object, only: [:show, :edit, :update, :destroy]
+  before_action :set_run_time_object, only: [ :show, :edit, :update, :destroy ]
 
   # GET /run_time_objects
   def index
@@ -24,7 +24,7 @@ class RunTimeObjectsController < ApplicationController
     @run_time_object.user = current_user # Assuming you have a current_user method for authentication
 
     if @run_time_object.save
-      redirect_to @run_time_object, notice: 'Run Time Object was successfully created.'
+      redirect_to @run_time_object, notice: "Run Time Object was successfully created."
     else
       render :new
     end
@@ -37,7 +37,7 @@ class RunTimeObjectsController < ApplicationController
   # PATCH/PUT /run_time_objects/:id
   def update
     if @run_time_object.update(run_time_object_params)
-      redirect_to @run_time_object, notice: 'Run Time Object was successfully updated.'
+      redirect_to @run_time_object, notice: "Run Time Object was successfully updated."
     else
       render :edit
     end
@@ -46,7 +46,7 @@ class RunTimeObjectsController < ApplicationController
   # DELETE /run_time_objects/:id
   def destroy
     @run_time_object.destroy
-    redirect_to run_time_objects_url, notice: 'Run Time Object was successfully destroyed.'
+    redirect_to run_time_objects_url, notice: "Run Time Object was successfully destroyed."
   end
 
   private
