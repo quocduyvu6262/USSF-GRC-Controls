@@ -1,0 +1,31 @@
+<h1>New Run Time Object</h1>
+
+<%= form_with(model: @run_time_object, local: true) do |form| %>
+  <% if @run_time_object.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@run_time_object.errors.count, "error") %> prohibited this run time object from being saved:</h2>
+
+      <ul>
+        <% @run_time_object.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :attribute1 %>
+    <%= form.text_field :attribute1 %> <!-- Replace with actual attribute -->
+  </div>
+
+  <div class="field">
+    <%= form.label :attribute2 %>
+    <%= form.text_field :attribute2 %> <!-- Replace with actual attribute -->
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+
+<%= link_to 'Back', run_time_objects_path %>

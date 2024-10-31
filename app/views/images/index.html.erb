@@ -1,0 +1,31 @@
+<body>
+    <div class="image-page">
+        <p class="heading">Tags</p>
+        <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
+        <div class="image-list">
+            <% if @images.present? %>
+                <% @images.each do |image| %>
+                    <div class="image-tile">
+                        <div class="image-content">
+                            <p>
+                                <% if image.tag.present? %>
+                                    <span class='letter-class'> <%= image.tag[0].upcase %></span>
+                                <% end %>
+                                <%= link_to image.tag, run_time_object_image_path(@run_time_object.id, image.id) %>
+                            </p>
+                        </div>
+                    </div>
+                <% end %>
+            <% else %>
+                <p>No images found for this user's Run Time Objects.</p>
+            <% end %>
+        </div>
+    </div>
+    <div class="pagy-create-image">
+        <% if @pagy.pages > 1 %>
+            <div class="pagy-nav">
+                <%== pagy_nav(@pagy) %>
+            </div>
+        <% end %>
+    </div>
+</body>

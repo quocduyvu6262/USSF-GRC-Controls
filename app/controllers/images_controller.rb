@@ -10,11 +10,14 @@ class ImagesController < ApplicationController
 
   # GET /images or /images.json
   def index
-    @images = Image.all
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the RunTimeObject
+    @images = @run_time_object.images  # Get images associated with that RunTimeObject
+    @pagy, @images = pagy(@images)
   end
 
   def show
     @tag = params[:id]
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @user = current_user
     begin
       @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
@@ -48,6 +51,7 @@ class ImagesController < ApplicationController
 
   def new
     @user = current_user
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = Image.new
   end
 
@@ -56,33 +60,30 @@ class ImagesController < ApplicationController
   end
 
   def create
-    # comment
-    @user = current_user  # Ensure @user is set
-    @image = Image.new(image_params)
-
-    # Fetch the image name from the tag (which is provided as a URL field input)
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the parent resource
+    @image = @run_time_object.images.new(image_params)  # Associate the image with the parent
+  
     image_name = params[:image][:tag]
-
-    # Perform trivy scan for the image from URL
-    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
-    # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
-    # puts @image.report
-    
+  
+    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
+  
     if @image.save
-      redirect_to @image
+      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: 'Image was successfully created.'
     else
-      redirect_to new_image_path
+      render :new
     end
   end
+  
 
   def rescan
     image_name = @image.tag
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     begin
         @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
         Rails.logger.debug "New Report: #{@image.report}"
 
         if @image.save
-          redirect_to @image
+          redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: 'Rescan was successful.'
         end
     end
   end
@@ -120,6 +121,6 @@ class ImagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def image_params
-      params.require(:image).permit(:tag, :run_time_object_id, :created_at, :updated_at)
+      params.require(:image).permit(:tag, :run_time_object_id)
     end
 end

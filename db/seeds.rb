@@ -11,9 +11,9 @@
 require 'csv'
 
 User.find_or_create_by!(
-  email: "testuser@gmail.com",
+  email: "adityasg@tamu.edu",
 )
-me = User.find_by(email: "testuser@gmail.com")
+me = User.find_by(email: "adityasg@tamu.edu")
 puts me.inspect  # This will output the user or nil if not found
 Image.destroy_all
 RunTimeObject.destroy_all

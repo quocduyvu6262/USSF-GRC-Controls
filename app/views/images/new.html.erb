@@ -9,7 +9,7 @@
   <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
-  <%= form_with model: @image, local: true do |form| %>
+  <%= form_with model: @image,url: run_time_object_images_path(@run_time_object.id), local: true do |form| %>
     <div class="image-page">
     <p style="text-align: center; font-size: 40px;">New Image</p>
       <div class="form-container">
@@ -31,11 +31,22 @@
       </div>
         <div class="actions">
           <%= form.submit "Submit", class: "btn-submit" %>
-          <%= link_to "Go back", user_path(@user), class: "btn-go-back"%>
+          <%= link_to "Go back", run_time_object_images_path(), class: "btn-go-back"%>
         </div>
 
       </div>
     </div>
   <% end %>
+  <% if @image.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@image.errors.count, "error") %> prohibited this image from being saved:</h2>
+
+    <ul>
+      <% @image.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
 </body>
 </html>
