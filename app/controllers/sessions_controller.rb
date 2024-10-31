@@ -23,7 +23,7 @@ class SessionsController < ApplicationController
 
     if @user.valid?
       session[:user_id] = @user.id
-      redirect_to user_path(@user)
+      redirect_to run_time_objects_path()
     else
       redirect_to welcome_path, alert: "Login failed."
     end

@@ -92,7 +92,7 @@ class ImagesController < ApplicationController
   def update
     respond_to do |format|
       if @image.update(image_params)
-        format.html { redirect_to @image, notice: "Image was successfully updated." }
+        format.html { redirect_to run_time_object_image_path(@image.run_time_object_id, @image), notice: "Image was successfully updated." }
         format.json { render :show, status: :ok, location: @image }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -101,12 +101,11 @@ class ImagesController < ApplicationController
     end
   end
 
-  # DELETE /images/1 or /images/1.json
   def destroy
     @image.destroy!
 
     respond_to do |format|
-      format.html { redirect_to images_path, status: :see_other, notice: "Image was successfully destroyed." }
+      format.html { redirect_to run_time_object_images_path(@image.run_time_object_id), status: :see_other, notice: "Image was successfully destroyed." }
       format.json { head :no_content }
     end
   end

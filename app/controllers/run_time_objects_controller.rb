@@ -1,5 +1,5 @@
 class RunTimeObjectsController < ApplicationController
-  before_action :set_run_time_object, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_run_time_object, only: [ :show ]
 
   # GET /run_time_objects
   def index
@@ -28,25 +28,6 @@ class RunTimeObjectsController < ApplicationController
     else
       render :new
     end
-  end
-
-  # GET /run_time_objects/:id/edit
-  def edit
-  end
-
-  # PATCH/PUT /run_time_objects/:id
-  def update
-    if @run_time_object.update(run_time_object_params)
-      redirect_to @run_time_object, notice: "Run Time Object was successfully updated."
-    else
-      render :edit
-    end
-  end
-
-  # DELETE /run_time_objects/:id
-  def destroy
-    @run_time_object.destroy
-    redirect_to run_time_objects_url, notice: "Run Time Object was successfully destroyed."
   end
 
   private
