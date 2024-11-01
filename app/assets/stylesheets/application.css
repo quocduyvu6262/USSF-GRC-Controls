@@ -158,11 +158,16 @@ hr.divider {
     background-color: transparent;
     margin: 0 auto; 
     display: flex; 
-    justify-content: center; 
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
 }
 
+.button-container {
+    display: flex; 
+    gap: 1em;
+    margin-left: 0;
+    
+}
 
 .image-tile {
     width: 100%;

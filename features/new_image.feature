@@ -5,7 +5,7 @@ Feature: Create a new image
   So that I can see its vulnerability information
 
   Background: images in database
-    Given the following images exist:
+    Given the following tags exist:
       | tag             | report    | run_time_object_id  |
       | alpine          | None      | 1                   |
       | hello-world     | None      | 1                   |
@@ -13,10 +13,8 @@ Feature: Create a new image
   Scenario: Create a new image
     Given I have successfully logged in
     When I go to new image page
-    Then I should see the title "New Image"
-    When I fill in "Image Name" with "alpine"
-    When I fill in "Image URL" with "alpine"
-    When I fill in "Run Time Object" with "1"
+    Then I should see the title "New Tag"
+    When I fill in "Tag URL" with "alpine"
     When I fill in "Description" with "test"
     And I click "Submit" button
     Then I should be on the image details page with title "alpine"

@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Tag</title>
+    <title>New Container Image</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
-    <%= form_with model: @image, url: run_time_object_images_path(@run_time_object.id), local: true do |form| %>
+    <%= form_with model: @run_time_object, url: run_time_objects_path(), local: true do |form| %>
         <div class="image-page">
-            <p style="text-align: center; font-size: 40px;">New Tag</p>
+            <p style="text-align: center; font-size: 40px;">New Container Image</p>
             <div class="form-container">
                 <div class="form-group">
-                    <%= form.label :tag, "Tag URL", class: "form-label" %>
-                    <%= form.text_field :tag, class: "form-control", placeholder: "Value", required: true %>
+                    <%= form.label :name, "Name", class: "form-label" %>
+                    <%= form.text_field :name, class: "form-control", placeholder: "Value", required: true %>
                 </div>
                 <div class="form-group">
                     <%= form.label :description, "Description", class: "form-label" %>
@@ -23,17 +23,17 @@
                 </div>
                 <div class="actions">
                     <%= form.submit "Submit", class: "btn-submit" %>
-                    <%= link_to "Go back", run_time_object_images_path(), class: "btn-go-back" %>
+                    <%= link_to "Go back", run_time_objects_path(), class: "btn-go-back" %>
                 </div>
             </div>
         </div>
     <% end %>
     
-    <% if @image.errors.any? %>
+    <% if @run_time_object.errors.any? %>
         <div id="error_explanation">
-            <h2><%= pluralize(@image.errors.count, "error") %> prohibited this image from being saved:</h2>
+            <h2><%= pluralize(@run_time_object.errors.count, "error") %> prohibited this image from being saved:</h2>
             <ul>
-                <% @image.errors.full_messages.each do |message| %>
+                <% @run_time_object.errors.full_messages.each do |message| %>
                     <li><%= message %></li>
                 <% end %>
             </ul>

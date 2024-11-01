@@ -17,7 +17,7 @@ RSpec.describe WelcomeController, type: :controller do
 
       it 'redirects to the user page' do
         get :index
-        expect(response).to redirect_to(user_path(@user))
+        expect(response).to redirect_to(run_time_objects_path)
       end
     end
 
