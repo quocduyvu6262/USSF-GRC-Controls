@@ -129,10 +129,18 @@
 
         <!-- Add a button to toggle the visibility of the scan report -->
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+          <div class="button-container" style="display: flex; gap: 10px;">
+            <%= link_to "Download Report", download_run_time_object_image_path(@run_time_object.id, @image), 
+                        style: "display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px; border: none; text-decoration: none; cursor: pointer; width: 150px; text-align: center;" %>
+
             <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
-                <%= button_tag 'Rescan', class: 'btn rescan-button', style: 'background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;' %>
+              <%= button_tag 'Rescan', 
+                            style: 'display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 150px; text-align: center;' %>
             <% end %>
+          </div>
         </div>
+
+
 
 
         <div id="summary">

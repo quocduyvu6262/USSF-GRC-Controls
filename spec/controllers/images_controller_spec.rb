@@ -4,6 +4,10 @@ RSpec.describe ImagesController, type: :controller do
   let(:user) { User.create(email: "test@example.com", first_name: "Test", last_name: "User") }
   let(:run_time_object) { RunTimeObject.create(name: "Sample Object", description: "A sample runtime object", user: user) }
   let(:image) { Image.create(tag: "alpine", run_time_object: run_time_object) }
+  let(:valid_json_report) do
+    '{"Results": [{"Target": "example", "Vulnerabilities": [{"VulnerabilityID": "CVE-2023-0001", "Title": "Sample Vulnerability", "Severity": "HIGH", "InstalledVersion": "1.0", "FixedVersion": "1.1", "Status": "affected", "Description": "A vulnerability description."}]}]}'
+  end
+  let(:invalid_json_report) { "{invalid JSON}" }
 
   before do
     session[:user_id] = user.id
@@ -143,6 +147,56 @@ RSpec.describe ImagesController, type: :controller do
       it 'redirects to the image show page' do
         expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, image))
         expect(flash[:notice]).to eq("Rescan was successful.")
+      end
+    end
+  end
+
+  describe "GET #download" do
+    context "when the report is valid JSON" do
+      before do
+        image.update(report: valid_json_report)
+      end
+
+      it "returns a CSV file" do
+        get :download, params: { run_time_object_id: run_time_object.id, id: image.id }
+        expect(response.headers['Content-Type']).to include 'text/csv'
+        expect(response.headers['Content-Disposition']).to include 'attachment'
+      end
+
+      it "includes the correct CSV headers" do
+        get :download, params: { run_time_object_id: run_time_object.id, id: image.id }
+        csv_data = CSV.parse(response.body, headers: true)
+        expect(csv_data.headers).to include("Title", "Severity", "ID", "Installed Version", "Fixed Version", "Status", "NIST Identifiers", "Description")
+      end
+
+      it "includes vulnerability data in the CSV" do
+        get :download, params: { run_time_object_id: run_time_object.id, id: image.id }
+        csv_data = CSV.parse(response.body, headers: true)
+        expect(csv_data[0]["Title"]).to eq("Sample Vulnerability")
+      end
+    end
+
+    context "when the report is invalid JSON" do
+      before do
+        image.update(report: invalid_json_report)
+      end
+
+      it "redirects to the image show page with an alert" do
+        get :download, params: { run_time_object_id: run_time_object.id, id: image.id }
+        expect(response).to redirect_to(run_time_object_image_path(run_time_object, image))
+        expect(flash[:alert]).to eq("Failed to parse the report. Invalid JSON format.")
+      end
+    end
+
+    context "when the report is nil" do
+      before do
+        image.update(report: nil)
+      end
+
+      it "redirects to the image show page with an alert" do
+        get :download, params: { run_time_object_id: run_time_object.id, id: image.id }
+        expect(response).to redirect_to(run_time_object_image_path(run_time_object, image))
+        expect(flash[:alert]).to eq("No report available for this image.")
       end
     end
   end
