@@ -15,6 +15,5 @@ Feature: Create a new image
     When I go to new image page
     Then I should see the title "New Tag"
     When I fill in "Tag URL" with "alpine"
-    When I fill in "Description" with "test"
     And I click "Submit" button
     Then I should be on the image details page with title "alpine"

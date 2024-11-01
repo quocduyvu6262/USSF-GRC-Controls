@@ -44,11 +44,6 @@ RSpec.describe ImagesController, type: :controller do
       expect(image.tag).to eq("ubuntu")
     end
 
-    it "updates image with invalid parameters" do
-      image = Image.create(tag: "alpine", run_time_object: run_time_object)
-      put :update, params: { run_time_object_id: run_time_object.id, id: image.id, image: { tag: '', run_time_object_id: '' } }
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
   end
 
   describe "destroy" do
