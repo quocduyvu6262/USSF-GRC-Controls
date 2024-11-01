@@ -36,7 +36,7 @@ Then("I should be redirected to the runtime object page") do
 end
 
 Given("I am shared access to a runtime object") do
-  @another_user = User.create(email: "dummy@example.com",first_name:"Dummy",last_name:"User")
+  @another_user = User.create(email: "dummy@example.com", first_name: "Dummy", last_name: "User")
   @owner_user = User.find_by(email: "test@example.com")
   @current_run_time_object = RunTimeObject.create(name: "Test Object", user: @another_user)
   RunTimeObjectsPermission.create(run_time_object: @shared_run_time_object, user_id: @owner_user.id, permission: "r")
