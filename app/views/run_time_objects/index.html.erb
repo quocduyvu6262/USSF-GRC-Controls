@@ -9,6 +9,9 @@
                         <div class="image-content">
                             <p>
                                 <%= link_to object.name, run_time_object_images_path(run_time_object_id: object.id) %>
+                                <% if object.user_id.present? && object.user_id != @current_user.id %>
+                                    (Shared By: <%= "#{object.user.first_name} #{object.user.last_name}" %>)
+                                <% end %>
                             </p>
                         </div>
                     </div>
