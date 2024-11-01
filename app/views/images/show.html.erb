@@ -12,7 +12,15 @@
   <% tag_parts = @image.tag.split(':') %>
   <div style="width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
   <h1 class="title" style="margin: 0;"> <%= tag_parts[0] %></h1>
-  <%= link_to "Go back", run_time_object_images_path(), style: "background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-right: 60px" %>
+<div style="display: flex; gap: 10px;">
+  <%= link_to "Go back", run_time_object_images_path(@run_time_object), class: "btn-create" %>
+  <%= link_to "Edit", edit_run_time_object_image_path(@run_time_object, @image), class: "btn-create" %>
+  <%= button_to "Delete", run_time_object_image_path(@run_time_object, @image), 
+  method: :delete, 
+  class: "btn-create" %>
+
+</div>
+
 </div>
       <hr>
       <div class="info-container">

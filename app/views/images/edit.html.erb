@@ -1,31 +1,14 @@
-<h1>Edit Runtime Object</h1>
+<h1>Edit Image</h1>
 
-<%= form_with(model: @run_time_object, local: true) do |form| %>
-  <% if @run_time_object.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@run_time_object.errors.count, "error") %> prohibited this runtime object from being saved:</h2>
-
-      <ul>
-        <% @run_time_object.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <%= form.label :name %>
-    <%= form.text_field :name %>
+<%= form_with(model: @image, url: run_time_object_image_path(@run_time_object.id, @image.id), local: true) do |form| %>
+  <div class="form-group">
+    <%= form.label :tag, "Tag URL", class: "form-label" %>
+    <%= form.text_field :tag, class: "form-control", placeholder: "Enter Tag URL", required: true %>
   </div>
-
-  <div class="field">
-    <%= form.label :description %>
-    <%= form.text_area :description %>
-  </div>
-
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit "Update Image", style: "background-color: transparent; color: black; padding: 10px 20px; border-radius: 5px; text-decoration: none;margin-right: 10px;border: 1px solid black;" %>
+    <%= link_to "Back", run_time_object_images_path(@run_time_object.id), style: "display: inline-block; background-color: transparent; color: black; padding: 10px 20px; border: 1px solid black; border-radius: 5px; text-decoration: none;" %>
   </div>
 <% end %>
 
-<%= link_to 'Back', run_time_object_path(@run_time_object) %>
+
