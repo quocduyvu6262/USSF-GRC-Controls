@@ -57,6 +57,8 @@ class ImagesController < ApplicationController
 
   # GET /images/1/edit
   def edit
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.find(params[:id])
   end
 
   def create
@@ -65,7 +67,10 @@ class ImagesController < ApplicationController
 
     image_name = params[:image][:tag]
 
-    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
+    # Perform trivy scan for the image from URL
+    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
+    # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
+    # puts @image.report
 
     if @image.save
       redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."
@@ -90,24 +95,24 @@ class ImagesController < ApplicationController
 
   # PATCH/PUT /images/1 or /images/1.json
   def update
-    respond_to do |format|
-      if @image.update(image_params)
-        format.html { redirect_to run_time_object_image_path(@image.run_time_object_id, @image), notice: "Image was successfully updated." }
-        format.json { render :show, status: :ok, location: @image }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
-      end
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.find(params[:id])
+
+    if @image.update(image_params)
+      image_name = @image.tag
+      @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
+      @image.save
+      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully updated."
     end
   end
 
   def destroy
-    @image.destroy!
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.find(params[:id])
 
-    respond_to do |format|
-      format.html { redirect_to run_time_object_images_path(@image.run_time_object_id), status: :see_other, notice: "Image was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    @image.destroy
+
+    redirect_to run_time_object_images_path(@run_time_object), notice: "Image was successfully deleted."
   end
 
   private

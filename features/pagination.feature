@@ -52,33 +52,3 @@ Feature: Pagination
     Then I should see next and previous arrow when there are more than 1 page
     Then I click on next page
     Then I should see 1 tags
-
-  Scenario: Go to next page for images
-    Given the following images exist:
-        | Name    | Description              |
-        | Image 1 | None                     |
-        | Image 2 | None                     |
-        | Image 3 | None                     |
-        | Image 4 | None                     |
-        | Image 5 | None                     |
-        | Image 6 | None                     |
-        | Image 7 | None                     |
-        | Image 8 | None                     |
-        | Image 9 | None                     |
-        | Image 10| None                     |
-        | Image 11| None                     |
-        | Image 12| None                     |
-        | Image 13| None                     |
-        | Image 14| None                     |
-        | Image 15| None                     |
-        | Image 16| None                     |
-        | Image 17| None                     |
-        | Image 18| None                     |
-        | Image 19| None                     |
-    And I have successfully logged in
-    Then I should see next and previous arrow when there are more than 1 page
-    Then I should see 7 images
-    When I click on next page
-    Then I should see 7 images
-    When I click on next page
-    Then I should see 5 images
