@@ -27,4 +27,11 @@ Rails.application.routes.draw do
   resources :images do
     post "rescan", on: :member
   end
+
+  resources :run_time_objects do
+    member do
+      get :share
+      post :share_with_users
+    end
+  end
 end
