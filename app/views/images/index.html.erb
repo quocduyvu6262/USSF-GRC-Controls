@@ -9,7 +9,10 @@
         <%= link_to 'Edit', edit_run_time_object_path(@run_time_object), class: 'btn-create btn-edit' %>
         <%= link_to 'Delete', run_time_object_path(@run_time_object),
                     method: :delete,
-                    data: { turbo_confirm: 'Are you sure you want to delete this runtime object?' },
+                    data: {
+                      turbo_method: :delete,
+                      turbo_confirm: 'Are you sure you want to delete this runtime object?'
+                    },
                     class: 'btn-create btn-delete' %>
         <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
       </div>
