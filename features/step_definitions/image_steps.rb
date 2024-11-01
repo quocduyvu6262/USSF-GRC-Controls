@@ -57,7 +57,7 @@ Then('I should be on the images page') do
   visit root_path
 end
 
-#########
+
 When('I perform a Trivy scan on {string}') do |image_tag|
   @image = Image.create(tag: image_tag, run_time_object_id: 1)
   @image.report = `trivy image #{image_tag} 2>&1`  # Simulating the Trivy scan
@@ -74,7 +74,8 @@ Then('I should see an error message for invalid tag') do
 end
 
 
-Then('I should see the success message {string}') do |message|
+Then('I should see the message {string}') do |message|
+  puts page.body
   expect(page).to have_content(message)
 end
 
