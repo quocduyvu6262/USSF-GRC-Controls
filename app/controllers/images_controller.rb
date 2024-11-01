@@ -10,11 +10,14 @@ class ImagesController < ApplicationController
 
   # GET /images or /images.json
   def index
-    @images = Image.all
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the RunTimeObject
+    @images = @run_time_object.images  # Get images associated with that RunTimeObject
+    @pagy, @images = pagy(@images)
   end
 
   def show
     @tag = params[:id]
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @user = current_user
     begin
       @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
@@ -48,6 +51,7 @@ class ImagesController < ApplicationController
 
   def new
     @user = current_user
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = Image.new
   end
 
@@ -56,11 +60,9 @@ class ImagesController < ApplicationController
   end
 
   def create
-    # comment
-    @user = current_user  # Ensure @user is set
-    @image = Image.new(image_params)
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the parent resource
+    @image = @run_time_object.images.new(image_params)  # Associate the image with the parent
 
-    # Fetch the image name from the tag (which is provided as a URL field input)
     image_name = params[:image][:tag]
 
     # Perform trivy scan for the image from URL
@@ -69,20 +71,22 @@ class ImagesController < ApplicationController
     # puts @image.report
 
     if @image.save
-      redirect_to @image
+      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."
     else
-      redirect_to new_image_path
+      render :new
     end
   end
 
+
   def rescan
     image_name = @image.tag
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     begin
         @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
         Rails.logger.debug "New Report: #{@image.report}"
 
         if @image.save
-          redirect_to @image
+          redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Rescan was successful."
         end
     end
   end
@@ -91,7 +95,7 @@ class ImagesController < ApplicationController
   def update
     respond_to do |format|
       if @image.update(image_params)
-        format.html { redirect_to @image, notice: "Image was successfully updated." }
+        format.html { redirect_to run_time_object_image_path(@image.run_time_object_id, @image), notice: "Image was successfully updated." }
         format.json { render :show, status: :ok, location: @image }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -100,12 +104,11 @@ class ImagesController < ApplicationController
     end
   end
 
-  # DELETE /images/1 or /images/1.json
   def destroy
     @image.destroy!
 
     respond_to do |format|
-      format.html { redirect_to images_path, status: :see_other, notice: "Image was successfully destroyed." }
+      format.html { redirect_to run_time_object_images_path(@image.run_time_object_id), status: :see_other, notice: "Image was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -120,6 +123,6 @@ class ImagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def image_params
-      params.require(:image).permit(:tag, :run_time_object_id, :created_at, :updated_at)
+      params.require(:image).permit(:tag, :run_time_object_id)
     end
 end

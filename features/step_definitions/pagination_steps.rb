@@ -18,7 +18,7 @@ When("I click on next page") do
   end
   puts "Current page: #{current_page}"
   next_page = current_page + 1
-  visit "/users/1?page=#{next_page}"
+  visit "/run_time_objects/1/images?page=#{next_page}"
 end
 
 Then("I should not see pagination controls") do
