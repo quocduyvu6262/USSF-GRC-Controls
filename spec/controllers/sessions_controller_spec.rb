@@ -37,7 +37,7 @@ RSpec.describe SessionsController, type: :controller do
         get :omniauth
         user = User.find_by(email: 'test@example.com')
         expect(session[:user_id]).to eq(user.id)
-        expect(response).to redirect_to(user_path(user))
+        expect(response).to redirect_to(run_time_objects_path())
       end
     end
 
