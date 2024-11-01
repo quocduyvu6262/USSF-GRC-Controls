@@ -5,7 +5,7 @@ Feature: Pagination
   So that I do not need to scroll and instead click on the next page
 
   Scenario: Go to next page
-    Given the following images exist:
+    Given the following tags exist:
       | tag         | report    | run_time_object_id  |
       | image 1     | None      | 1                   |
       | image 2     | None      | 1                   |
@@ -27,6 +27,7 @@ Feature: Pagination
       | image 18    | None      | 1                   |
       | image 19    | None      | 1                   |
     Given I have successfully logged in
+    When I go to the details page for image with id 1
     Then I should see next and previous arrow when there are more than 1 page
     Then I should see 7 images
     When I click on next page
@@ -35,7 +36,7 @@ Feature: Pagination
     Then I should see 5 images
 
   Scenario: View images when there are fewer than 7 images
-    Given the following images exist:
+    Given the following tags exist:
       | tag         | report    | run_time_object_id  |
       | image 1     | None      | 1                   |
       | image 2     | None      | 1                   |
@@ -43,6 +44,7 @@ Feature: Pagination
       | image 4     | None      | 1                   |
       | image 5     | None      | 1                   |
     And I have successfully logged in
+    When I go to the details page for image with id 1
     Then I should not see pagination controls
     Then I should see 5 images
     And I add 3 more images

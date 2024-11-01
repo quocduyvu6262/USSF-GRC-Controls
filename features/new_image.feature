@@ -5,7 +5,7 @@ Feature: Create a new image
   So that I can see its vulnerability information
 
   Background: images in database
-    Given the following images exist:
+    Given the following tags exist:
       | tag             | report    | run_time_object_id  |
       | alpine          | None      | 1                   |
       | hello-world     | None      | 1                   |

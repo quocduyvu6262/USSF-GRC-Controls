@@ -1,5 +1,5 @@
-Given('the following images exist:') do |table|
-  user = User.create!(email: 'quocduyvu6262@gmail.com', first_name: 'Test', last_name: 'User')
+Given('the following tags exist:') do |table|
+  user = User.create!(email: 'testuser@gmail.com', first_name: 'Test', last_name: 'User')
   @run_time_object = RunTimeObject.create!(name: "Object 1", description: "This is a description of Object 1.", user_id: user.id)
 
   table.hashes.each do |image_data|
@@ -11,8 +11,12 @@ Given('the following images exist:') do |table|
   end
 end
 
+When('I go to the details page for image with id {int}') do |int|
+  rto = RunTimeObject.find_by(id: int)
+  visit run_time_object_path(rto.id)
+  end
 
-When('I go to the details page for {string}') do |string|
+When('I go to the details page for tag {string}') do |string|
   image = Image.find_by(tag: string)
   visit run_time_object_image_path(image.id, image.run_time_object().id)
 end
