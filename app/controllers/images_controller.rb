@@ -65,7 +65,10 @@ class ImagesController < ApplicationController
 
     image_name = params[:image][:tag]
 
-    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
+    # Perform trivy scan for the image from URL
+    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
+    # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
+    # puts @image.report
 
     if @image.save
       redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."

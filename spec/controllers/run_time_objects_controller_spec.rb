@@ -3,6 +3,8 @@ require 'rails_helper'
 
 RSpec.describe RunTimeObjectsController, type: :controller do
   let(:user) { User.create(email: "test@example.com", first_name: "Test", last_name: "User") }
+  let(:user1) { User.create(email: "dummy@example.com", first_name: "Dummy", last_name: "User") }
+  let(:user2) { User.create(email: "random@example.com", first_name: "Random", last_name: "User") }
   let(:run_time_object) { RunTimeObject.create(name: "Sample Object", description: "A sample runtime object", user: user) }
 
   before do
@@ -65,6 +67,38 @@ RSpec.describe RunTimeObjectsController, type: :controller do
         post :create, params: { run_time_object: { name: "", description: "" } }
         expect(response).to render_template(:new)
       end
+    end
+  end
+
+  describe "GET #share" do
+    it "assigns the correct run_time_object" do
+      get :share, params: { id: run_time_object.id }
+      expect(assigns(:run_time_object)).to eq(run_time_object)
+    end
+
+    it "assigns @users excluding the owner" do
+      get :share, params: { id: run_time_object.id }
+      expect(assigns(:users)).to match_array([ user1, user2 ])
+      expect(assigns(:users)).not_to include(user)
+    end
+  end
+
+  describe "POST #share_with_users" do
+    context "when updating permissions" do
+      it "removes permissions for unselected users" do
+        post :share_with_users, params: { id: run_time_object.id, user_ids: [ user2.id ] }
+        expect(run_time_object.run_time_objects_permissions.exists?(user_id: user1.id)).to be_falsey
+      end
+
+      it "adds permissions for selected users" do
+        post :share_with_users, params: { id: run_time_object.id, user_ids: [ user1.id, user2.id ] }
+        expect(run_time_object.run_time_objects_permissions.exists?(user_id: user2.id)).to be_truthy
+      end
+    end
+
+    it "redirects to the run_time_object show page" do
+      post :share_with_users, params: { id: run_time_object.id, user_ids: [ user1.id, user2.id ] }
+      expect(response).to redirect_to(run_time_object)
     end
   end
 end
