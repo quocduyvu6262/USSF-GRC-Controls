@@ -5,12 +5,10 @@ class RunTimeObjectsController < ApplicationController
   def index
     owned_objects = RunTimeObject.where(user_id: @current_user.id)
 
-    # Fetch the ids of the objects shared with the current user
     shared_ids = RunTimeObject.joins(:run_time_objects_permissions)
                              .where(run_time_objects_permissions: { user_id: @current_user.id })
                              .select(:id)
 
-    # Combine both queries into one ActiveRecord relation
     @run_time_objects = RunTimeObject.where(user_id: @current_user.id)
                                     .or(RunTimeObject.where(id: shared_ids))
     @pagy, @run_time_objects = pagy(@run_time_objects)
@@ -49,10 +47,8 @@ class RunTimeObjectsController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:id])
     selected_user_ids = params[:user_ids] || []
 
-    # Remove permissions for users who are no longer selected
     @run_time_object.run_time_objects_permissions.where.not(user_id: selected_user_ids).destroy_all
 
-    # Add permissions for selected users if they don't already have them
     selected_user_ids.each do |user_id|
       unless @run_time_object.run_time_objects_permissions.exists?(user_id: user_id)
         RunTimeObjectsPermission.create(run_time_object: @run_time_object, user_id: user_id, permission: "r")
