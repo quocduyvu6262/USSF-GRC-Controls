@@ -7,108 +7,6 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", media: "all" %>
-  <style>
-      h1 {
-          font-size: 36px;
-          font-family: 'Times', serif;
-      }
-
-      .btn {
-          background-color: #4CAF50;
-          color: white;
-          padding: 10px 20px;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.3s; /* Smooth transition on hover */
-      }
-      .btn:hover {
-          background-color: #45a049;
-      }
-      .header {
-          display: flex;
-          justify-content: flex-end;
-          gap: 10px; /* Space between buttons */
-          margin: 10px;
-      }
-      .top-left-image {
-          position: absolute; /* Positioning the logo */
-          top: 20px; /* Adjust the position */
-          left: 20px; /* Adjust the position */
-      }
-
-      hr {
-          border: none; /* Remove default border */
-          height: 2px; /* Height of the line */
-          background-color: #ccc; /* Color of the line */
-          margin: 10px 0; /* Spacing around the line */
-      }
-
-      .container {
-          display: flex;
-          flex-direction: column;
-          padding: 8%;
-      }
-
-      .title {
-          padding-left: 2%;
-      }
-      .info-container {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          padding-top: 2%
-      }
-
-      .info-box {
-          border: 1px solid #ccc;
-          padding: 10px;
-          margin-bottom: 20px;
-          border-radius: 5px;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-          background-color: #E9E1E5;
-      }
-
-      .info-box label {
-          font-weight: bold;
-      }
-      .btn-container {
-          display: flex;
-          flex-direction: column;
-          margin-left: 2%;
-          margin-top: 2%;
-          gap: 10px;
-      }
-      .report-button {
-          background-color: #333; /* Adjust the background color as needed */
-          color: #fff;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          font-size: 16px;
-          width: 200px;
-          padding: 1.3%;
-      }
-      .modal {
-          display: none; /* Hidden by default */
-          position: fixed; /* Stay in place */
-          z-index: 1; /* Sit on top */
-          left: 0;
-          top: 0;
-          width: 100%; /* Full width */
-          height: 100%; /* Full height */
-          overflow: auto; /* Enable scroll if needed */
-          background-color: rgb(0,0,0); /* Fallback color */
-          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-      }
-      .modal-content {
-          background-color: #fefefe;
-          margin: 15% auto; /* 15% from the top and centered */
-          padding: 20px;
-          border: 1px solid #888;
-          width: 80%; /* Could be more or less, depending on screen size */
-      }
-  </style>
 </head>
 <body>
   <% tag_parts = @image.tag.split(':') %>
@@ -130,12 +28,7 @@
           <label>Version:</label>
           <p><%= tag_parts.length > 1 ? tag_parts[1] : 'latest' %></p>
         </div>
-        <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-          <label>Description:</label>
-          <p> </p>
-        </div>
 
-        <!-- Add a button to toggle the visibility of the scan report -->
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
             <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
                 <%= button_tag 'Rescan', class: 'btn rescan-button', style: 'background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;' %>
@@ -143,22 +36,29 @@
         </div>
 
 
-        <div id="summary">
-          <h2 class="summary-title">Summary</h2>
+        <div id="summary" class="summary-container">
+          <h2 class="summary-title">Vulnerability Summary</h2>
           <% @vulnerability_summary.each do |target, summary| %>
-            <h3 class="target-title"><%= target %></h3>
-            <ul class="severity-list">
-              <% summary.each do |severity, count| %>
-                <li class="severity-item" data-severity="<%= severity %>">
-                  <%= severity %>: <%= count %>
-                </li>
-              <% end %>
-            </ul>
+            <div class="target-summary">
+              <h3 class="target-title"><%= target %></h3>
+              <div class="severity-grid">
+                <% summary.each do |severity, count| %>
+                  <div class="severity-item" data-severity="<%= severity.downcase %>">
+                    <span class="severity-badge <%= severity.downcase %>"><%= severity %></span>
+                    <span class="severity-count"><%= count %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
           <% end %>
 
           <% if @fixable_vulnerabilities_count > 0 %>
             <div class="fixable-vulnerabilities-note">
-              <p><strong>Note:</strong> <%= @fixable_vulnerabilities_count %> vulnerabilities in this image can be fixed by just updating to a fixed version!</p>
+              <p>
+                <strong>📢 Update Available:</strong>
+                <%= @fixable_vulnerabilities_count %> <%= 'vulnerability'.pluralize(@fixable_vulnerabilities_count) %>
+                in this image can be fixed by updating to the latest version!
+              </p>
             </div>
           <% end %>
         </div>
@@ -333,113 +233,257 @@
             });
         </script>
 
-<style>
-.vulnerabilities-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-}
+        <style>
+            h1 {
+                font-size: 36px;
+                font-family: 'Times', serif;
+            }
 
-.vulnerabilities-table th,
-.vulnerabilities-table td {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-}
+            hr {
+                border: none; /* Remove default border */
+                height: 2px; /* Height of the line */
+                background-color: #ccc; /* Color of the line */
+                margin: 10px 0; /* Spacing around the line */
+            }
 
-.vulnerabilities-table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-  text-align: left;
-}
 
-.vulnerability[data-severity="CRITICAL"] { background-color: #dc0000; }
-.vulnerability[data-severity="HIGH"] { background-color: #fd8c00; }
-.vulnerability[data-severity="MEDIUM"] { background-color: #fdc500; }
-.vulnerability[data-severity="LOW"] { background-color: #00ac46; }
-.vulnerability[data-severity="UNKNOWN"] { background-color: #808080; }
+            .title {
+                padding-left: 2%;
+            }
+            .info-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding-top: 2%
+            }
 
-.description-container {
-  max-width: 300px;
-  overflow: hidden;
-}
+            .info-box {
+                border: 1px solid #ccc;
+                padding: 10px;
+                margin-bottom: 20px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                background-color: #E9E1E5;
+            }
 
-.description {
-  display: none;
-}
+            .info-box label {
+                font-weight: bold;
+            }
+            .summary-container {
+                background-color: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 2rem;
+            }
 
-.toggle-description {
-  cursor: pointer;
-  color: blue;
-  text-decoration: underline;
-}
+            .summary-title {
+                font-size: 1.5rem;
+                color: #343a40;
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 2px solid #dee2e6;
+            }
 
-#summary {
-  background-color: #f0fdf4;
-  border: 1px solid #d1fae5;
-  border-radius: 5px;
-  padding: 20px;
-  margin: 20px 0;
-}
+            .target-summary {
+                margin-bottom: 1.5rem;
+            }
 
-.summary-title {
-  font-size: 24px;
-}
+            .target-title {
+                font-size: 1.25rem;
+                color: #495057;
+                margin-bottom: 0.5rem;
+            }
 
-.target-title {
-  font-size: 20px;
-  color: #4caf50;
-  margin-top: 15px;
-}
+            .severity-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
 
-.severity-list {
-  list-style-type: none;
-  padding-left: 0;
-}
+            .severity-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 10px;
+                border-radius: 8px;
+                transition: transform 0.2s ease-in-out;
+            }
 
-.severity-item {
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 3px;
-  border-left: 5px solid;
-  color: #1f3f26;
-}
+            .severity-item:hover {
+                transform: translateY(-2px);
+            }
 
-.severity-item[data-severity="CRITICAL"] { background-color: #dc0000; }
-.severity-item[data-severity="HIGH"] { background-color: #fd8c00; }
-.severity-item[data-severity="MEDIUM"] { background-color: #fdc500; }
-.severity-item[data-severity="LOW"] { background-color: #00ac46; }
-.severity-item[data-severity="UNKNOWN"] { background-color: #808080; }
-#pagination {
-    margin-top: 20px;
-    text-align: center;
-}
+            .severity-badge {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
 
-#pagination button {
-    padding: 5px 10px;
-    margin: 0 5px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-}
+            .severity-count {
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
 
-#pagination button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
+            .fixable-vulnerabilities-note {
+                background-color: #e6f7ff;
+                border: 1px solid #91d5ff;
+                border-radius: 8px;
+                padding: 15px;
+                margin-top: 20px;
+            }
 
-#pageInfo {
-    margin: 0 10px;
-}
-</style>
+            .fixable-vulnerabilities-note p {
+                margin: 0;
+                color: #0050b3;
+                font-size: 0.95rem;
+            }
+            #pagination {
+                margin-top: 20px;
+                text-align: center;
+            }
+
+            #pagination button {
+                padding: 5px 10px;
+                margin: 0 5px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+
+            #pagination button:disabled {
+                background-color: #cccccc;
+                cursor: not-allowed;
+            }
+
+            #pageInfo {
+                margin: 0 10px;
+            }
+            .vulnerabilities-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0 8px;
+                margin-bottom: 2rem;
+            }
+
+            .vulnerabilities-table th,
+            .vulnerabilities-table td {
+                padding: 12px;
+                text-align: left;
+                border: none;
+            }
+
+            .vulnerabilities-table th {
+                background-color: #f8f9fa;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.85rem;
+                color: #495057;
+            }
+
+            .vulnerability {
+                background-color: transparent;
+                transition: background-color 0.3s ease;
+            }
+
+            .vulnerability:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .severity-badge,
+            .status-badge {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+
+            .severity-badge.critical { background-color: #ffcccb; color: #721c24; }
+            .severity-badge.high { background-color: #ffeeba; color: #856404; }
+            .severity-badge.medium { background-color: #fff3cd; color: #856404; }
+            .severity-badge.low { background-color: #d4edda; color: #155724; }
+            .severity-badge.unknown { background-color: #e9ecef; color: #495057; }
+
+            .status-badge.affected { background-color: #cce5ff; color: #004085; }
+            .status-badge.fixed { background-color: #d4edda; color: #155724; }
+
+            .nist-identifiers {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .nist-link,
+            .nist-id {
+                font-size: 0.85rem;
+                padding: 2px 6px;
+                border-radius: 4px;
+                background-color: #e9ecef;
+                color: #495057;
+                text-decoration: none;
+            }
+
+            .nist-link:hover {
+                background-color: #dee2e6;
+            }
+
+            .description-container {
+                max-width: 300px;
+            }
+
+            .description {
+                display: none;
+                font-size: 0.9rem;
+                line-height: 1.4;
+                color: #495057;
+            }
+
+            .toggle-description {
+                cursor: pointer;
+                color: #007bff;
+                text-decoration: none;
+                font-size: 0.9rem;
+            }
+
+            .toggle-description:hover {
+                text-decoration: underline;
+            }
+
+            .more-info {
+                color: #007bff;
+                text-decoration: none;
+                font-size: 0.9rem;
+            }
+
+            .more-info:hover {
+                text-decoration: underline;
+            }
+
+            .target-title {
+                font-size: 1.25rem;
+                color: #343a40;
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+                border-bottom: 2px solid #dee2e6;
+                padding-bottom: 0.5rem;
+            }
+
+            .no-vulnerabilities {
+                color: #28a745;
+                font-style: italic;
+            }
+        </style>
 
 <script>
   // Get the button and the report element
   var rescan = document.getElementById('rescan');
   var scanReport = document.getElementById('scanReport');
 
-  
+
 </script>
 
   <script>
