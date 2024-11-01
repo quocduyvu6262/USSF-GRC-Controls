@@ -4,7 +4,7 @@
         <div class="button-container">
           <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
           <%= link_to "Go Back", run_time_objects_path, class: "btn-create" %>
-          <%= link_to 'Access', share_run_time_object_path(), data: { turbo_frame: "share_frame" }, class: 'btn-create', data: { bs_toggle: "modal", bs_target: "#shareModal" } %>
+          <%= link_to 'Access', share_run_time_object_path(@run_time_object), data: { turbo_frame: "share_frame" }, class: 'btn-create', data: { bs_toggle: "modal", bs_target: "#shareModal" } %>
         </div>
         <div class="image-list">
             <% if @images.present? %>

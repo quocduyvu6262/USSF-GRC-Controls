@@ -6,7 +6,7 @@
   <%= form_with url: share_with_users_run_time_object_path(@run_time_object), method: :post do |f| %>
     <div style="display: inline-block; text-align: left;">
       <% @users.each do |user| %>
-        <% if user.id != @run_time_object.user_id %>
+        <% if user.id != @run_time_object.user_id && user.first_name.present? && user.last_name.present? %>
           <div style="margin-bottom: 5px;">
             <%= check_box_tag 'user_ids[]', user.id, @permitted_user_ids.include?(user.id) %>
             <%= label_tag "user_ids_#{user.id}", "#{user.first_name} #{user.last_name}" %>
@@ -17,7 +17,7 @@
     
     <br>
     <%= submit_tag 'Share', class: 'btn btn-primary', style: 'margin-top: 10px;' %>
-    <%= link_to 'Back', user_path(@current_user), class: 'btn btn-secondary', style: 'margin-top: 10px;' %>
+     <%= link_to 'Back', run_time_object_images_path(@run_time_object), class: 'btn btn-secondary', style: 'margin-top: 10px;' %>
   <% end %>
 
 </div>

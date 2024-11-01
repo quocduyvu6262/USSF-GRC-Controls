@@ -21,24 +21,22 @@ class RunTimeObjectsController < ApplicationController
   # POST /run_time_objects
   def create
     @run_time_object = RunTimeObject.new(run_time_object_params)
-    @run_time_object.user = current_user # Assuming you have a current_user method for authentication
+    @run_time_object.user = current_user
 
     if @run_time_object.save
-      redirect_to @run_time_object, notice: "Run Time Object was successfully created."
+      redirect_to @run_time_object
     else
       render :new
     end
   end
 
   def share
-    @run_time_object = RunTimeObject.find(1)
-    # @users = User.where.not(id: @run_time_object.user_id)
-    @users = User.all
+    @run_time_object = RunTimeObject.find(params[:id])
+    @users = User.where.not(id: @run_time_object.user_id)
     @permitted_user_ids = @run_time_object.run_time_objects_permissions.pluck(:user_id)
   end
 
   def share_with_users
-
     @run_time_object = RunTimeObject.find(params[:id])
     selected_user_ids = params[:user_ids] || []
 
@@ -52,9 +50,7 @@ class RunTimeObjectsController < ApplicationController
       end
     end
 
-    redirect_to user_path(@current_user)
-
-    # redirect_to @run_time_object, notice: 'RunTimeObject has been shared successfully.'
+    redirect_to @run_time_object
   end
 
   private
