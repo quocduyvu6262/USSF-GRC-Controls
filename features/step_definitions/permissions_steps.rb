@@ -1,3 +1,9 @@
+Given("I am the owner of an object") do
+  @owner_user = User.find_by(email: "test@example.com")
+  @run_time_object = RunTimeObject.create(name: "Test Object", user: @owner_user)
+  @current_run_time_object = @run_time_object
+end
+
 Given("user {string} exists") do |full_name|
   first_name, last_name = full_name.split(" ")
   User.find_or_create_by(first_name: first_name, last_name: last_name) do |user|
@@ -5,14 +11,8 @@ Given("user {string} exists") do |full_name|
   end
 end
 
-Given("{string} is the owner of the object") do |owner_name|
-  first_name, last_name = owner_name.split(" ")
-  @owner_user = User.find_by(first_name: first_name, last_name: last_name)
-  @run_time_object = RunTimeObject.create(name: "Test Object", user: @owner_user)
-end
-
-When("I visit the share page for the runtime object") do
-  visit run_time_object_images_path(@run_time_object)
+When("I visit the runtime object page") do
+  visit run_time_object_images_path(@current_run_time_object)
 end
 
 When("I check the checkbox for {string}") do |user_full_name|
@@ -33,4 +33,15 @@ end
 
 Then("I should be redirected to the runtime object page") do
   visit run_time_object_path(@run_time_object)
+end
+
+Given("I am shared access to a runtime object") do
+  @another_user = User.create(email: "dummy@example.com",first_name:"Dummy",last_name:"User")
+  @owner_user = User.find_by(email: "test@example.com")
+  @current_run_time_object = RunTimeObject.create(name: "Test Object", user: @another_user)
+  RunTimeObjectsPermission.create(run_time_object: @shared_run_time_object, user_id: @owner_user.id, permission: "r")
+end
+
+Then("I should not see the {string} button") do |button_text|
+  expect(page).not_to have_button(button_text)
 end
