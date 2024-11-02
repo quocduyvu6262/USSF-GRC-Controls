@@ -1,4 +1,5 @@
 class ImagesController < ApplicationController
+  before_action :authorize_user, only: [ :index, :new, :edit, :create, :rescan, :update, :destroy, :show ]
   SEVERITY_ORDER = {
   "CRITICAL" => 1,
   "HIGH" => 2,
@@ -185,6 +186,15 @@ class ImagesController < ApplicationController
     @image.destroy
 
     redirect_to run_time_object_images_path(@run_time_object), notice: "Image was successfully deleted."
+  end
+
+  def authorize_user
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    user_obj = User.find(session[:user_id])
+    if @run_time_object.user != user_obj && !@run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id)
+      flash[:alert] = "You are not authorized to access this object."
+      redirect_to run_time_objects_path and return
+    end
   end
 
   private

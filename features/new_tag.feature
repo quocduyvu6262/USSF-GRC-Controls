@@ -5,13 +5,13 @@ Feature: Create a new tag
   So that I can see its vulnerability information
 
   Background: images in database
+    Given I have successfully logged in
     Given the following tags exist:
       | tag             | report    | run_time_object_id  |
       | alpine          | None      | 1                   |
       | hello-world     | None      | 1                   |
 
   Scenario: Create a new tag
-    Given I have successfully logged in
     When I go to the details page for image with id 1
     When I go to new tag page
     Then I should see the title "New Tag"

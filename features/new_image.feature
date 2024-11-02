@@ -5,9 +5,9 @@ Feature: Create a new image
   So that I can see its vulnerability information
 
   Background: images in database
+    Given I have successfully logged in
     Given the following tags exist:
       | tag             | Description    |
-    And I have successfully logged in
 
   Scenario: Create a new image
     When I go to new image page
