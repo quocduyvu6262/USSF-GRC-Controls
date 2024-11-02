@@ -1,5 +1,5 @@
 class RunTimeObjectsController < ApplicationController
-  before_action :set_run_time_object, only: [:show, :edit, :update, :destroy]
+  before_action :set_run_time_object, only: [ :show, :edit, :update, :destroy ]
 
   # GET /run_time_objects
   def index

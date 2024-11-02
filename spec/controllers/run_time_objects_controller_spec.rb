@@ -104,7 +104,6 @@ RSpec.describe RunTimeObjectsController, type: :controller do
 
   describe "DELETE #destroy" do
     context "when user owns the runtime object" do
-
       it "sets a success flash message" do
         delete :destroy, params: { id: run_time_object.id }
         expect(flash[:success]).to eq("Runtime object was successfully deleted.")
@@ -136,7 +135,6 @@ RSpec.describe RunTimeObjectsController, type: :controller do
       before do
         sign_in other_user
       end
-
     end
   end
 
@@ -175,7 +173,6 @@ RSpec.describe RunTimeObjectsController, type: :controller do
       before do
         sign_in other_user
       end
-
     end
   end
 end
