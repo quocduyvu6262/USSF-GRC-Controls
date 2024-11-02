@@ -4,10 +4,10 @@ Feature: Scanning Docker Images with Dynamic Input
   So that I can perform a Trivy scan and view the results
 
   Background:
+    Given I have successfully logged in
     Given the following tags exist:
       | tag                | report               | run_time_object_id |
       | python:3.4-alpine   | Trivy scan result... | 1                  |
-    And I have successfully logged in
 
   Scenario: Scan an image with a valid tag
     Given I go to new image page

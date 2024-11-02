@@ -1,6 +1,6 @@
 Given('the following tags exist:') do |table|
-  user = User.create!(email: 'testuser@gmail.com', first_name: 'Test', last_name: 'User')
-  @run_time_object = RunTimeObject.create!(name: "Object 1", description: "This is a description of Object 1.", user_id: user.id)
+  @user = User.find_by(email: "test@example.com")
+  @run_time_object = RunTimeObject.create!(name: "Object 1", description: "This is a description of Object 1.", user_id: @user.id)
 
   table.hashes.each do |image_data|
     Image.create!(
