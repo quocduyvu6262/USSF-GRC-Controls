@@ -43,7 +43,6 @@ RSpec.describe ImagesController, type: :controller do
       image.reload
       expect(image.tag).to eq("ubuntu")
     end
-
   end
 
   describe "destroy" do

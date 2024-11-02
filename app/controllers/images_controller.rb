@@ -97,7 +97,7 @@ class ImagesController < ApplicationController
   def update
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.find(params[:id])
-  
+
     if @image.update(image_params)
       image_name = @image.tag
       @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
@@ -109,9 +109,9 @@ class ImagesController < ApplicationController
   def destroy
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.find(params[:id])
-    
+
     @image.destroy
-    
+
     redirect_to run_time_object_images_path(@run_time_object), notice: "Image was successfully deleted."
   end
 

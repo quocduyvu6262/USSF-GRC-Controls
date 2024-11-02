@@ -10,7 +10,7 @@ Background: images in database
     | image 1     | None      | 1                   |
     | image 2     | None      | 1                   |
 
-Scenario: Viewing image details
+Scenario: Viewing tag details
   Given I have successfully logged in
   When I go to the details page for tag "image 1"
   Then I should see the title "image 1"
