@@ -6,7 +6,7 @@ class ImagesController < ApplicationController
   "LOW" => 4,
   "UNKNOWN" => 5
 }
-  before_action :set_image, only: %i[ show edit update destroy rescan ]
+  before_action :set_image, only: %i[ show edit update destroy rescan download ]
 
   # GET /images or /images.json
   def index
@@ -92,6 +92,78 @@ class ImagesController < ApplicationController
         end
     end
   end
+
+  def download
+    unless @image.report.present?
+      flash[:alert] = "No report available for this image."
+      redirect_to run_time_object_image_path(@image.run_time_object, @image) and return
+    end
+
+    begin
+      @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
+    rescue JSON::ParserError
+      flash[:alert] = "Failed to parse the report. Invalid JSON format."
+      redirect_to run_time_object_image_path(@image.run_time_object, @image) and return
+    end
+
+    # Process and generate CSV content
+    cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
+    vulnerabilities_data = []
+
+    @image_report["Results"].each do |result|
+      target = result["Target"]
+      next if result["Vulnerabilities"].nil?
+
+      result["Vulnerabilities"].each do |vuln|
+        nist_ids = (cve_to_nist_mapping[vuln["VulnerabilityID"]] || []).map do |nist_id|
+          parts = nist_id.split("/")
+          if parts.length == 2
+            ActionController::Base.helpers.link_to(
+              nist_id,
+              "https://csf.tools/reference/nist-sp-800-53/r4/#{parts[0].downcase}/#{nist_id.downcase}/",
+              target: "_blank", class: "nist-link"
+            ).to_s
+          else
+            "<span class='nist-id'>#{nist_id}</span>"
+          end
+        end.join(" ")
+
+        vulnerabilities_data << {
+          title: vuln["Title"] || "N/A",
+          severity: vuln["Severity"] || "N/A",
+          id: vuln["VulnerabilityID"] || "N/A",
+          installed_version: vuln["InstalledVersion"] || "N/A",
+          fixed_version: vuln["FixedVersion"] || "N/A",
+          status: vuln["Status"] || "",
+          nist_identifiers: nist_ids,
+          description: vuln["Description"].to_s.gsub(/<\/?[^>]+?>/, "").strip || "N/A"
+        }
+      end
+    end
+
+    csv_content = CSV.generate(headers: true) do |csv|
+      csv << [ "Title", "Severity", "ID", "Installed Version", "Fixed Version", "Status", "NIST Identifiers", "Description" ]
+      vulnerabilities_data.each do |vuln|
+        csv << [
+          vuln[:title],
+          vuln[:severity],
+          vuln[:id],
+          vuln[:installed_version],
+          vuln[:fixed_version],
+          vuln[:status],
+          vuln[:nist_identifiers],
+          vuln[:description]
+        ]
+      end
+    end
+
+    new_name = @image.tag.gsub(/[^0-9A-Za-z.\-]/, "_")
+    send_data csv_content,
+              filename: "vulnerability_report_#{new_name}.csv",
+              type: "text/csv",
+              disposition: "attachment"
+  end
+
 
   # PATCH/PUT /images/1 or /images/1.json
   def update
