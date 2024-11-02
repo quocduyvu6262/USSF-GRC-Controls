@@ -3,9 +3,9 @@
         <p class="heading"><%= "#{@run_time_object.name} Tags" %></p>
       <div class="button-container">
         <%= link_to "Go Back", run_time_objects_path, class: "btn-create btn-back" %>
-        <%= link_to 'Access', share_run_time_object_path(@run_time_object),
-                    data: { turbo_frame: "share_frame", bs_toggle: "modal", bs_target: "#shareModal" },
-                    class: 'btn-create' %>
+        <% if @run_time_object.user_id == @current_user.id %>
+          <%= link_to 'Access', share_run_time_object_path(@run_time_object), data: { turbo_frame: "share_frame", bs_toggle: "modal", bs_target: "#shareModal" }, class: 'btn-create' %>
+        <% end %>
         <%= link_to 'Edit', edit_run_time_object_path(@run_time_object), class: 'btn-create btn-edit' %>
         <%= link_to 'Delete', run_time_object_path(@run_time_object),
                     method: :delete,
