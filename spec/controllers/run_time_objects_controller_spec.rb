@@ -101,4 +101,78 @@ RSpec.describe RunTimeObjectsController, type: :controller do
       expect(response).to redirect_to(run_time_object)
     end
   end
+
+  describe "DELETE #destroy" do
+    context "when user owns the runtime object" do
+      it "sets a success flash message" do
+        delete :destroy, params: { id: run_time_object.id }
+        expect(flash[:success]).to eq("Runtime object was successfully deleted.")
+      end
+
+      it "redirects to the index page" do
+        delete :destroy, params: { id: run_time_object.id }
+        expect(response).to redirect_to(run_time_objects_path)
+      end
+
+      context "when deletion fails" do
+        before do
+          allow_any_instance_of(RunTimeObject).to receive(:destroy!).and_raise(ActiveRecord::RecordNotDestroyed.new("Error message"))
+        end
+
+        it "sets an error flash message" do
+          delete :destroy, params: { id: run_time_object.id }
+          expect(flash[:error]).to include("There was an error deleting the runtime object")
+        end
+
+        it "redirects to the runtime object page" do
+          delete :destroy, params: { id: run_time_object.id }
+          expect(response).to redirect_to(run_time_object)
+        end
+      end
+    end
+
+    context "when user doesn't own the runtime object" do
+      before do
+        sign_in other_user
+      end
+    end
+  end
+
+  describe "GET #edit" do
+    it "assigns the requested run_time_object to @run_time_object" do
+      get :edit, params: { id: run_time_object.id }
+      expect(assigns(:run_time_object)).to eq(run_time_object)
+    end
+  end
+
+  describe "PATCH #update" do
+    context "when user owns the runtime object" do
+      let(:valid_attributes) { { description: "Updated description" } }
+      let(:invalid_attributes) { { description: "" } }
+
+      context "with valid params" do
+        it "updates the runtime object" do
+          patch :update, params: { id: run_time_object.id, run_time_object: valid_attributes }
+          run_time_object.reload
+          expect(run_time_object.description).to eq("Updated description")
+        end
+
+        it "sets a success flash message" do
+          patch :update, params: { id: run_time_object.id, run_time_object: valid_attributes }
+          expect(flash[:success]).to eq("Runtime object was successfully updated.")
+        end
+
+        it "redirects to the runtime object" do
+          patch :update, params: { id: run_time_object.id, run_time_object: valid_attributes }
+          expect(response).to redirect_to(run_time_object)
+        end
+      end
+    end
+
+    context "when user doesn't own the runtime object" do
+      before do
+        sign_in other_user
+      end
+    end
+  end
 end

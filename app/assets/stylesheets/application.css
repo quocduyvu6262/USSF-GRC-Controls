@@ -159,7 +159,7 @@ hr.divider {
     margin: 0 auto; 
     display: flex; 
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
 }
 
 .button-container {
@@ -187,7 +187,19 @@ hr.divider {
 }
 
 
-
+.btn-edit {
+    background-color: transparent; 
+    color: black; 
+    border: 1px solid black; 
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 10px;
+    float: right; 
+    display: flex;
+    margin-left: auto; 
+    margin-right: 10px;
+}
 
 .btn-create {
     background-color: transparent; 
@@ -200,6 +212,7 @@ hr.divider {
     float: right; 
     display: flex;
     margin-left: auto; 
+    margin-right: 10px;
 }
 
 .btn-create:hover {

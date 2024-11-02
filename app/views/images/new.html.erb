@@ -17,13 +17,9 @@
                     <%= form.label :tag, "Tag URL", class: "form-label" %>
                     <%= form.text_field :tag, class: "form-control", placeholder: "Value", required: true %>
                 </div>
-                <div class="form-group">
-                    <%= form.label :description, "Description", class: "form-label" %>
-                    <%= form.text_field :description, class: "form-control-description", placeholder: "Value", description: nil %>
-                </div>
                 <div class="actions">
-                    <%= form.submit "Submit", class: "btn-submit" %>
-                    <%= link_to "Go back", run_time_object_images_path(), class: "btn-go-back" %>
+                    <%= form.submit "Submit", class: "btn-create" %>
+                    <%= link_to "Go back", run_time_object_images_path(), class: "btn-create" %>
                 </div>
             </div>
         </div>

@@ -1,7 +1,7 @@
 Feature: Pagination
 
   As a user
-  I want to view 7 images per page only
+  I want to view 7 tags per page only
   So that I do not need to scroll and instead click on the next page
 
   Scenario: Go to next page
@@ -29,11 +29,11 @@ Feature: Pagination
       | image 19    | None      | 1                   |
     When I go to the details page for image with id 1
     Then I should see next and previous arrow when there are more than 1 page
-    Then I should see 7 images
+    Then I should see 7 tags
     When I click on next page
-    Then I should see 7 images
+    Then I should see 7 tags
     When I click on next page
-    Then I should see 5 images
+    Then I should see 5 tags
 
   Scenario: View images when there are fewer than 7 images
     Given I have successfully logged in
@@ -46,9 +46,9 @@ Feature: Pagination
       | image 5     | None      | 1                   |
     When I go to the details page for image with id 1
     Then I should not see pagination controls
-    Then I should see 5 images
-    And I add 3 more images
+    Then I should see 5 tags
+    And I add 3 more tags
     And I refresh the page
     Then I should see next and previous arrow when there are more than 1 page
     Then I click on next page
-    Then I should see 1 images
+    Then I should see 1 tags

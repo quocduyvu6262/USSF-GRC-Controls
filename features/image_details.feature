@@ -16,3 +16,19 @@ Scenario: Viewing image details
   Then I should see the title "image 1"
   When I click "Go back" button
   Then I should be on the images page
+
+
+Scenario: Edit image tag
+  When I go to the details page for tag "image 1"
+  Then I should see the title "image 1"
+  When I click "Edit" button
+  When I fill in "Tag URL" with "alpine:latest"
+  When I click "Update Image" button
+  Then I should see the title "alpine"
+
+Scenario: Delete image tag
+  When I go to the details page for tag "image 1"
+  Then I should see the title "image 1"
+  When I click "Delete" button
+  Then I should see the message "Image was successfully deleted"
+

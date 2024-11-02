@@ -1,5 +1,5 @@
 class RunTimeObjectsController < ApplicationController
-  before_action :set_run_time_object, only: [ :show ]
+  before_action :set_run_time_object, only: [ :show, :edit, :update, :destroy ]
 
   # GET /run_time_objects
   def index
@@ -37,6 +37,36 @@ class RunTimeObjectsController < ApplicationController
     end
   end
 
+  def destroy
+    @run_time_object = RunTimeObject.find(params[:id])
+    if @run_time_object.user == current_user
+      ActiveRecord::Base.transaction do
+        begin
+          @run_time_object.destroy!
+          flash[:success] = "Runtime object was successfully deleted."
+          redirect_to run_time_objects_path
+        rescue ActiveRecord::RecordNotDestroyed => e
+          flash[:error] = "There was an error deleting the runtime object: #{e.message}"
+          redirect_to @run_time_object
+        end
+      end
+    end
+  end
+
+  # GET /run_time_objects/:id/edit
+  def edit
+    # The @run_time_object is already set by the before_action
+  end
+
+  # PATCH/PUT /run_time_objects/:id
+  def update
+    if @run_time_object.user_id == @current_user.id
+      if @run_time_object.update(run_time_object_params)
+        flash[:success] = "Runtime object was successfully updated."
+        redirect_to @run_time_object
+      end
+    end
+  end
   def share
     @run_time_object = RunTimeObject.find(params[:id])
     @users = User.where.not(id: @run_time_object.user_id)
