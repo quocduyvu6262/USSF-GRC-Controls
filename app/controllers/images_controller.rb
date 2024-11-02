@@ -57,6 +57,8 @@ class ImagesController < ApplicationController
 
   # GET /images/1/edit
   def edit
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.find(params[:id])
   end
 
   def create
@@ -96,25 +98,25 @@ class ImagesController < ApplicationController
       flash[:alert] = "No report available for this image."
       redirect_to run_time_object_image_path(@image.run_time_object, @image) and return
     end
-  
+
     begin
       @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
     rescue JSON::ParserError
       flash[:alert] = "Failed to parse the report. Invalid JSON format."
       redirect_to run_time_object_image_path(@image.run_time_object, @image) and return
     end
-  
+
     # Process and generate CSV content
     cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
     vulnerabilities_data = []
-  
+
     @image_report["Results"].each do |result|
       target = result["Target"]
       next if result["Vulnerabilities"].nil?
-  
+
       result["Vulnerabilities"].each do |vuln|
         nist_ids = (cve_to_nist_mapping[vuln["VulnerabilityID"]] || []).map do |nist_id|
-          parts = nist_id.split('/')
+          parts = nist_id.split("/")
           if parts.length == 2
             ActionController::Base.helpers.link_to(
               nist_id,
@@ -124,8 +126,8 @@ class ImagesController < ApplicationController
           else
             "<span class='nist-id'>#{nist_id}</span>"
           end
-        end.join(' ')
-  
+        end.join(" ")
+
         vulnerabilities_data << {
           title: vuln["Title"] || "N/A",
           severity: vuln["Severity"] || "N/A",
@@ -138,9 +140,9 @@ class ImagesController < ApplicationController
         }
       end
     end
-  
+
     csv_content = CSV.generate(headers: true) do |csv|
-      csv << ["Title", "Severity", "ID", "Installed Version", "Fixed Version", "Status", "NIST Identifiers", "Description"]
+      csv << [ "Title", "Severity", "ID", "Installed Version", "Fixed Version", "Status", "NIST Identifiers", "Description" ]
       vulnerabilities_data.each do |vuln|
         csv << [
           vuln[:title],
@@ -150,39 +152,39 @@ class ImagesController < ApplicationController
           vuln[:fixed_version],
           vuln[:status],
           vuln[:nist_identifiers],
-          vuln[:description],
+          vuln[:description]
         ]
       end
     end
-  
-    new_name = @image.tag.gsub(/[^0-9A-Za-z.\-]/, '_')
+
+    new_name = @image.tag.gsub(/[^0-9A-Za-z.\-]/, "_")
     send_data csv_content,
               filename: "vulnerability_report_#{new_name}.csv",
               type: "text/csv",
               disposition: "attachment"
   end
-  
+
 
   # PATCH/PUT /images/1 or /images/1.json
   def update
-    respond_to do |format|
-      if @image.update(image_params)
-        format.html { redirect_to run_time_object_image_path(@image.run_time_object_id, @image), notice: "Image was successfully updated." }
-        format.json { render :show, status: :ok, location: @image }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
-      end
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.find(params[:id])
+
+    if @image.update(image_params)
+      image_name = @image.tag
+      @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
+      @image.save
+      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully updated."
     end
   end
 
   def destroy
-    @image.destroy!
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.find(params[:id])
 
-    respond_to do |format|
-      format.html { redirect_to run_time_object_images_path(@image.run_time_object_id), status: :see_other, notice: "Image was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    @image.destroy
+
+    redirect_to run_time_object_images_path(@run_time_object), notice: "Image was successfully deleted."
   end
 
   private

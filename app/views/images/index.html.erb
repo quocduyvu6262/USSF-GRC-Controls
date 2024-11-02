@@ -1,13 +1,21 @@
 <body>
     <div class="image-page">
         <p class="heading"><%= "#{@run_time_object.name} Tags" %></p>
-        <div class="button-container">
-          <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
-          <%= link_to "Go Back", run_time_objects_path, class: "btn-create" %>
-          <% if @run_time_object.user_id == @current_user.id %>
-            <%= link_to 'Access', share_run_time_object_path(@run_time_object), data: { turbo_frame: "share_frame", bs_toggle: "modal", bs_target: "#shareModal" }, class: 'btn-create' %>
-          <% end %>
-        </div>
+      <div class="button-container">
+        <%= link_to "Go Back", run_time_objects_path, class: "btn-create btn-back" %>
+        <%= link_to 'Access', share_run_time_object_path(@run_time_object),
+                    data: { turbo_frame: "share_frame", bs_toggle: "modal", bs_target: "#shareModal" },
+                    class: 'btn-create' %>
+        <%= link_to 'Edit', edit_run_time_object_path(@run_time_object), class: 'btn-create btn-edit' %>
+        <%= link_to 'Delete', run_time_object_path(@run_time_object),
+                    method: :delete,
+                    data: {
+                      turbo_method: :delete,
+                      turbo_confirm: 'Are you sure you want to delete this runtime object?'
+                    },
+                    class: 'btn-create btn-delete' %>
+        <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
+      </div>
         <div class="image-list">
             <% if @images.present? %>
                 <% @images.each do |image| %>

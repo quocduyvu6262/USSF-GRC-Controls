@@ -1,16 +1,14 @@
 class RunTimeObjectsController < ApplicationController
-  before_action :set_run_time_object, only: [ :show ]
+  before_action :set_run_time_object, only: [ :show, :edit, :update, :destroy ]
 
   # GET /run_time_objects
   def index
     owned_objects = RunTimeObject.where(user_id: @current_user.id)
 
-    # Fetch the ids of the objects shared with the current user
     shared_ids = RunTimeObject.joins(:run_time_objects_permissions)
                              .where(run_time_objects_permissions: { user_id: @current_user.id })
                              .select(:id)
 
-    # Combine both queries into one ActiveRecord relation
     @run_time_objects = RunTimeObject.where(user_id: @current_user.id)
                                     .or(RunTimeObject.where(id: shared_ids))
     @pagy, @run_time_objects = pagy(@run_time_objects)
@@ -39,6 +37,36 @@ class RunTimeObjectsController < ApplicationController
     end
   end
 
+  def destroy
+    @run_time_object = RunTimeObject.find(params[:id])
+    if @run_time_object.user == current_user
+      ActiveRecord::Base.transaction do
+        begin
+          @run_time_object.destroy!
+          flash[:success] = "Runtime object was successfully deleted."
+          redirect_to run_time_objects_path
+        rescue ActiveRecord::RecordNotDestroyed => e
+          flash[:error] = "There was an error deleting the runtime object: #{e.message}"
+          redirect_to @run_time_object
+        end
+      end
+    end
+  end
+
+  # GET /run_time_objects/:id/edit
+  def edit
+    # The @run_time_object is already set by the before_action
+  end
+
+  # PATCH/PUT /run_time_objects/:id
+  def update
+    if @run_time_object.user_id == @current_user.id
+      if @run_time_object.update(run_time_object_params)
+        flash[:success] = "Runtime object was successfully updated."
+        redirect_to @run_time_object
+      end
+    end
+  end
   def share
     @run_time_object = RunTimeObject.find(params[:id])
     @users = User.where.not(id: @run_time_object.user_id)
@@ -49,10 +77,8 @@ class RunTimeObjectsController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:id])
     selected_user_ids = params[:user_ids] || []
 
-    # Remove permissions for users who are no longer selected
     @run_time_object.run_time_objects_permissions.where.not(user_id: selected_user_ids).destroy_all
 
-    # Add permissions for selected users if they don't already have them
     selected_user_ids.each do |user_id|
       unless @run_time_object.run_time_objects_permissions.exists?(user_id: user_id)
         RunTimeObjectsPermission.create(run_time_object: @run_time_object, user_id: user_id, permission: "r")

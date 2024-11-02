@@ -9,14 +9,13 @@ Feature: Scanning Docker Images with Dynamic Input
       | python:3.4-alpine   | Trivy scan result... | 1                  |
     And I have successfully logged in
 
-  Scenario: Scan an image with a valid tag
-    Given I go to new image page
+  Scenario: Scan a image with a valid tag
+    Given I go to new tag page
     And I fill in "Tag URL" with "python:3.4-alpine"
-    And I fill in "Description" with "test"
     And I click "Submit" button
     Then I should be on the image details page with title "python"
 
 	Scenario: Rescan an existing image
-		Given I am on the image details page for "python:3.4-alpine"
+		Given I am on the tag details page for "python:3.4-alpine"
     When I click the "Rescan" button
-    Then I should be on the image details page with title "python"
+    Then I should be on the tag details page with title "python"
