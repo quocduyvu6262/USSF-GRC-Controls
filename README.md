@@ -3,6 +3,7 @@
 ### Heroku app link : [app link](https://csce606-ussf-d5f4faa6ca5f.herokuapp.com/)
 ### Code Climate : [View RubyCritic Report](https://aditya-s-gourishetty.github.io/csce606-report-ussf-report.github.io/)
 HTML link for codeclimate: [View RubyCritic Report](docs/rubycritic/index.html)
+### Project Tracker: [Tracker](https://github.com/orgs/tamu-edu-students/projects/69/views/2)
 ### Team Working Agreement : [Team Working Agreement](documentation/Fall2024/TeamWorkingAgreement.md)
 
 ### Instructions to run rspec and cucumber
