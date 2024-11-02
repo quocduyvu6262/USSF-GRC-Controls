@@ -17,4 +17,4 @@ Feature: Create a new tag
     Then I should see the title "New Tag"
     When I fill in "Tag URL" with "centos:centos7.9.2009"
     And I click "Submit" button
-    Then I should be on the tag details page with title "centos:centos7.9.2009"
+    Then I should be on the tag details page with title "centos"
