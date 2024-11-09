@@ -1,7 +1,56 @@
+<style>
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 5px;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 100%; 
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap; 
+    z-index: 1;
+    width: 100px; 
+    word-wrap: break-word;  
+    white-space: normal;  
+    overflow: hidden;  
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 0.85;
+}
+
+.btn-create {
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, opacity 0.3s;
+}
+
+.btn-create:hover {
+    background-color: #d3d3d3; 
+    opacity: 0.85; 
+}
+</style>
+
 <body>
     <div class="image-page">
         <p class="heading">Container Images</p>
-        <%= link_to "New Container Image", new_run_time_object_path, class: "btn-create" %>
+        <div class="tooltip-container">
+            <%= link_to "New Container Image", new_run_time_object_path, class: "btn-create" %>
+            <span class="tooltip-text">Create a new container image</span>
+        </div>
+
         <div class="image-list">
             <% if @run_time_objects.present? %>
                 <% @run_time_objects.each do |object| %>
@@ -28,4 +77,32 @@
             </div>
         <% end %>
     </div>
+    <script>
+        document.addEventListener("turbo:load", function() {  
+            const tooltipContainers = document.querySelectorAll('.tooltip-container');
+            
+            tooltipContainers.forEach(container => {
+                let hoverTimeout;
+                
+                container.addEventListener('mouseenter', () => {
+                    
+                    const tooltip = container.querySelector('.tooltip-text');
+                    tooltip.style.visibility = 'hidden';
+                    tooltip.style.opacity = '0';
+
+                    hoverTimeout = setTimeout(() => {
+                        tooltip.style.visibility = 'visible';
+                        tooltip.style.opacity = '0.85';
+                    }, 2000); 
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    clearTimeout(hoverTimeout); 
+                    const tooltip = container.querySelector('.tooltip-text');
+                    tooltip.style.visibility = 'hidden';
+                    tooltip.style.opacity = '0';
+                });
+            });
+        });
+    </script>
 </body>

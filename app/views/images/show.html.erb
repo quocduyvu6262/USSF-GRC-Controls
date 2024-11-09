@@ -1,5 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+.tooltip-container {
+        position: relative;
+        display: inline-block;
+        margin: 0 5px;
+    }
+
+    .tooltip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 5px;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1;
+    width: 100px; 
+    word-wrap: break-word;  
+    white-space: normal;  
+    overflow: hidden;  
+}
+
+    .tooltip-container .tooltip-visible {
+        visibility: visible;
+        opacity: 0.85;
+    }
+
+    .btn-create {
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s, opacity 0.3s;
+        color: #333;
+        border: 1px solid #ccc;
+    }
+
+    .btn-create:hover {
+        background-color: #d3d3d3 !important;  
+        opacity: 0.85 !important;  
+        cursor: pointer;
+    }
+
+    .button-container {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,14 +65,45 @@
   <% tag_parts = @image.tag.split(':') %>
   <div style="width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
   <h1 class="title" style="margin: 0;"> <%= tag_parts[0] %></h1>
-<div style="display: flex; gap: 10px;">
-  <%= link_to "Go back", run_time_object_images_path(@run_time_object), class: "btn-create" %>
-  <%= link_to "Edit", edit_run_time_object_image_path(@run_time_object, @image), class: "btn-create" %>
-  <%= button_to "Delete", run_time_object_image_path(@run_time_object, @image), 
-  method: :delete, 
-  class: "btn-create" %>
+    <div class="button-container">
+        <div class="tooltip-container">
+            <%= link_to "Go back", run_time_object_images_path(@run_time_object), class: "btn-create" %>
+            <span class="tooltip-text">Return to the main image page for this object.</span>
+        </div>
 
-</div>
+        <div class="tooltip-container">
+            <%= link_to "Edit", edit_run_time_object_image_path(@run_time_object, @image), class: "btn-create" %>
+            <span class="tooltip-text">Modify the selected container image.</span>
+        </div>
+
+        <div class="tooltip-container">
+            <%= button_to "Delete", run_time_object_image_path(@run_time_object, @image),
+                method: :delete,
+                class: "btn-create" %>
+            <span class="tooltip-text">Remove this specific image from the container.</span>
+        </div>
+    </div>
+    <script>
+    document.addEventListener("turbo:load", function() {
+        const tooltipContainers = document.querySelectorAll('.tooltip-container');
+        
+        tooltipContainers.forEach(container => {
+            let hoverTimeout;
+            
+            container.addEventListener('mouseenter', () => {
+                hoverTimeout = setTimeout(() => {
+                    container.querySelector('.tooltip-text').style.visibility = 'visible';
+                    container.querySelector('.tooltip-text').style.opacity = '0.85';
+                }, 2000); 
+            });
+            container.addEventListener('mouseleave', () => {
+                clearTimeout(hoverTimeout); 
+                container.querySelector('.tooltip-text').style.visibility = 'hidden';
+                container.querySelector('.tooltip-text').style.opacity = '0';
+            });
+        });
+    });
+  </script>
 
 </div>
       <hr>
@@ -30,16 +114,24 @@
         </div>
 
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-          <div class="button-container" style="display: flex; gap: 10px;">
-            <%= link_to "Download Report", download_run_time_object_image_path(@run_time_object.id, @image), 
-                        style: "display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px; border: none; text-decoration: none; cursor: pointer; width: 150px; text-align: center;" %>
+    <div class="button-container" style="display: flex; gap: 10px;">
+            <div class="tooltip-container" style="position: relative;">
+                <%= link_to "Download Report", download_run_time_object_image_path(@run_time_object.id, @image), 
+                            id: "download-report-btn", 
+                            style: "display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px; border: none; text-decoration: none; cursor: pointer; width: 150px; text-align: center;" %>
+                <span class="tooltip-text">Click to download the CSV report for this image</span>
+            </div>
 
-            <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
-              <%= button_tag 'Rescan', 
-                            style: 'display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 150px; text-align: center;' %>
-            <% end %>
-          </div>
+            <div class="tooltip-container" style="position: relative;">
+                <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
+                    <%= button_tag 'Rescan', id: "rescan-btn", 
+                                    style: 'display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 150px; text-align: center;' %>
+                    <span class="tooltip-text">Click to rescan the container image</span>
+                <% end %>
+            </div>
         </div>
+    </div>
+
 
 
         <div id="summary" class="summary-container">

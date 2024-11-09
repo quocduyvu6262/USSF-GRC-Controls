@@ -1,21 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Page</title>
+    <style>
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 4px;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            z-index: 1;
+            width: 100px; 
+            word-wrap: break-word;  
+            white-space: normal;  
+            overflow: hidden;  
+        }
+
+        .tooltip-container .tooltip-visible {
+            visibility: visible;
+            opacity: 0.85;
+        }
+
+        .btn-create {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, opacity 0.3s;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        .btn-create:hover {
+            background-color: #d3d3d3;
+            opacity: 0.85;
+            cursor: pointer;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
 <body>
     <div class="image-page">
         <p class="heading"><%= "#{@run_time_object.name} Tags" %></p>
-      <div class="button-container">
-        <%= link_to "Go Back", run_time_objects_path, class: "btn-create btn-back" %>
-        <% if @run_time_object.user_id == @current_user.id %>
-          <%= link_to 'Access', share_run_time_object_path(@run_time_object), data: { turbo_frame: "share_frame", bs_toggle: "modal", bs_target: "#shareModal" }, class: 'btn-create' %>
-        <% end %>
-        <%= link_to 'Edit', edit_run_time_object_path(@run_time_object), class: 'btn-create btn-edit' %>
-        <%= link_to 'Delete', run_time_object_path(@run_time_object),
+        <div class="button-container">
+            <div class="tooltip-container">
+                <%= link_to "Go Back", run_time_objects_path, class: "btn-create btn-back" %>
+                <span class="tooltip-text">Go back to the container image list page</span>
+            </div>
+
+            <% if @run_time_object.user_id == @current_user.id %>
+            <div class="tooltip-container">
+                <%= link_to 'Access', share_run_time_object_path(@run_time_object),
+                    data: { turbo_frame: "share_frame", bs_toggle: "modal", bs_target: "#shareModal" },
+                    class: 'btn-create' %>
+                <span class="tooltip-text">Grant or revoke access for this particular container image to different users.</span>
+            </div>
+            <% end %>
+
+            <div class="tooltip-container">
+                <%= link_to 'Edit', edit_run_time_object_path(@run_time_object), class: 'btn-create btn-edit' %>
+                <span class="tooltip-text">Edit the description for this container image.</span>
+            </div>
+
+            <div class="tooltip-container">
+                <%= link_to 'Delete', run_time_object_path(@run_time_object),
                     method: :delete,
-                    data: {
-                      turbo_method: :delete,
-                      turbo_confirm: 'Are you sure you want to delete this runtime object?'
-                    },
+                    data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this runtime object?' },
                     class: 'btn-create btn-delete' %>
-        <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
-      </div>
+                <span class="tooltip-text">Delete this container image and all the tags associated with it.</span>
+            </div>
+
+            <div class="tooltip-container">
+                <%= link_to "New Tag", new_run_time_object_image_path, class: "btn-create" %>
+                <span class="tooltip-text">Create a new tag for this container image.</span>
+            </div>
+        </div>
+
         <div class="image-list">
             <% if @images.present? %>
                 <% @images.each do |image| %>
@@ -42,4 +121,27 @@
             </div>
         <% end %>
     </div>
+
+    <script>
+    document.addEventListener("turbo:load", function() {
+        const tooltipContainers = document.querySelectorAll('.tooltip-container');
+        
+        tooltipContainers.forEach(container => {
+            let hoverTimeout;
+            
+            container.addEventListener('mouseenter', () => {
+                hoverTimeout = setTimeout(() => {
+                    container.querySelector('.tooltip-text').classList.add('tooltip-visible');
+                }, 2000); 
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                clearTimeout(hoverTimeout); 
+                container.querySelector('.tooltip-text').classList.remove('tooltip-visible');
+            });
+        });
+    });
+	</script>
+
 </body>
+</html>
