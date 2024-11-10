@@ -3,14 +3,20 @@ class RunTimeObjectsController < ApplicationController
 
   # GET /run_time_objects
   def index
-    owned_objects = RunTimeObject.where(user_id: @current_user.id)
 
-    shared_ids = RunTimeObject.joins(:run_time_objects_permissions)
-                             .where(run_time_objects_permissions: { user_id: @current_user.id })
-                             .select(:id)
+    if @current_user.admin
+      @run_time_objects = RunTimeObject.all
+    else
+      owned_objects = RunTimeObject.where(user_id: @current_user.id)
 
-    @run_time_objects = RunTimeObject.where(user_id: @current_user.id)
-                                    .or(RunTimeObject.where(id: shared_ids))
+      shared_ids = RunTimeObject.joins(:run_time_objects_permissions)
+                              .where(run_time_objects_permissions: { user_id: @current_user.id })
+                              .select(:id)
+
+      @run_time_objects = RunTimeObject.where(user_id: @current_user.id)
+                                      .or(RunTimeObject.where(id: shared_ids))
+    end
+    
     @pagy, @run_time_objects = pagy(@run_time_objects)
   end
 
