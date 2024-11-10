@@ -1,0 +1,121 @@
+<h1>Manage Users</h1>
+
+<%= form_with url: manage_users_path, method: :get, local: true do %>
+  <div class="search-form">
+    <%= label_tag :search, "Search by Email, First Name, or Last Name:" %>
+    <%= text_field_tag :search, params[:search], placeholder: "Enter search term" %>
+    <%= submit_tag "Search", class: "search-btn" %>
+  </div>
+<% end %>
+
+<%= form_with url: update_admin_status_path, method: :patch do %>
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Admin</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @display_users_admin_screen.each do |user| %>
+        <tr>
+          <td><%= user.email %></td>
+          <td><%= user.first_name %></td>
+          <td><%= user.last_name %></td>
+          <td>
+            <%= check_box_tag 'admin_user_ids[]', user.id, user.admin? %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="submit-btn">
+    <%= submit_tag 'Update Admin Status' %>
+  </div>
+<% end %>
+
+
+<style>
+  /* Search form styling */
+  .search-form {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .search-form input[type="text"] {
+    padding: 8px 12px;
+    width: 300px;
+    margin-right: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+  .search-form input[type="submit"] {
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .search-form input[type="submit"]:hover {
+    background-color: #45a049;
+  }
+
+  /* Table styling (same as before) */
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .user-table th,
+  .user-table td {
+    padding: 12px 15px;
+    text-align: left;
+  }
+
+  .user-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+  }
+
+  .user-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .user-table tr:hover {
+    background-color: #ddd;
+  }
+
+  .user-table td input[type="checkbox"] {
+    transform: scale(1.2);
+    cursor: pointer;
+  }
+
+  .submit-btn {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .submit-btn input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .submit-btn input[type="submit"]:hover {
+    background-color: #45a049;
+  }
+</style>

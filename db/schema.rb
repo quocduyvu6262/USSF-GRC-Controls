@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_26_165257) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_08_233324) do
   create_table "cve_nist_mappings", force: :cascade do |t|
     t.string "cve_id"
     t.text "nist_control_identifiers"
@@ -56,6 +56,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_26_165257) do
     t.datetime "updated_at", null: false
     t.string "uid"
     t.string "provider"
+    t.boolean "admin", default: false, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
