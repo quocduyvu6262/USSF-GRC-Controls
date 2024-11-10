@@ -1,13 +1,5 @@
 <h1>Manage Users</h1>
 
-<%= form_with url: manage_users_path, method: :get, local: true do %>
-  <div class="search-form">
-    <%= label_tag :search, "Search by Email, First Name, or Last Name:" %>
-    <%= text_field_tag :search, params[:search], placeholder: "Enter search term" %>
-    <%= submit_tag "Search", class: "search-btn" %>
-  </div>
-<% end %>
-
 <%= form_with url: update_admin_status_path, method: :patch do %>
   <table class="user-table">
     <thead>
@@ -38,36 +30,9 @@
   </div>
 <% end %>
 
-
+<!-- Add CSS Styling -->
 <style>
-  /* Search form styling */
-  .search-form {
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
-  .search-form input[type="text"] {
-    padding: 8px 12px;
-    width: 300px;
-    margin-right: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-
-  .search-form input[type="submit"] {
-    padding: 8px 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .search-form input[type="submit"]:hover {
-    background-color: #45a049;
-  }
-
-  /* Table styling (same as before) */
+  /* Table styling */
   .user-table {
     width: 100%;
     border-collapse: collapse;
@@ -94,11 +59,13 @@
     background-color: #ddd;
   }
 
+  /* Styling for the checkboxes */
   .user-table td input[type="checkbox"] {
     transform: scale(1.2);
     cursor: pointer;
   }
 
+  /* Styling for the submit button */
   .submit-btn {
     margin-top: 20px;
     text-align: center;

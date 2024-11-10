@@ -14,6 +14,7 @@ class UsersController < ApplicationController
                                      else
                                        User.where.not(id: current_user.id)
                                      end
+      render partial: 'user_table', locals: { users: @display_users_admin_screen } if request.xhr?
     end
 
     def update_admin_status
@@ -23,6 +24,6 @@ class UsersController < ApplicationController
           user.update(admin: admin_user_ids.include?(user.id.to_s))
         end
 
-        redirect_to manage_users_path, notice: "Admin statuses updated successfully."
+        redirect_to root_path, notice: "Admin statuses updated successfully."
     end
 end
