@@ -45,7 +45,7 @@ class RunTimeObjectsController < ApplicationController
 
   def destroy
     @run_time_object = RunTimeObject.find(params[:id])
-    if @run_time_object.user == current_user
+    if @run_time_object.user == current_user || @current_user.admin
       ActiveRecord::Base.transaction do
         begin
           @run_time_object.destroy!
@@ -75,7 +75,7 @@ class RunTimeObjectsController < ApplicationController
   end
   def share
     @run_time_object = RunTimeObject.find(params[:id])
-    @users = User.where.not(id: @run_time_object.user_id)
+    @users = User.where.not(id: [@run_time_object.user_id, @current_user.id])
     @permitted_user_ids = @run_time_object.run_time_objects_permissions.pluck(:user_id)
   end
 

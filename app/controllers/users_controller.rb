@@ -26,4 +26,10 @@ class UsersController < ApplicationController
 
         redirect_to root_path, notice: "Admin statuses updated successfully."
     end
+
+    def destroy
+      user = User.find(params[:id])
+      user.destroy
+      redirect_to manage_users_path, notice: "User deleted successfully."
+    end
 end
