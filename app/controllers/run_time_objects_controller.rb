@@ -69,6 +69,13 @@ class RunTimeObjectsController < ApplicationController
   end
   def share
     @run_time_object = RunTimeObject.find(params[:id])
+
+    if @run_time_object.user_id != @current_user.id
+      flash[:error] = "You do not have permission to share this runtime object."
+      redirect_to @run_time_object
+      return
+    end
+
     @users = User.where.not(id: @run_time_object.user_id)
     @permitted_user_ids = @run_time_object.run_time_objects_permissions.pluck(:user_id)
   end
