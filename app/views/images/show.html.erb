@@ -95,6 +95,14 @@
       <!-- Add other status options as needed -->
     </select>
   </label>
+  <label>Sort by:
+    <select id="sortFilter">
+      <option value="title_asc">Title: ASC</option>
+      <option value="title_desc">Title: DESC</option>
+      <option value="id_asc">ID: ASC</option>
+      <option value="id_desc">ID: DESC</option>
+    </select>
+  </label>
 </div>
 
 <div id="vulnerabilities">
@@ -141,13 +149,25 @@
                 let filteredVulnerabilities = [...vulnerabilities];
 
                 const tableBody = document.getElementById('vulnerabilitiesTableBody');
+                const sortFilter = document.getElementById('sortFilter');
                 const prevButton = document.getElementById('prevPage');
                 const nextButton = document.getElementById('nextPage');
                 const pageInfo = document.getElementById('pageInfo');
                 const severityFilter = document.getElementById('severityFilter');
                 const statusFilter = document.getElementById('statusFilter');
 
+                function sortVulnerabilities(vulnerabilities) {
+                    const sortBy = sortFilter.value;
+                    return vulnerabilities.sort((a, b) => {
+                        if (sortBy === 'title_asc') return a.Title.localeCompare(b.Title);
+                        if (sortBy === 'title_desc') return b.Title.localeCompare(a.Title);
+                        if (sortBy === 'id_asc') return a.VulnerabilityID.localeCompare(b.VulnerabilityID);
+                        if (sortBy === 'id_desc') return b.VulnerabilityID.localeCompare(a.VulnerabilityID);
+                    });
+                }
+
                 function displayVulnerabilities(page) {
+                    const sortedVulnerabilities = sortVulnerabilities(filteredVulnerabilities);
                     const start = (page - 1) * itemsPerPage;
                     const end = start + itemsPerPage;
                     const pageVulnerabilities = filteredVulnerabilities.slice(start, end);
@@ -184,7 +204,10 @@
       `;
                         tableBody.innerHTML += row;
                     });
-
+                    sortFilter.addEventListener('change', () => {
+                        console.log('Sort filter changed');
+                        displayVulnerabilities(currentPage);
+                    });
                     pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(filteredVulnerabilities.length / itemsPerPage)}`;
                     prevButton.disabled = currentPage === 1;
                     nextButton.disabled = currentPage === Math.ceil(filteredVulnerabilities.length / itemsPerPage);
