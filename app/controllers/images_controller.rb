@@ -1,9 +1,7 @@
 class ImagesController < ApplicationController
-  before_action :authorize_user, only: [:index, :new, :edit, :create, :rescan, :update, :destroy, :show]
-  before_action :authorize_edit_permission, only: [:index, :new, :edit, :create, :rescan, :update, :destroy]
-  before_action :authorize_view_permission, only: [:show]
-
-
+  before_action :authorize_edit_permission, only: [:new, :edit, :create, :rescan, :update, :destroy]
+  before_action :authorize_view_permission, only: [:index, :show]
+  
   SEVERITY_ORDER = {
   "CRITICAL" => 1,
   "HIGH" => 2,
@@ -206,7 +204,7 @@ class ImagesController < ApplicationController
       @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "r") ||
       @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to view this object."
-      redirect_to @run_time_object
+      redirect_to run_time_objects_path
     end
   end
 
@@ -216,7 +214,7 @@ class ImagesController < ApplicationController
     puts "HELLO"
     unless @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to edit this object."
-      redirect_to @run_time_object
+      redirect_to run_time_objects_path
     end
   end
 

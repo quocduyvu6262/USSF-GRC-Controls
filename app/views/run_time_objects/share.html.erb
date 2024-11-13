@@ -12,6 +12,7 @@
           <th style="border: 1px solid #ddd; padding: 8px;">User</th>
           <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">View Permission</th>
           <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Edit Permission</th>
+          <th style="border: 1px solid #ddd; padding: 8px; text-align: center;"></th>
         </tr>
         </thead>
         <tbody>
@@ -29,6 +30,9 @@
                 <%= radio_button_tag "permissions[#{user.id}]", "edit", @edit_permitted_user_ids.include?(user.id), id: "edit_permission_#{user.id}" %>
                 <%= label_tag "edit_permission_#{user.id}", "" %>
               </td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                <%= link_to "Remove Access", "#", class: "remove-access", data: { user_id: user.id } %>
+              </td>
             </tr>
           <% end %>
         <% end %>
@@ -40,8 +44,23 @@
     <%= submit_tag 'Share', class: 'btn btn-primary', style: 'margin-top: 10px;' %>
      <%= link_to 'Back', run_time_object_images_path(@run_time_object), class: 'btn btn-secondary', style: 'margin-top: 10px;' %>
   <% end %>
-
 </div>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        const removeLinks = document.querySelectorAll('.remove-access');
+
+        removeLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const userId = this.dataset.userId;
+                document.querySelector(`#view_permission_${userId}`).checked = false;
+                document.querySelector(`#edit_permission_${userId}`).checked = false;
+            });
+        });
+    });
+</script>
+
 
 <style>
   .btn {

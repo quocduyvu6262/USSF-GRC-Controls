@@ -12,12 +12,18 @@
   <% tag_parts = @image.tag.split(':') %>
   <div style="width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
   <h1 class="title" style="margin: 0;"> <%= tag_parts[0] %></h1>
-<div style="display: flex; gap: 10px;">
+<div style="display: flex; gap: 10px; margin-right: 20px">
   <%= link_to "Go back", run_time_object_images_path(@run_time_object), class: "btn-create" %>
-  <%= link_to "Edit", edit_run_time_object_image_path(@run_time_object, @image), class: "btn-create" %>
-  <%= button_to "Delete", run_time_object_image_path(@run_time_object, @image), 
-  method: :delete, 
-  class: "btn-create" %>
+
+  <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+    <%= link_to "Edit", edit_run_time_object_image_path(@run_time_object, @image), class: "btn-create" %>
+  <% end %>
+
+  <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+    <%= button_to "Delete", run_time_object_image_path(@run_time_object, @image),
+                  method: :delete,
+                  class: "btn-create" %>
+  <% end %>
 
 </div>
 
