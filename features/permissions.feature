@@ -6,7 +6,7 @@ Feature: Share Runtime Objects with Users
     And user "Shared User" exists
     When I visit the runtime object page
     When I click on the "Access" button
-    And I check the checkbox for "Shared User"
+    And I check the "view" checkbox for "Shared User"
     And I submit the share form
     Then "Shared User" should have permission to access the runtime object
     And I should be redirected to the runtime object page

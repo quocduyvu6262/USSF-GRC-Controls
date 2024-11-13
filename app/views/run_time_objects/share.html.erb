@@ -4,15 +4,36 @@
 
 
   <%= form_with url: share_with_users_run_time_object_path(@run_time_object), method: :post do |f| %>
-    <div style="display: inline-block; text-align: left;">
-      <% @users.each do |user| %>
-        <% if user.id != @run_time_object.user_id && user.first_name.present? && user.last_name.present? %>
-          <div style="margin-bottom: 5px;">
-            <%= check_box_tag 'user_ids[]', user.id, @permitted_user_ids.include?(user.id) %>
-            <%= label_tag "user_ids_#{user.id}", "#{user.first_name} #{user.last_name}" %>
-          </div>
+
+    <div style="display: flex; justify-content: center">
+      <table style="width: 60%; border-collapse: collapse;">
+        <thead>
+        <tr>
+          <th style="border: 1px solid #ddd; padding: 8px;">User</th>
+          <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">View Permission</th>
+          <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Edit Permission</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @users.each do |user| %>
+          <% if user.id != @run_time_object.user_id && user.first_name.present? && user.last_name.present? %>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;">
+                <%= "#{user.first_name} #{user.last_name}" %>
+              </td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                <%= radio_button_tag "permissions[#{user.id}]", "view", @view_permitted_user_ids.include?(user.id), id: "view_permission_#{user.id}" %>
+                <%= label_tag "view_permission_#{user.id}", "" %>
+              </td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                <%= radio_button_tag "permissions[#{user.id}]", "edit", @edit_permitted_user_ids.include?(user.id), id: "edit_permission_#{user.id}" %>
+                <%= label_tag "edit_permission_#{user.id}", "" %>
+              </td>
+            </tr>
+          <% end %>
         <% end %>
-      <% end %>
+        </tbody>
+      </table>
     </div>
     
     <br>

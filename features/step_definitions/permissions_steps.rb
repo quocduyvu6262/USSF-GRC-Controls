@@ -15,10 +15,11 @@ When("I visit the runtime object page") do
   visit run_time_object_images_path(@current_run_time_object)
 end
 
-When("I check the checkbox for {string}") do |user_full_name|
+When("I check the {string} checkbox for {string}") do |permission_type, user_full_name|
   first_name, last_name = user_full_name.split(" ")
   user = User.find_by(first_name: first_name, last_name: last_name)
-  check("user_ids[]", option: user.id)
+  value =  permission_type == "view" ? "view" : "edit"
+  choose("#{value}_permission_#{user.id}")
 end
 
 When("I submit the share form") do

@@ -91,7 +91,7 @@ RSpec.describe RunTimeObjectsController, type: :controller do
       end
 
       it "adds permissions for selected users" do
-        post :share_with_users, params: { id: run_time_object.id, user_ids: [ user1.id, user2.id ] }
+        post :share_with_users, params: { id: run_time_object.id, permissions: [ ["view", user1.id], ["view", user2.id] ] }
         expect(run_time_object.run_time_objects_permissions.exists?(user_id: user2.id)).to be_truthy
       end
     end
