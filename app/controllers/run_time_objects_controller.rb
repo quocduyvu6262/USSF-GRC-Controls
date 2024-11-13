@@ -104,7 +104,7 @@ class RunTimeObjectsController < ApplicationController
     user_obj = User.find(session[:user_id])
     if @run_time_object.user.id != user_obj.id
       flash[:alert] = "You are not authorized to share this run time object."
-      redirect_to @run_time_object
+      redirect_to run_time_objects_path
     end
   end
 
@@ -113,7 +113,7 @@ class RunTimeObjectsController < ApplicationController
     user_obj = User.find(session[:user_id])
     unless @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to edit this object."
-      redirect_to @run_time_object
+      redirect_to run_time_objects_path
     end
   end
 

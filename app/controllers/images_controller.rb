@@ -1,6 +1,6 @@
 class ImagesController < ApplicationController
-  before_action :authorize_edit_permission, only: [:new, :edit, :create, :rescan, :update, :destroy]
-  before_action :authorize_view_permission, only: [:index, :show]
+  before_action :authorize_edit_permission, only: [ :new, :edit, :create, :rescan, :update, :destroy ]
+  before_action :authorize_view_permission, only: [ :index, :show ]
 
   SEVERITY_ORDER = {
   "CRITICAL" => 1,
@@ -188,22 +188,13 @@ class ImagesController < ApplicationController
     redirect_to run_time_object_images_path(@run_time_object), notice: "Image was successfully deleted."
   end
 
-  def authorize_user
-    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
-    user_obj = User.find(session[:user_id])
-    if @run_time_object.user != user_obj && !@run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id)
-      flash[:alert] = "You are not authorized to access this object."
-      redirect_to run_time_objects_path
-    end
-  end
-
   def authorize_view_permission
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     user_obj = User.find(session[:user_id])
     unless @run_time_object.user == user_obj ||
       @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "r") ||
       @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
-      flash[:alert] = "You are not authorized to view this object."
+      flash[:alert] = "You are not authorized to view this data."
       redirect_to run_time_objects_path
     end
   end
@@ -212,7 +203,7 @@ class ImagesController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     user_obj = User.find(session[:user_id])
     unless @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
-      flash[:alert] = "You are not authorized to edit this object."
+      flash[:alert] = "You are not authorized to edit this data."
       redirect_to run_time_objects_path
     end
   end
