@@ -94,7 +94,7 @@
                 hoverTimeout = setTimeout(() => {
                     container.querySelector('.tooltip-text').style.visibility = 'visible';
                     container.querySelector('.tooltip-text').style.opacity = '0.85';
-                }, 2000); 
+                }, 1000); 
             });
             container.addEventListener('mouseleave', () => {
                 clearTimeout(hoverTimeout); 
