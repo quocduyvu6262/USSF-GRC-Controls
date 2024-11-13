@@ -111,7 +111,6 @@ class RunTimeObjectsController < ApplicationController
   def authorize_edit_permission
     @run_time_object = RunTimeObject.find(params[:id])
     user_obj = User.find(session[:user_id])
-    puts "HELLO"
     unless @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to edit this object."
       redirect_to @run_time_object

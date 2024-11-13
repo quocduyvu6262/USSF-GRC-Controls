@@ -1,7 +1,7 @@
 class ImagesController < ApplicationController
   before_action :authorize_edit_permission, only: [:new, :edit, :create, :rescan, :update, :destroy]
   before_action :authorize_view_permission, only: [:index, :show]
-  
+
   SEVERITY_ORDER = {
   "CRITICAL" => 1,
   "HIGH" => 2,
@@ -211,7 +211,6 @@ class ImagesController < ApplicationController
   def authorize_edit_permission
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     user_obj = User.find(session[:user_id])
-    puts "HELLO"
     unless @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to edit this object."
       redirect_to run_time_objects_path
