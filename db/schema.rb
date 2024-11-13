@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_08_233324) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_13_043707) do
   create_table "cve_nist_mappings", force: :cascade do |t|
     t.string "cve_id"
     t.text "nist_control_identifiers"
@@ -57,11 +57,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_08_233324) do
     t.string "uid"
     t.string "provider"
     t.boolean "admin", default: false, null: false
+    t.boolean "block", default: false, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "images", "run_time_objects"
   add_foreign_key "run_time_objects", "users"
+  add_foreign_key "run_time_objects", "users", on_delete: :cascade
   add_foreign_key "run_time_objects_permissions", "run_time_objects"
   add_foreign_key "run_time_objects_permissions", "users"
+  add_foreign_key "run_time_objects_permissions", "users", on_delete: :cascade
 end

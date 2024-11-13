@@ -19,12 +19,18 @@ class UsersController < ApplicationController
 
     def update_admin_status
         admin_user_ids = params[:admin_user_ids] || []
+
+        block_user_ids = params[:block_user_ids] || []
     
         User.where.not(id: current_user.id).find_each do |user|
           user.update(admin: admin_user_ids.include?(user.id.to_s))
         end
 
-        redirect_to root_path, notice: "Admin statuses updated successfully."
+        User.where.not(id: current_user.id).find_each do |user|
+          user.update(block: block_user_ids.include?(user.id.to_s))
+        end
+
+        redirect_to root_path, notice: "User statuses updated successfully."
     end
 
     def destroy
