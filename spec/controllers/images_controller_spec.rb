@@ -2,6 +2,8 @@ require 'rails_helper'
 
 RSpec.describe ImagesController, type: :controller do
   let(:user) { User.create(email: "test@example.com", first_name: "Test", last_name: "User") }
+  let(:shared_user) { User.create(email: "dummy@example.com", first_name: "Dummy", last_name: "User") }
+
   let(:run_time_object) { RunTimeObject.create(name: "Sample Object", description: "A sample runtime object", user: user) }
   let(:image) { Image.create(tag: "alpine", run_time_object: run_time_object) }
   let(:valid_json_report) do
@@ -20,6 +22,29 @@ RSpec.describe ImagesController, type: :controller do
       get :index, params: { run_time_object_id: run_time_object.id }
       expect(response).to be_successful
     end
+
+    context "shared and unauthorized users access runtime object" do
+      before do
+        session[:user_id] = shared_user.id
+      end
+
+      it "returns a successful response for shared user with view permission" do
+        RunTimeObjectsPermission.create(run_time_object: run_time_object, user_id: shared_user.id, permission: "r")
+        get :index, params: { run_time_object_id: run_time_object.id }
+        expect(response).to be_successful
+      end
+
+      it "returns a successful response for shared user with edit permission" do
+        RunTimeObjectsPermission.create(run_time_object: run_time_object, user_id: shared_user.id, permission: "e")
+        get :index, params: { run_time_object_id: run_time_object.id }
+        expect(response).to be_successful
+      end
+
+      it "redirect to homepage for unauthorized user" do
+        get :index, params: { run_time_object_id: run_time_object.id }
+        expect(response).to redirect_to(run_time_objects_path)
+      end
+    end
   end
 
   describe "creates" do
@@ -37,6 +62,30 @@ RSpec.describe ImagesController, type: :controller do
         run_time_object_id: ''
       } }
       expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, Image.last))
+    end
+
+    context "shared and unauthorized users try to create/edit image" do
+      before do
+        session[:user_id] = shared_user.id
+      end
+
+      it "redirect for shared user with view permission" do
+        RunTimeObjectsPermission.create(run_time_object: run_time_object, user_id: shared_user.id, permission: "r")
+        post :create, params: { run_time_object_id: run_time_object.id, image: {
+          tag: '',
+          run_time_object_id: ''
+        } }
+        expect(response).to redirect_to(run_time_objects_path)
+      end
+
+      it "returns a successful response for shared user with edit permission" do
+        RunTimeObjectsPermission.create(run_time_object: run_time_object, user_id: shared_user.id, permission: "e")
+        post :create, params: { run_time_object_id: run_time_object.id, image: {
+          tag: '',
+          run_time_object_id: ''
+        } }
+        expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, Image.last))
+      end
     end
   end
 
