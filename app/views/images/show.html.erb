@@ -49,66 +49,67 @@
           </div>
         </div>
 
-
-        <div id="summary" class="summary-container">
-          <h2 class="summary-title">Vulnerability Summary</h2>
-          <% @image_report["Results"].each do |result| %>
-            <% target = result["Target"]%>
-            <% summary = result["VulnerabilitySummary"]%>
-            <div class="target-summary">
-              <h3 class="target-title"><%= target %></h3>
-              <div class="severity-grid">
-                <% summary.each do |severity, count| %>
-                  <div class="severity-item" data-severity="<%= severity.downcase %>">
-                    <span class="severity-badge <%= severity.downcase %>"><%= severity %></span>
-                    <span class="severity-count"><%= count %></span>
-                  </div>
-                <% end %>
+        <% if @image_report.present? %>
+          <div id="summary" class="summary-container">
+            <h2 class="summary-title">Vulnerability Summary</h2>
+            <% @image_report["Results"].each do |result| %>
+              <% target = result["Target"]%>
+              <% summary = result["VulnerabilitySummary"]%>
+              <div class="target-summary">
+                <h3 class="target-title"><%= target %></h3>
+                <div class="severity-grid">
+                  <% summary.each do |severity, count| %>
+                    <div class="severity-item" data-severity="<%= severity.downcase %>">
+                      <span class="severity-badge <%= severity.downcase %>"><%= severity %></span>
+                      <span class="severity-count"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
               </div>
-            </div>
-            <% if result["FixableVulnerabilitiesCount"] > 0 %>
-              <div class="fixable-vulnerabilities-note">
-                <p>
-                  <strong>📢 Updates Available:</strong>
-                  <%= result["FixableVulnerabilitiesCount"] %> <%= 'vulnerability'.pluralize(result["FixableVulnerabilitiesCount"]) %>
-                  in this image can be fixed by updating to the fixed version!
-                </p>
-              </div>
+              <% if result["FixableVulnerabilitiesCount"] > 0 %>
+                <div class="fixable-vulnerabilities-note">
+                  <p>
+                    <strong>📢 Updates Available:</strong>
+                    <%= result["FixableVulnerabilitiesCount"] %> <%= 'vulnerability'.pluralize(result["FixableVulnerabilitiesCount"]) %>
+                    in this image can be fixed by updating to the fixed version!
+                  </p>
+                </div>
+              <% end %>
             <% end %>
-          <% end %>
+          </div>
+
+
+        <div id="filters">
+          <h2>Filters</h2>
+          <label>Severity:
+            <select id="severityFilter">
+              <option value="ALL">All</option>
+              <option value="CRITICAL">Critical</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+              <option value="UNKNOWN">Unknown</option>
+            </select>
+          </label>
+          <label>Status:
+            <select id="statusFilter">
+              <option value="ALL">All</option>
+              <option value="affected">Affected</option>
+              <option value="fixed">Fixed</option>
+              <!-- Add other status options as needed -->
+            </select>
+          </label>
+          <label>Sort by:
+            <select id="sortFilter">
+              <option value="title_asc">Title: ASC</option>
+              <option value="title_desc">Title: DESC</option>
+              <option value="id_asc">ID: ASC</option>
+              <option value="id_desc">ID: DESC</option>
+            </select>
+          </label>
         </div>
 
-<div id="filters">
-  <h2>Filters</h2>
-  <label>Severity:
-    <select id="severityFilter">
-      <option value="ALL">All</option>
-      <option value="CRITICAL">Critical</option>
-      <option value="HIGH">High</option>
-      <option value="MEDIUM">Medium</option>
-      <option value="LOW">Low</option>
-      <option value="UNKNOWN">Unknown</option>
-    </select>
-  </label>
-  <label>Status:
-    <select id="statusFilter">
-      <option value="ALL">All</option>
-      <option value="affected">Affected</option>
-      <option value="fixed">Fixed</option>
-      <!-- Add other status options as needed -->
-    </select>
-  </label>
-  <label>Sort by:
-    <select id="sortFilter">
-      <option value="title_asc">Title: ASC</option>
-      <option value="title_desc">Title: DESC</option>
-      <option value="id_asc">ID: ASC</option>
-      <option value="id_desc">ID: DESC</option>
-    </select>
-  </label>
-</div>
-
-<div id="vulnerabilities">
+        <div id="vulnerabilities">
           <h2>Vulnerabilities</h2>
           <% @image_report['Results'].each do |result| %>
             <div class="target-vulnerabilities">
@@ -116,20 +117,20 @@
               <% if result['Vulnerabilities'] %>
                 <table class="vulnerabilities-table">
                   <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Severity</th>
-                    <th>ID</th>
-                    <th>Installed Version</th>
-                    <th>Fixed Version</th>
-                    <th>Status</th>
-                    <th>NIST Identifiers</th>
-                    <th>Description</th>
-                    <th>More Info</th>
-                  </tr>
+                    <tr>
+                      <th>Title</th>
+                      <th>Severity</th>
+                      <th>ID</th>
+                      <th>Installed Version</th>
+                      <th>Fixed Version</th>
+                      <th>Status</th>
+                      <th>NIST Identifiers</th>
+                      <th>Description</th>
+                      <th>More Info</th>
+                    </tr>
                   </thead>
                   <tbody id="vulnerabilitiesTableBody">
-                  <!-- Table rows will be dynamically populated by JavaScript -->
+                    <!-- Table rows will be dynamically populated by JavaScript -->
                   </tbody>
                 </table>
                 <div id="pagination">
@@ -270,7 +271,7 @@
                 displayVulnerabilities(currentPage);
             });
         </script>
-
+        <% end %>
         <style>
             h1 {
                 font-size: 36px;

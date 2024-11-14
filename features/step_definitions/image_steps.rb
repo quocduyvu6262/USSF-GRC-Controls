@@ -95,7 +95,6 @@ end
 
 
 Then('I should see the message {string}') do |message|
-  puts page.body
   expect(page).to have_content(message)
 end
 

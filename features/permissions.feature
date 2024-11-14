@@ -22,8 +22,8 @@ Feature: Share Runtime Objects with Users
     And I cannot access delete button in runtime object page
     Given owner has following tags:
       | tag             | report    |
-      | alpine          | None      |
-      | hello-world     | None      |
+      | alpine          | ""      |
+      | hello-world     | ""      |
     Then I visit image "alpine"
     Then I should be on the image details page with title "alpine"
     And I should not see the "Edit" button
@@ -53,8 +53,8 @@ Feature: Share Runtime Objects with Users
     And I can access new tag button in runtime object page
     Given owner has following tags:
       | tag             | report    |
-      | alpine          | None      |
-      | hello-world     | None      |
+      | alpine          | ""      |
+      | hello-world     | ""      |
     Then I visit image "alpine"
     Then I should be on the image details page with title "alpine"
     And I should see the "Edit" button

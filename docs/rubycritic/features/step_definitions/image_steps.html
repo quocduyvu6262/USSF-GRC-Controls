@@ -97,7 +97,7 @@
       </div>
     </div>
 
-    <code class="prettyprint linenums lang-ruby file-code js-file-code">Given(&#39;the following images exist:&#39;) do |table|
+    <code class="prettyprint linenums lang-ruby file-code js-file-code">Given(&#39;the following tags exist:&#39;) do |table|
   user = User.create!(email: &#39;quocduyvu6262@gmail.com&#39;, first_name: &#39;Test&#39;, last_name: &#39;User&#39;)
   RunTimeObject.create!([ { name: &quot;Object 1&quot;, description: &quot;This is a description of Object 1.&quot;, user_id: user.id } ])
   table.hashes.each do |image_data|
@@ -109,7 +109,7 @@
   end
 end
 
-When(&#39;I go to the details page for {string}&#39;) do |string|
+When(&#39;I go to the details page for tag {string}&#39;) do |string|
   image = Image.find_by(tag: string)
   visit image_path(image.id)
 end

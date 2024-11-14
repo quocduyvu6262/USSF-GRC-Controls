@@ -7,7 +7,7 @@ Feature: Scanning Docker Images with Dynamic Input
     Given I have successfully logged in
     Given the following tags exist:
       | tag                | report               | run_time_object_id |
-      | python:3.4-alpine   | Trivy scan result... | 1                  |
+      | python:3.4-alpine   | ""                  | 1                  |
 
   Scenario: Scan a image with a valid tag
     Given I go to new tag page
