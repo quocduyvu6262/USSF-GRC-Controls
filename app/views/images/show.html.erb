@@ -52,7 +52,9 @@
 
         <div id="summary" class="summary-container">
           <h2 class="summary-title">Vulnerability Summary</h2>
-          <% @vulnerability_summary.each do |target, summary| %>
+          <% @image_report["Results"].each do |result| %>
+            <% target = result["Target"]%>
+            <% summary = result["VulnerabilitySummary"]%>
             <div class="target-summary">
               <h3 class="target-title"><%= target %></h3>
               <div class="severity-grid">
@@ -64,16 +66,15 @@
                 <% end %>
               </div>
             </div>
-          <% end %>
-
-          <% if @fixable_vulnerabilities_count > 0 %>
-            <div class="fixable-vulnerabilities-note">
-              <p>
-                <strong>📢 Update Available:</strong>
-                <%= @fixable_vulnerabilities_count %> <%= 'vulnerability'.pluralize(@fixable_vulnerabilities_count) %>
-                in this image can be fixed by updating to the latest version!
-              </p>
-            </div>
+            <% if result["FixableVulnerabilitiesCount"] > 0 %>
+              <div class="fixable-vulnerabilities-note">
+                <p>
+                  <strong>📢 Updates Available:</strong>
+                  <%= result["FixableVulnerabilitiesCount"] %> <%= 'vulnerability'.pluralize(result["FixableVulnerabilitiesCount"]) %>
+                  in this image can be fixed by updating to the fixed version!
+                </p>
+              </div>
+            <% end %>
           <% end %>
         </div>
 
