@@ -8,13 +8,7 @@ class UsersController < ApplicationController
     end
 
     def manage
-      search_query = params[:search].to_s.strip.downcase
-      @display_users_admin_screen = if search_query.present?
-                                       User.where("LOWER(email) LIKE :search OR LOWER(first_name) LIKE :search OR LOWER(last_name) LIKE :search", search: "%#{search_query}%").where.not(id: current_user.id)
-                                     else
-                                       User.where.not(id: current_user.id)
-                                     end
-      render partial: 'user_table', locals: { users: @display_users_admin_screen } if request.xhr?
+      @display_users_admin_screen = User.where.not(id: current_user.id)
     end
 
     def update_admin_status
