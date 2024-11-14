@@ -1,5 +1,7 @@
 class RunTimeObjectsController < ApplicationController
   before_action :set_run_time_object, only: [ :show, :edit, :update, :destroy ]
+  before_action :authorize_share_permission, only: [ :share ]
+  before_action :authorize_edit_permission, only: [ :edit, :update ]
 
   # GET /run_time_objects
   def index
@@ -66,35 +68,60 @@ class RunTimeObjectsController < ApplicationController
 
   # PATCH/PUT /run_time_objects/:id
   def update
-    if @run_time_object.user_id == @current_user.id
-      if @run_time_object.update(run_time_object_params)
-        flash[:success] = "Runtime object was successfully updated."
-        redirect_to @run_time_object
-      end
+    if @run_time_object.update(run_time_object_params)
+      flash[:success] = "Runtime object was successfully updated."
+      redirect_to @run_time_object
     end
   end
   def share
     @run_time_object = RunTimeObject.find(params[:id])
-    @users = User.where.not(id: [@run_time_object.user_id, @current_user.id])
-    @permitted_user_ids = @run_time_object.run_time_objects_permissions.pluck(:user_id)
+    @users = User.where.not(id: @run_time_object.user_id)
+    @view_permitted_user_ids = @run_time_object.run_time_objects_permissions.where(permission: "r").pluck(:user_id)
+    @edit_permitted_user_ids = @run_time_object.run_time_objects_permissions.where(permission: "e").pluck(:user_id)
   end
 
   def share_with_users
     @run_time_object = RunTimeObject.find(params[:id])
-    selected_user_ids = params[:user_ids] || []
+    selected_permission_user_ids = params[:permissions] || []
 
-    @run_time_object.run_time_objects_permissions.where.not(user_id: selected_user_ids).destroy_all
+    @run_time_object
+      .run_time_objects_permissions
+      .where.not(user_id: selected_permission_user_ids)
+      .destroy_all
 
-    selected_user_ids.each do |user_id|
-      unless @run_time_object.run_time_objects_permissions.exists?(user_id: user_id)
-        RunTimeObjectsPermission.create(run_time_object: @run_time_object, user_id: user_id, permission: "r")
+    selected_permission_user_ids.each do |user_id, permission_type|
+      permission = @run_time_object.run_time_objects_permissions.find_or_initialize_by(user_id: user_id)
+
+      if permission_type == "view"
+        permission.permission = "r"  # 'r' means view
+      elsif permission_type == "edit"
+        permission.permission = "e"  # 'e' means edit
       end
+      permission.save
     end
 
     redirect_to @run_time_object
   end
 
   private
+
+  def authorize_share_permission
+    @run_time_object = RunTimeObject.find(params[:id])
+    user_obj = User.find(session[:user_id])
+    if user_obj.admin? || @run_time_object.user.id != user_obj.id
+      flash[:alert] = "You are not authorized to share this run time object."
+      redirect_to run_time_objects_path
+    end
+  end
+
+  def authorize_edit_permission
+    @run_time_object = RunTimeObject.find(params[:id])
+    user_obj = User.find(session[:user_id])
+    unless user_obj.admin? || @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
+      flash[:alert] = "You are not authorized to edit this object."
+      redirect_to run_time_objects_path
+    end
+  end
 
   # Set the RunTimeObject for the actions
   def set_run_time_object

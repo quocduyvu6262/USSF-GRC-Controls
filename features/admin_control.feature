@@ -13,13 +13,13 @@ Feature: Manage Users
 
   Scenario: Admin updates a user's admin status
     Given I visit the "Manage Users" page
-    When I check the "Admin" checkbox for "regular1@example.com"
+    When I checked the "Admin" checkbox for "regular1@example.com"
     And I click on Update button
     Then "regular1@example.com" should be an admin
 
   Scenario: Admin blocks a user
     Given I visit the "Manage Users" page
-    When I check the "Block" checkbox for "regular2@example.com"
+    When I checked the "Block" checkbox for "regular2@example.com"
     And I click on Update button
     Then "regular2@example.com" should be blocked
 

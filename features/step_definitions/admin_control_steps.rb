@@ -18,7 +18,7 @@
   end
 
   
-  When("I check the {string} checkbox for {string}") do |checkbox, user_email|
+  When("I checked the {string} checkbox for {string}") do |checkbox, user_email|
     user = User.find_by(email: user_email)
     if checkbox == 'Admin'
         check("admin_user_ids[]", option: user.id)

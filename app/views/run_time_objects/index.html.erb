@@ -1,7 +1,7 @@
 <body>
     <div class="image-page">
-        <p class="heading">Container Images</p>
-        <%= link_to "New Container Image", new_run_time_object_path, class: "btn-create" %>
+        <p class="heading">Containers</p>
+        <%= link_to "New Container", new_run_time_object_path, class: "btn-create" %>
         <div class="image-list">
             <% if @run_time_objects.present? %>
                 <% @run_time_objects.each do |object| %>

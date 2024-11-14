@@ -29,7 +29,7 @@ When('I go to the details page for image with id {int}') do |int|
 
 When('I go to the details page for tag {string}') do |string|
   image = Image.find_by(tag: string)
-  visit run_time_object_image_path(image.id, image.run_time_object().id)
+  visit run_time_object_image_path(image.id, image.run_time_object.id)
 end
 
 When('I go to new tag page') do
@@ -73,7 +73,7 @@ Then('I should be on the image details page with title {string}') do |content|
 end
 
 When('I go to new image page') do
-  visit new_run_time_object_path()
+  visit new_run_time_object_path
 end
 
 #########
@@ -107,7 +107,7 @@ end
 
 Given('I am on the tag details page for {string}') do |image_tag|
   image = Image.find_by(tag: image_tag)
-  visit run_time_object_image_path(image.id, image.run_time_object().id)
+  visit run_time_object_image_path(image.id, image.run_time_object.id)
 end
 
 When('I click the {string} button') do |button_name|
