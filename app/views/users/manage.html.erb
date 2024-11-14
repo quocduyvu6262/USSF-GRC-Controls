@@ -46,34 +46,26 @@
 <% end %>
 
 <style>
-
-.user-table.td.centered {
-  text-align: center;
-  vertical-align: middle;
-}
-
-.user-table.td.centered {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  :root {
+    font-size: 16px;
+  }
 
   .user-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 2rem;
   }
 
   .user-table th,
   .user-table td {
-    padding: 12px 15px;
+    padding: 1rem 1.2rem;
     text-align: left;
   }
 
   .user-table th {
     background-color: black;
     color: white;
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .user-table tr:nth-child(even) {
@@ -85,20 +77,20 @@
   }
 
   .user-table td input[type="checkbox"] {
-    transform: scale(1.2);
+    transform: scale(1.5);
     cursor: pointer;
   }
 
   .submit-btn {
-    margin-top: 20px;
+    margin-top: 2rem;
     text-align: center;
   }
 
   .submit-btn input[type="submit"] {
     background-color: #4CAF50;
     color: white;
-    font-size: 16px;
-    padding: 10px 20px;
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -107,5 +99,33 @@
 
   .submit-btn input[type="submit"]:hover {
     background-color: #45a049;
+  }
+
+
+  .user-table td.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
+  .submit-btn input[type="submit"] {
+    min-width: 8rem;
+  }
+  
+  @media (max-width: 768px) {
+    .user-table th, .user-table td {
+      font-size: 0.875rem;
+      padding: 0.8rem;
+    }
+
+    .submit-btn input[type="submit"] {
+      font-size: 0.875rem;
+      padding: 0.7rem 1.2rem;
+    }
+
+    .user-table td input[type="checkbox"] {
+      transform: scale(1.3);
+    }
   }
 </style>
