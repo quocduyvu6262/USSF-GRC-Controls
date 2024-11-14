@@ -1,11 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe UsersController, type: :controller do
-
-  let(:admin_user) { User.create(email: "test@example.com", first_name: "Test", last_name: "User",admin:true) }
+  let(:admin_user) { User.create(email: "test@example.com", first_name: "Test", last_name: "User", admin: true) }
   let(:normal_user) { User.create(email: "normal@example.com", first_name: "Normal", last_name: "User") }
 
-  
+
   describe 'before actions' do
     context 'when the user is not an admin' do
       before do
@@ -34,10 +33,10 @@ RSpec.describe UsersController, type: :controller do
     before do
       session[:user_id] = admin_user.id
     end
- 
+
     it 'updates the admin status of users' do
       patch :update_admin_status, params: {
-        admin_user_ids: [normal_user.id]
+        admin_user_ids: [ normal_user.id ]
       }
 
       expect(normal_user.admin?)
@@ -46,7 +45,7 @@ RSpec.describe UsersController, type: :controller do
 
     it 'updates the block status of users' do
       patch :update_admin_status, params: {
-        block_user_ids: [normal_user.id]
+        block_user_ids: [ normal_user.id ]
       }
 
       expect(normal_user.block?)
@@ -55,7 +54,7 @@ RSpec.describe UsersController, type: :controller do
 
     it 'does not update the current user' do
       patch :update_admin_status, params: {
-        admin_user_ids: [normal_user.id.to_s]
+        admin_user_ids: [ normal_user.id.to_s ]
       }
 
       admin_user.reload

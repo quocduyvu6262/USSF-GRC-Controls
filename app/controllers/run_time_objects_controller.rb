@@ -5,7 +5,6 @@ class RunTimeObjectsController < ApplicationController
 
   # GET /run_time_objects
   def index
-
     if @current_user.admin
       @run_time_objects = RunTimeObject.all
     else
@@ -18,7 +17,7 @@ class RunTimeObjectsController < ApplicationController
       @run_time_objects = RunTimeObject.where(user_id: @current_user.id)
                                       .or(RunTimeObject.where(id: shared_ids))
     end
-    
+
     @pagy, @run_time_objects = pagy(@run_time_objects)
   end
 

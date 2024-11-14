@@ -54,7 +54,6 @@ RSpec.describe SessionsController, type: :controller do
       end
 
       it 'but user is blocked and redirects to welcome path' do
-        
         get :omniauth
         user = User.find_by(email: 'test@example.com')
         user.update(block: true)

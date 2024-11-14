@@ -21,9 +21,9 @@ Rails.application.routes.draw do
   get "/logout", to: "sessions#logout", as: "logout"
   get "/auth/google_oauth2/callback", to: "sessions#omniauth"
   get "/auth/failure", to: "sessions#failure", as: "failure"
-  get 'users/manage', to: 'users#manage', as: 'manage_users'
-  patch 'users/update_admin_status', to: 'users#update_admin_status', as: 'update_admin_status'
-  delete 'users/:id', to: 'users#destroy', as: 'delete_user'
+  get "users/manage", to: "users#manage", as: "manage_users"
+  patch "users/update_admin_status", to: "users#update_admin_status", as: "update_admin_status"
+  delete "users/:id", to: "users#destroy", as: "delete_user"
 
   resources :run_time_objects do
     resources :images do
