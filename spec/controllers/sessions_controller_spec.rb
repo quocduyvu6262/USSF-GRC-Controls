@@ -41,6 +41,27 @@ RSpec.describe SessionsController, type: :controller do
       end
     end
 
+    context 'when login is successful' do
+      before do
+        request.env['omniauth.auth'] = OmniAuth::AuthHash.new({
+          provider: 'google_oauth2',
+          uid: '123456789',
+          info: {
+            email: 'test@example.com',
+            name: 'John Doe'
+          }
+        })
+      end
+
+      it 'but user is blocked and redirects to welcome path' do
+        get :omniauth
+        user = User.find_by(email: 'test@example.com')
+        user.update(block: true)
+        get :omniauth
+        expect(response).to redirect_to(welcome_path)
+      end
+    end
+
     context 'when login fails (invalid user)' do
       before do
         request.env['omniauth.auth'] = OmniAuth::AuthHash.new({
