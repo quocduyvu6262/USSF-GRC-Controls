@@ -3,7 +3,9 @@ require 'uri'
 require 'base64'
 
 class ImagesController < ApplicationController
-  before_action :authorize_user, only: [ :index, :new, :edit, :create, :rescan, :update, :destroy, :show ]
+  before_action :authorize_edit_permission, only: [ :new, :edit, :create, :rescan, :update, :destroy ]
+  before_action :authorize_view_permission, only: [ :index, :show ]
+
   SEVERITY_ORDER = {
   "CRITICAL" => 1,
   "HIGH" => 2,
@@ -107,8 +109,6 @@ class ImagesController < ApplicationController
       render :new
     end
   end
-  
-  
   
   def rescan
     image_name = @image.tag
@@ -219,7 +219,6 @@ class ImagesController < ApplicationController
               disposition: "attachment"
   end
 
-
   # PATCH/PUT /images/1 or /images/1.json
   def update
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
@@ -242,12 +241,23 @@ class ImagesController < ApplicationController
     redirect_to run_time_object_images_path(@run_time_object), notice: "Image was successfully deleted."
   end
 
-  def authorize_user
+  def authorize_view_permission
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     user_obj = User.find(session[:user_id])
-    if @run_time_object.user != user_obj && !@run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id)
-      flash[:alert] = "You are not authorized to access this object."
-      redirect_to run_time_objects_path and return
+    unless user_obj.admin? || @run_time_object.user == user_obj ||
+      @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "r") ||
+      @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
+      flash[:alert] = "You are not authorized to view this data."
+      redirect_to run_time_objects_path
+    end
+  end
+
+  def authorize_edit_permission
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    user_obj = User.find(session[:user_id])
+    unless user_obj.admin? || @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
+      flash[:alert] = "You are not authorized to edit this data."
+      redirect_to run_time_objects_path
     end
   end
 

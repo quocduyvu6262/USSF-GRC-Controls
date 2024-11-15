@@ -21,6 +21,11 @@ class SessionsController < ApplicationController
       u.last_name = names[1..].join(" ")
     end
 
+    if @user.block?
+      redirect_to welcome_path, alert: "Your account has been blocked."
+      return
+    end
+
     if @user.valid?
       session[:user_id] = @user.id
       redirect_to run_time_objects_path()

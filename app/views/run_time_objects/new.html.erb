@@ -9,7 +9,7 @@
     <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
-    <%= form_with model: @run_time_object, url: run_time_objects_path(), local: true do |form| %>
+    <%= form_with model: @run_time_object, url: run_time_objects_path, local: true do |form| %>
         <div class="image-page">
             <p style="text-align: center; font-size: 40px;">New Container Image</p>
             <div class="form-container">
@@ -23,7 +23,7 @@
                 </div>
                 <div class="actions">
                     <%= form.submit "Submit", class: "btn-submit" %>
-                    <%= link_to "Go back", run_time_objects_path(), class: "btn-go-back" %>
+                    <%= link_to "Go back", run_time_objects_path, class: "btn-go-back" %>
                 </div>
             </div>
         </div>
