@@ -5,14 +5,19 @@ class RunTimeObjectsController < ApplicationController
 
   # GET /run_time_objects
   def index
-    owned_objects = RunTimeObject.where(user_id: @current_user.id)
+    if @current_user.admin
+      @run_time_objects = RunTimeObject.all
+    else
+      owned_objects = RunTimeObject.where(user_id: @current_user.id)
 
-    shared_ids = RunTimeObject.joins(:run_time_objects_permissions)
-                             .where(run_time_objects_permissions: { user_id: @current_user.id })
-                             .select(:id)
+      shared_ids = RunTimeObject.joins(:run_time_objects_permissions)
+                              .where(run_time_objects_permissions: { user_id: @current_user.id })
+                              .select(:id)
 
-    @run_time_objects = RunTimeObject.where(user_id: @current_user.id)
-                                    .or(RunTimeObject.where(id: shared_ids))
+      @run_time_objects = RunTimeObject.where(user_id: @current_user.id)
+                                      .or(RunTimeObject.where(id: shared_ids))
+    end
+
     @pagy, @run_time_objects = pagy(@run_time_objects)
   end
 
@@ -41,7 +46,7 @@ class RunTimeObjectsController < ApplicationController
 
   def destroy
     @run_time_object = RunTimeObject.find(params[:id])
-    if @run_time_object.user == current_user
+    if @run_time_object.user == current_user || @current_user.admin
       ActiveRecord::Base.transaction do
         begin
           @run_time_object.destroy!
@@ -102,7 +107,7 @@ class RunTimeObjectsController < ApplicationController
   def authorize_share_permission
     @run_time_object = RunTimeObject.find(params[:id])
     user_obj = User.find(session[:user_id])
-    if @run_time_object.user.id != user_obj.id
+    if user_obj.admin? || @run_time_object.user.id != user_obj.id
       flash[:alert] = "You are not authorized to share this run time object."
       redirect_to run_time_objects_path
     end
@@ -111,7 +116,7 @@ class RunTimeObjectsController < ApplicationController
   def authorize_edit_permission
     @run_time_object = RunTimeObject.find(params[:id])
     user_obj = User.find(session[:user_id])
-    unless @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
+    unless user_obj.admin? || @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to edit this object."
       redirect_to run_time_objects_path
     end

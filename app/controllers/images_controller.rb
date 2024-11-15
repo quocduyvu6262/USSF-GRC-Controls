@@ -138,7 +138,7 @@ class ImagesController < ApplicationController
   def authorize_view_permission
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     user_obj = User.find(session[:user_id])
-    unless @run_time_object.user == user_obj ||
+    unless user_obj.admin? || @run_time_object.user == user_obj ||
       @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "r") ||
       @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to view this data."
@@ -149,7 +149,7 @@ class ImagesController < ApplicationController
   def authorize_edit_permission
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     user_obj = User.find(session[:user_id])
-    unless @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
+    unless user_obj.admin? || @run_time_object.user == user_obj || @run_time_object.run_time_objects_permissions.exists?(user_id: user_obj.id, permission: "e")
       flash[:alert] = "You are not authorized to edit this data."
       redirect_to run_time_objects_path
     end

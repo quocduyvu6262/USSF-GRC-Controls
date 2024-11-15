@@ -8,33 +8,39 @@
       <div class="index-title-container">
         <p class="heading"><%= "#{@run_time_object.name}" %></p>
         <div class="button-container">
-          <% if @run_time_object.user_id == @current_user.id %>
+          <% if @run_time_object.user_id == @current_user.id || @current_user.admin %>
             <%= link_to share_run_time_object_path(@run_time_object), 
                         data: { turbo_frame: "share_frame", bs_toggle: "modal", bs_target: "#shareModal" }, class: "index-page-button", aria: { label: 'Access' } do %>
               <i class="fas fa-share-alt"></i> <!-- Font Awesome icon -->
               Share
             <% end %>
           <% end %>
-          <%= link_to edit_run_time_object_path(@run_time_object), 
-                      class: 'index-page-button edit-button' do %>
-            <i class="fas fa-edit"></i> <!-- Font Awesome icon -->
-            Edit
+          <% if @current_user.admin? ||@run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+            <%= link_to edit_run_time_object_path(@run_time_object), 
+                        class: 'index-page-button edit-button' do %>
+              <i class="fas fa-edit"></i> <!-- Font Awesome icon -->
+              Edit
+            <% end %>
           <% end %>
-          <%= link_to run_time_object_path(@run_time_object), 
-                      method: :delete, 
-                      data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this runtime object?' }, 
-                      class: 'index-page-button delete-button' do %>
-            <i class="fas fa-trash-alt"></i> <!-- Font Awesome icon -->
-            Delete
+          <% if @current_user.admin? || @run_time_object.user_id == @current_user.id %>
+            <%= link_to run_time_object_path(@run_time_object), 
+                        method: :delete, 
+                        data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this runtime object?' }, 
+                        class: 'index-page-button delete-button' do %>
+              <i class="fas fa-trash-alt"></i> <!-- Font Awesome icon -->
+              Delete
+            <% end %>
           <% end %>
         </div>
       </div>
       <p> <%= "#{@run_time_object.description}" %> </p>
       <div class="create-button-container">
-        <%= link_to new_run_time_object_image_path, class: "index-page-button" do %>
-          <i class="fas fa-plus-circle"></i>
-           Create New Tag
-        <% end %>
+        <% if @current_user.admin? || @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+          <%= link_to new_run_time_object_image_path, class: "index-page-button" do %>
+            <i class="fas fa-plus-circle"></i>
+            Create New Tag
+          <% end %>
+        <%end%>
       </div>
       
       <div class="image-list">
