@@ -89,15 +89,18 @@ class ImagesController < ApplicationController
       username = params[:registry_username]
       password = params[:registry_password]
       
+      unless valid_registry_credentials?(image_name, username, password)
+        @image.errors.add(:base, "Invalid registry credentials. Please check your username and password.")
+        return render :new
+      end
+      
       scan_command = generate_trivy_scan_command(image_name, username, password)
     else
       scan_command = generate_trivy_scan_command(image_name)
     end
     
     Rails.logger.debug "Scan command: #{scan_command}"
-
     @image.report = `#{scan_command}`
-
     Rails.logger.debug "New Report: #{@image.report}"
   
     if @image.save
@@ -264,6 +267,42 @@ class ImagesController < ApplicationController
       params.require(:image).permit(:tag, :run_time_object_id)
     end
 
+    def valid_registry_credentials?(image_name, username, password)
+      registry = extract_registry_from_image(image_name)
+      
+      # Test login command based on registry type
+      login_command = case registry
+      when /\.azurecr\.io$/
+        "docker login #{registry} -u #{username} -p #{password} 2>&1"
+      when /\.dkr\.ecr\..*\.amazonaws\.com$/
+        "aws ecr get-login-password --region #{extract_aws_region(registry)} | docker login --username AWS --password-stdin #{registry} 2>&1"
+      when /gcr\.io$/
+        "docker login #{registry} -u #{username} -p #{password} 2>&1"
+      else
+        "docker login #{registry} -u #{username} -p #{password} 2>&1"
+      end
+    
+      # Execute login command
+      result = `#{login_command}`
+      success = $?.success?
+      
+      # Logout after testing
+      `docker logout #{registry} 2>/dev/null` if success
+      
+      success
+    end
+
+
+    def extract_registry_from_image(image_name)
+      image_name.split('/').first
+    end
+
+    def extract_aws_region(registry)
+      # Extract region from ECR registry URL
+      # Format: dkr.ecr.region.amazonaws.com
+      registry.match(/\.ecr\.(.+?)\.amazonaws\.com/)[1]
+    end
+
     def is_private_registry?(image_name)
       private_patterns = [
         /.*\.azurecr\.io/,  # Azure Container Registry
@@ -289,6 +328,16 @@ class ImagesController < ApplicationController
       command << "trivy image --format json --insecure #{image_name}"
       
       "json_out=$(#{command.join(' ')}) && echo $json_out"
+    end
+
+    def cleanup_docker_credentials
+      # Clean up any stored credentials
+      begin
+        credentials_path = File.expand_path("~/.docker/config.json")
+        FileUtils.rm_f(credentials_path)
+      rescue => e
+        Rails.logger.error "Error cleaning up Docker credentials: #{e.message}"
+      end
     end
     
 end
