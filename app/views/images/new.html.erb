@@ -37,63 +37,103 @@
     <% end %>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('form');
         const imageTagInput = document.querySelector('input[name="image[tag]"]');
-        
+    
         form.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent form from submitting immediately
             
             const imageUrl = imageTagInput.value;
             if (isPrivateRegistry(imageUrl)) {
-            handlePrivateRegistry(imageUrl, this);
+                handlePrivateRegistry(imageUrl, this);
             } else {
-            this.submit(); // Submit form normally for public registry
+                this.submit(); // Submit form normally for public registry
             }
         });
-
+    
         function isPrivateRegistry(imageUrl) {
             const privatePatterns = [
-            /.*\.azurecr\.io/,
-            /.*\.dkr\.ecr\..*\.amazonaws\.com/,
-            /gcr\.io/,
-            /.*\.jfrog\.io/,
-            /.*\.registry\..*/,
-            /localhost\:5001/,
-            /harbor\.*/,
-            /nexus\.*/
+                /.*\.azurecr\.io/,
+                /.*\.dkr\.ecr\..*\.amazonaws\.com/,
+                /gcr\.io/,
+                /.*\.jfrog\.io/,
+                /.*\.registry\..*/,
+                /localhost\:5001/,
+                /harbor\.*/,
+                /nexus\.*/
             ];
             return privatePatterns.some(pattern => pattern.test(imageUrl));
         }
-
+    
         function handlePrivateRegistry(imageUrl, form) {
             const registry = imageUrl.split('/')[0];
             const result = confirm(`${registry} appears to be a private registry. Would you like to enter credentials?`);
             
             if (result) {
-            const username = prompt('Enter registry username:');
-            if (username === null) return;
-            
-            const password = prompt('Enter registry password:');
-            if (password === null) return;
-
-            // Add hidden fields for credentials
-            const usernameField = document.createElement('input');
-            usernameField.type = 'hidden';
-            usernameField.name = 'registry_username';
-            usernameField.value = username;
-            form.appendChild(usernameField);
-            
-            const passwordField = document.createElement('input');
-            passwordField.type = 'hidden';
-            passwordField.name = 'registry_password';
-            passwordField.value = password;
-            form.appendChild(passwordField);
+                const username = prompt('Enter registry username:');
+                if (username === null) return;
+    
+                // Create a container for password input and toggle
+                const passwordContainer = document.createElement('div');
+                passwordContainer.style.position = 'relative';
+    
+                // Create the password input field
+                const passwordInput = document.createElement('input');
+                passwordInput.type = 'password';
+                passwordInput.placeholder = 'Enter registry password';
+                passwordInput.style.width = '100%';
+                passwordInput.style.marginBottom = '8px';
+    
+                // Create the toggle button for the password field
+                const toggleButton = document.createElement('button');
+                toggleButton.type = 'button';
+                toggleButton.textContent = '👁️';
+                toggleButton.style.position = 'absolute';
+                toggleButton.style.right = '10px';
+                toggleButton.style.top = '5px';
+                toggleButton.style.border = 'none';
+                toggleButton.style.background = 'none';
+                toggleButton.style.cursor = 'pointer';
+    
+                // Append the password input and toggle button to the container
+                passwordContainer.appendChild(passwordInput);
+                passwordContainer.appendChild(toggleButton);
+    
+                // Append the container to the form
+                form.appendChild(passwordContainer);
+    
+                // Handle toggle button click
+                toggleButton.addEventListener('click', () => {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        toggleButton.textContent = '🙈';
+                    } else {
+                        passwordInput.type = 'password';
+                        toggleButton.textContent = '👁️';
+                    }
+                });
+    
+                // Add hidden fields for credentials
+                const usernameField = document.createElement('input');
+                usernameField.type = 'hidden';
+                usernameField.name = 'registry_username';
+                usernameField.value = username;
+                form.appendChild(usernameField);
+    
+                // Wait for the user to enter the password and then submit
+                passwordInput.addEventListener('change', () => {
+                    const passwordField = document.createElement('input');
+                    passwordField.type = 'hidden';
+                    passwordField.name = 'registry_password';
+                    passwordField.value = passwordInput.value;
+                    form.appendChild(passwordField);
+    
+                    form.submit(); // Submit the form with credentials
+                });
             }
-            
-            form.submit(); // Submit the form with credentials
         }
-        });
+    });    
     </script>
 </body>
 </html>

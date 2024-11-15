@@ -1,3 +1,7 @@
+require 'net/http'
+require 'uri'
+require 'base64'
+
 class ImagesController < ApplicationController
   before_action :authorize_user, only: [ :index, :new, :edit, :create, :rescan, :update, :destroy, :show ]
   SEVERITY_ORDER = {
@@ -134,6 +138,11 @@ class ImagesController < ApplicationController
       username = params[:registry_username]
       password = params[:registry_password]
 
+      unless valid_registry_credentials?(image_name, username, password)
+        @image.errors.add(:base, "Invalid registry credentials. Please check your username and password.")
+        return render :new
+      end
+
       scan_command = generate_trivy_scan_command(image_name, username, password)
     else
       scan_command = generate_trivy_scan_command(image_name)
@@ -269,27 +278,29 @@ class ImagesController < ApplicationController
 
     def valid_registry_credentials?(image_name, username, password)
       registry = extract_registry_from_image(image_name)
+      auth_url = if registry.include?('localhost')
+                        "http://#{registry}/v2/"
+                      else
+                        "https://#{registry}/v2/"
+                      end
       
-      # Test login command based on registry type
-      login_command = case registry
-      when /\.azurecr\.io$/
-        "docker login #{registry} -u #{username} -p #{password} 2>&1"
-      when /\.dkr\.ecr\..*\.amazonaws\.com$/
-        "aws ecr get-login-password --region #{extract_aws_region(registry)} | docker login --username AWS --password-stdin #{registry} 2>&1"
-      when /gcr\.io$/
-        "docker login #{registry} -u #{username} -p #{password} 2>&1"
-      else
-        "docker login #{registry} -u #{username} -p #{password} 2>&1"
+      Rails.logger.debug "Attempting authentication for registry: #{registry}"
+    
+      uri = URI(auth_url)
+      request = Net::HTTP::Get.new(uri)
+      request['Authorization'] = "Basic #{Base64.strict_encode64("#{username}:#{password}")}"
+    
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+        http.request(request)
       end
     
-      # Execute login command
-      result = `#{login_command}`
-      success = $?.success?
-      
-      # Logout after testing
-      `docker logout #{registry} 2>/dev/null` if success
-      
-      success
+      Rails.logger.debug "Response code: #{response.code}"
+      Rails.logger.debug "Response body: #{response.body}"
+    
+      response.code.to_i == 200
+    rescue StandardError => e
+      Rails.logger.error "Error authenticating with registry: #{e.message}"
+      false
     end
 
 
