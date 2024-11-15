@@ -62,35 +62,89 @@ class ImagesController < ApplicationController
     @image = @run_time_object.images.find(params[:id])
   end
 
+  # def create
+  #   @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the parent resource
+  #   @image = @run_time_object.images.new(image_params)  # Associate the image with the parent
+
+  #   image_name = params[:image][:tag]
+
+  #   # Perform trivy scan for the image from URL
+  #   @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
+  #   # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
+  #   # puts @image.report
+
+  #   if @image.save
+  #     redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."
+  #   else
+  #     render :new
+  #   end
+  # end
+
   def create
-    @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the parent resource
-    @image = @run_time_object.images.new(image_params)  # Associate the image with the parent
-
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.new(image_params)
     image_name = params[:image][:tag]
+  
+    if is_private_registry?(image_name)
+      username = params[:registry_username]
+      password = params[:registry_password]
+      
+      scan_command = generate_trivy_scan_command(image_name, username, password)
+    else
+      scan_command = generate_trivy_scan_command(image_name)
+    end
+    
+    Rails.logger.debug "Scan command: #{scan_command}"
 
-    # Perform trivy scan for the image from URL
-    @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
-    # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
-    # puts @image.report
+    @image.report = `#{scan_command}`
 
+    Rails.logger.debug "New Report: #{@image.report}"
+  
     if @image.save
       redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."
     else
       render :new
     end
   end
+  
 
+
+
+  # def rescan
+  #   image_name = @image.tag
+  #   @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+  #   begin
+  #       @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
+  #       Rails.logger.debug "New Report: #{@image.report}"
+
+  #       if @image.save
+  #         redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Rescan was successful."
+  #       end
+  #   end
+  # end
 
   def rescan
     image_name = @image.tag
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
-    begin
-        @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
-        Rails.logger.debug "New Report: #{@image.report}"
+  
+    if is_private_registry?(image_name)
+      username = params[:registry_username]
+      password = params[:registry_password]
 
-        if @image.save
-          redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Rescan was successful."
-        end
+      scan_command = generate_trivy_scan_command(image_name, username, password)
+    else
+      scan_command = generate_trivy_scan_command(image_name)
+    end
+    
+    Rails.logger.debug "Scan command: #{scan_command}"
+
+    @image.report = `#{scan_command}`
+
+    Rails.logger.debug "New Report: #{@image.report}"
+      
+  
+    if @image.save
+      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Rescan was successful."
     end
   end
 
@@ -209,4 +263,32 @@ class ImagesController < ApplicationController
     def image_params
       params.require(:image).permit(:tag, :run_time_object_id)
     end
+
+    def is_private_registry?(image_name)
+      private_patterns = [
+        /.*\.azurecr\.io/,  # Azure Container Registry
+        /.*\.dkr\.ecr\..*\.amazonaws\.com/,  # AWS ECR
+        /gcr\.io/,  # Google Container Registry
+        /.*\.jfrog\.io/,  # JFrog Artifactory
+        /.*\.registry\..*/, # Generic private registry
+        /localhost\:5001/,  # Local registry
+        /harbor\.*/,       # Harbor
+        /nexus\.*/        # Nexus
+      ]
+      private_patterns.any? { |pattern| image_name.match?(pattern) }
+    end
+  
+    def generate_trivy_scan_command(image_name, username = nil, password = nil)
+      command = ["TRIVY_NON_SSL=true"]
+      
+      if username && password
+        command << "TRIVY_USERNAME=#{username}"
+        command << "TRIVY_PASSWORD=#{password}"
+      end
+      
+      command << "trivy image --format json --insecure #{image_name}"
+      
+      "json_out=$(#{command.join(' ')}) && echo $json_out"
+    end
+    
 end
