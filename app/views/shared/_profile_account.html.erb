@@ -3,13 +3,13 @@
   position: absolute; 
   right: 5%; 
   top: 100%; 
-  margin-right: 10px;
-  border-radius: 10px;
+  margin-right: 1rem;
+  border-radius: 1rem;
   background-color: white; 
   z-index: 1000; 
   display: none; 
   width: 20rem; 
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 0.2rem .5rem rgba(0, 0, 0, 0.2); 
   border: 0.2rem solid black; 
   padding: 1rem;
 }
@@ -50,10 +50,10 @@
     </p>
 
     <% if @current_user.admin %>
-      <div style="border-top: 1px solid lightgrey; margin: 10px 0;"></div>
+      <div style="border-top: 0.1rem solid lightgrey; margin: 0.1rem 0;"></div>
       <%= link_to 'Manage Users', manage_users_path, method: :get, class: 'menu-link' %>
     <% end %>
-    <div style="border-top: 1px solid lightgrey; margin: 10px 0;"></div>
+    <div style="border-top: 0.2rem solid lightgrey; margin: 0.2rem 0;"></div>
     <%= link_to 'Logout', logout_path, method: :get, class: 'menu-link' %>
   </div>
 </div>
