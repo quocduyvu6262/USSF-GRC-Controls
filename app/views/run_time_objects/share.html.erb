@@ -1,3 +1,9 @@
+<div class="back-button">
+    <%= link_to run_time_object_images_path(@run_time_object), class: "index-page-button" do %>
+    <i class="fas fa-arrow-left"></i>
+    Go Back
+    <% end %>
+</div>
 <div style="text-align: center;">
 
   <h1>Share Permissions for <%= @run_time_object.name %></h1>
@@ -41,8 +47,7 @@
     </div>
     
     <br>
-    <%= submit_tag 'Share', class: 'btn btn-primary', style: 'margin-top: 10px;' %>
-     <%= link_to 'Back', run_time_object_images_path(@run_time_object), class: 'btn btn-secondary', style: 'margin-top: 10px;' %>
+    <%= submit_tag 'Share', class: 'index-page-button' %>
   <% end %>
 </div>
 

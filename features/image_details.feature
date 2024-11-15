@@ -23,7 +23,7 @@ Scenario: Edit image tag
   Then I should see the title "image 1"
   When I click "Edit" button
   When I fill in "Tag URL" with "alpine"
-  When I click "Update Image" button
+  When I click "Update" button
   Then I should see the title "alpine"
 
 Scenario: Delete image tag

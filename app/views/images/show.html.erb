@@ -3,32 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Image</title>
+  <title>Show Tag</title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
-  <% tag_parts = @image.tag.split(':') %>
-  <div style="width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
-  <h1 class="title" style="margin: 0;"> <%= tag_parts[0] %></h1>
-<div style="display: flex; gap: 10px; margin-right: 1.5rem;">
-  <%= link_to "Go back", run_time_object_images_path(@run_time_object), class: "btn-create" %>
-
-  <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
-    <%= link_to "Edit", edit_run_time_object_image_path(@run_time_object, @image), class: "btn-create" %>
-  <% end %>
-
-  <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
-    <%= button_to "Delete", run_time_object_image_path(@run_time_object, @image),
-                  method: :delete,
-                  class: "btn-create" %>
-  <% end %>
-
-</div>
-
-</div>
-      <hr>
+  <div class="report-page-container">
+    <div class="back-button">
+      <%= link_to run_time_object_images_path(@run_time_object), class: "index-page-button" do %>
+        <i class="fas fa-arrow-left"></i> 
+        Go Back
+      <% end %>
+    </div>
+    <div class="index-title-container">
+      <% tag_parts = @image.tag.split(':') %>
+      <p class="heading"><%= tag_parts[0] %></p>
+      <div style="button-container">
+        <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+          <%= link_to edit_run_time_object_image_path(@run_time_object, @image), 
+                      class: 'index-page-button' do %>
+            <i class="fas fa-edit"></i>
+            Edit <!-- Font Awesome icon -->
+          <% end %>
+        <% end %>
+        <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+          <%= link_to run_time_object_image_path(@run_time_object, @image), 
+                        method: :delete, 
+                        data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this image tag?' }, 
+                        class: 'index-page-button delete-button' do %>
+              <i class="fas fa-trash-alt"></i>
+              Delete
+            <% end %>
+        <% end %>
+      </div>
+    </div>
+    <hr>
       <div class="info-container">
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
           <label>Version:</label>
@@ -36,16 +46,18 @@
         </div>
 
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-          <div class="button-container" style="display: flex; gap: 10px;">
-            <%= link_to "Download Report", download_run_time_object_image_path(@run_time_object.id, @image), 
-                        style: "display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px; border: none; text-decoration: none; cursor: pointer; width: 150px; text-align: center;" %>
-
+          <div class="button-container-tag-show">
             <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+              <%= form_with url: download_run_time_object_image_path(@run_time_object.id, @image), method: :get, local: true do %>
+                <%= button_tag 'Download Report', class: 'index-page-button' %>
+              <% end %>
+
               <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
-                <%= button_tag 'Rescan',
-                               style: 'display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 150px; text-align: center;' %>
+                <%= button_tag 'Rescan', class: 'index-page-button' %>
               <% end %>
             <% end %>
+
+
           </div>
         </div>
 
@@ -88,7 +100,7 @@
               <option value="HIGH">High</option>
               <option value="MEDIUM">Medium</option>
               <option value="LOW">Low</option>
-              <option value="UNKNOWN">Unknown</option>
+              <option value="UNDEFINED">Undefined</option>
             </select>
           </label>
           <label>Status:
@@ -445,7 +457,7 @@
             .severity-badge.high { background-color: #ffeeba; color: #856404; }
             .severity-badge.medium { background-color: #fff3cd; color: #856404; }
             .severity-badge.low { background-color: #d4edda; color: #155724; }
-            .severity-badge.unknown { background-color: #e9ecef; color: #495057; }
+            .severity-badge.undefined { background-color: #e9ecef; color: #495057; }
 
             .status-badge.affected { background-color: #cce5ff; color: #004085; }
             .status-badge.fixed { background-color: #d4edda; color: #155724; }

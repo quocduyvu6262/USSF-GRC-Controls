@@ -7,7 +7,7 @@ class ImagesController < ApplicationController
   "HIGH" => 2,
   "MEDIUM" => 3,
   "LOW" => 4,
-  "UNKNOWN" => 5
+  "UNDEFINED" => 5
 }
   before_action :set_image, only: %i[ show edit update destroy rescan download ]
 
@@ -167,7 +167,7 @@ class ImagesController < ApplicationController
       report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan
 
       begin
-        report = JSON.parse(report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
+        report = JSON.parse(report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, "").gsub("UNKNOWN", "UNDEFINED"))
       rescue JSON::ParserError => e
         Rails.logger.error "JSON parsing failed: #{e.message}"
         flash[:alert] = "Parsing the report failed. Try again."
