@@ -66,24 +66,6 @@ class ImagesController < ApplicationController
     @image = @run_time_object.images.find(params[:id])
   end
 
-  # def create
-  #   @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the parent resource
-  #   @image = @run_time_object.images.new(image_params)  # Associate the image with the parent
-
-  #   image_name = params[:image][:tag]
-
-  #   # Perform trivy scan for the image from URL
-  #   @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan on the provided image name
-  #   # @image.report&.gsub!(/\e\[([;\d]+)?m/, "")
-  #   # puts @image.report
-
-  #   if @image.save
-  #     redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."
-  #   else
-  #     render :new
-  #   end
-  # end
-
   def create
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.new(image_params)
@@ -92,44 +74,42 @@ class ImagesController < ApplicationController
     if is_private_registry?(image_name)
       username = params[:registry_username]
       password = params[:registry_password]
-      
-      unless valid_registry_credentials?(image_name, username, password)
-        @image.errors.add(:base, "Invalid registry credentials. Please check your username and password.")
+  
+      if username.blank? || password.blank?
+        @image.errors.add(:base, "Username and password are required for private registries.")
         return render :new
       end
-      
+  
+      unless valid_registry_credentials?(image_name, username, password)
+        @image.errors.add(:base, "Invalid registry credentials or the registry is inaccessible.")
+        return render :new
+      end
+  
       scan_command = generate_trivy_scan_command(image_name, username, password)
     else
       scan_command = generate_trivy_scan_command(image_name)
     end
-    
-    Rails.logger.debug "Scan command: #{scan_command}"
-    @image.report = `#{scan_command}`
-    Rails.logger.debug "New Report: #{@image.report}"
   
-    if @image.save
-      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully created."
+    Rails.logger.debug "Executing scan command: #{scan_command}"
+    scan_result = `#{scan_command}`
+    success = $?.success?
+  
+    if success
+      @image.report = scan_result
+      if @image.save
+        redirect_to run_time_object_image_path(@run_time_object.id, @image),
+                    notice: "Image was successfully scanned and saved."
+      else
+        render :new
+      end
     else
+      @image.errors.add(:base, "Failed to scan the image. Please verify the image exists and is accessible.")
       render :new
     end
   end
   
-
-
-
-  # def rescan
-  #   image_name = @image.tag
-  #   @run_time_object = RunTimeObject.find(params[:run_time_object_id])
-  #   begin
-  #       @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
-  #       Rails.logger.debug "New Report: #{@image.report}"
-
-  #       if @image.save
-  #         redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Rescan was successful."
-  #       end
-  #   end
-  # end
-
+  
+  
   def rescan
     image_name = @image.tag
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
@@ -137,26 +117,34 @@ class ImagesController < ApplicationController
     if is_private_registry?(image_name)
       username = params[:registry_username]
       password = params[:registry_password]
-
-      unless valid_registry_credentials?(image_name, username, password)
-        @image.errors.add(:base, "Invalid registry credentials. Please check your username and password.")
-        return render :new
+  
+      if username.blank? || password.blank?
+        return redirect_to run_time_object_image_path(@run_time_object, @image),
+                          alert: "Username and password are required for private registries"
       end
-
+  
+      unless valid_registry_credentials?(image_name, username, password)
+        return redirect_to run_time_object_image_path(@run_time_object, @image),
+                          alert: "Invalid registry credentials or registry not accessible"
+      end
+  
       scan_command = generate_trivy_scan_command(image_name, username, password)
     else
       scan_command = generate_trivy_scan_command(image_name)
     end
-    
-    Rails.logger.debug "Scan command: #{scan_command}"
-
-    @image.report = `#{scan_command}`
-
-    Rails.logger.debug "New Report: #{@image.report}"
-      
   
-    if @image.save
-      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Rescan was successful."
+    Rails.logger.debug "Executing rescan command: #{scan_command}"
+    scan_result = `#{scan_command}`
+  
+    if $?.success?
+      @image.report = scan_result
+      if @image.save
+        redirect_to run_time_object_image_path(@run_time_object.id, @image),
+                    notice: "Image was successfully rescanned."
+      end
+    else
+      redirect_to run_time_object_image_path(@run_time_object, @image),
+                  alert: "Failed to rescan image. Please verify the image exists and is accessible."
     end
   end
 
@@ -278,55 +266,75 @@ class ImagesController < ApplicationController
 
     def valid_registry_credentials?(image_name, username, password)
       registry = extract_registry_from_image(image_name)
-      auth_url = if registry.include?('localhost')
-                        "http://#{registry}/v2/"
-                      else
-                        "https://#{registry}/v2/"
-                      end
-      
-      Rails.logger.debug "Attempting authentication for registry: #{registry}"
+      auth_url = if registry.include?("localhost") || registry.match?(/:\d+$/)
+                   # Localhost or registry with explicit port
+                   "http://#{registry}/v2/"
+                 else
+                   # Default to HTTPS for other registries
+                   "https://#{registry}/v2/"
+                 end
     
-      uri = URI(auth_url)
-      request = Net::HTTP::Get.new(uri)
-      request['Authorization'] = "Basic #{Base64.strict_encode64("#{username}:#{password}")}"
+      begin
+        uri = URI(auth_url)
+        request = Net::HTTP::Get.new(uri)
+        request.basic_auth(username, password)
     
-      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-        http.request(request)
+        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https', verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
+          http.request(request)
+        end
+    
+        case response.code.to_i
+        when 200
+          Rails.logger.info "Successfully authenticated with registry: #{registry}"
+          true
+        when 401, 403
+          Rails.logger.error "Authentication failed for registry: #{registry} - #{response.message}"
+          false
+        else
+          Rails.logger.error "Unexpected response from registry: #{response.code} - #{response.body}"
+          false
+        end
+      rescue SocketError => e
+        Rails.logger.error "Unable to connect to registry: #{registry} - #{e.message}"
+        false
+      rescue StandardError => e
+        Rails.logger.error "Error connecting to registry: #{registry} - #{e.message}"
+        false
       end
-    
-      Rails.logger.debug "Response code: #{response.code}"
-      Rails.logger.debug "Response body: #{response.body}"
-    
-      response.code.to_i == 200
-    rescue StandardError => e
-      Rails.logger.error "Error authenticating with registry: #{e.message}"
-      false
     end
-
-
+    
     def extract_registry_from_image(image_name)
-      image_name.split('/').first
+      if image_name.include?("/")
+        image_name.split("/").first
+      else
+        "docker.io"
+      end
     end
-
-    def extract_aws_region(registry)
-      # Extract region from ECR registry URL
-      # Format: dkr.ecr.region.amazonaws.com
-      registry.match(/\.ecr\.(.+?)\.amazonaws\.com/)[1]
-    end
-
+    
+    
     def is_private_registry?(image_name)
+      return false if image_name.blank?
+      
       private_patterns = [
-        /.*\.azurecr\.io/,  # Azure Container Registry
-        /.*\.dkr\.ecr\..*\.amazonaws\.com/,  # AWS ECR
-        /gcr\.io/,  # Google Container Registry
-        /.*\.jfrog\.io/,  # JFrog Artifactory
-        /.*\.registry\..*/, # Generic private registry
-        /localhost\:5001/,  # Local registry
-        /harbor\.*/,       # Harbor
-        /nexus\.*/        # Nexus
+        /^localhost(:\d+)?/,                         # localhost[:port]
+        /\.azurecr\.io/,                            # Azure Container Registry
+        /\.dkr\.ecr\..*\.amazonaws\.com/,           # AWS ECR
+        /^gcr\.io/,                                 # Google Container Registry
+        /\.jfrog\.io/,                             # JFrog Artifactory
+        /\.registry\./,                             # Generic private registry
+        /^harbor\./,                                # Harbor
+        /^nexus\./,                                 # Nexus
+        /:[\d]+/                                    # Any registry with port number
       ]
+
+      # Check if image name matches any private registry pattern
       private_patterns.any? { |pattern| image_name.match?(pattern) }
     end
+
+# These methods can be removed as they're no longer needed:
+# - build_auth_url
+# - extract_registry_from_image
+# - cleanup_docker_credentials
   
     def generate_trivy_scan_command(image_name, username = nil, password = nil)
       command = ["TRIVY_NON_SSL=true"]
@@ -341,14 +349,5 @@ class ImagesController < ApplicationController
       "json_out=$(#{command.join(' ')}) && echo $json_out"
     end
 
-    def cleanup_docker_credentials
-      # Clean up any stored credentials
-      begin
-        credentials_path = File.expand_path("~/.docker/config.json")
-        FileUtils.rm_f(credentials_path)
-      rescue => e
-        Rails.logger.error "Error cleaning up Docker credentials: #{e.message}"
-      end
-    end
     
 end
