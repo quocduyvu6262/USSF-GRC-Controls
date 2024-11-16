@@ -93,7 +93,7 @@
       </div>
       <div class="tooltip-container">
         <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
-          <%= link_to run_time_object_image_path(@run_time_object, @image),
+          <%= button_to run_time_object_image_path(@run_time_object, @image),
                       method: :delete,
                       data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this image tag?' },
                       class: 'index-page-button delete-button' do %>
@@ -133,8 +133,6 @@
           </div>
     </div>
   </div>
-
-
   <% if @image_report.present? %>
     <div id="summary" class="summary-container">
       <h2 class="summary-title">Vulnerability Summary</h2>

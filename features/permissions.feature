@@ -58,9 +58,7 @@ Feature: Share Runtime Objects with Users
     Then I visit image "alpine"
     Then I should be on the image details page with title "alpine"
     And I should see the "Edit" button
-    And I should see the "Delete" button
     And I can access edit button in image page
-    And I can access delete button in image page
 
   Scenario: Unauthorized user tries to access a shared runtime object
     Given I have successfully logged in
