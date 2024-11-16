@@ -24,6 +24,7 @@ class ImagesController < ApplicationController
     @user = current_user
     @image = @run_time_object.images.find(params[:id])
     @image_report = JSON.parse(@image.report)
+    puts @image_report
   end
 
 

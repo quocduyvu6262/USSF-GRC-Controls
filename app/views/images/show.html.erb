@@ -107,12 +107,12 @@
     </div>
     <hr>
       <div class="info-container">
-        <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+        <div class="info-box" style="background-color: #f5f5f5; padding: 1.5rem; border-radius: .8rem;">
           <label>Version:</label>
           <p><%= tag_parts.length > 1 ? tag_parts[1] : 'latest' %></p>
         </div>
 
-        <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
+        <div class="info-box" style="background-color: #f5f5f5; padding: 1.5rem; border-radius: .8rem;">
           <div class="button-container-tag-show">
           <div class="tooltip-container" style="position: relative;">
             <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
@@ -360,15 +360,15 @@
         <% end %>
         <style>
             h1 {
-                font-size: 36px;
+                font-size: 3.6rem;
                 font-family: 'Times', serif;
             }
 
             hr {
                 border: none; /* Remove default border */
-                height: 2px; /* Height of the line */
+                height: .2rem; /* Height of the line */
                 background-color: #ccc; /* Color of the line */
-                margin: 10px 0; /* Spacing around the line */
+                margin: 1.0rem 0; /* Spacing around the line */
             }
 
 
@@ -378,16 +378,16 @@
             .info-container {
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 1.0rem;
                 padding-top: 2%
             }
 
             .info-box {
-                border: 1px solid #ccc;
-                padding: 10px;
-                margin-bottom: 20px;
-                border-radius: 5px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                border: .1rem solid #ccc;
+                padding: 1.0rem;
+                margin-bottom: 2.0rem;
+                border-radius: .5rem;
+                box-shadow: 0 .2rem .5rem rgba(0, 0, 0, 0.1);
                 background-color: #E9E1E5;
             }
 
@@ -396,9 +396,9 @@
             }
             .summary-container {
                 background-color: #f8f9fa;
-                border: 1px solid #e9ecef;
-                border-radius: 8px;
-                padding: 20px;
+                border: .1rem solid #e9ecef;
+                border-radius: .8rem;
+                padding: 2.0rem;
                 margin-bottom: 2rem;
             }
 
@@ -407,7 +407,7 @@
                 color: #343a40;
                 margin-bottom: 1rem;
                 padding-bottom: 0.5rem;
-                border-bottom: 2px solid #dee2e6;
+                border-bottom: .2rem solid #dee2e6;
             }
 
             .target-summary {
@@ -422,29 +422,29 @@
 
             .severity-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                gap: 10px;
+                grid-template-columns: repeat(auto-fill, minmax(12.0rem, 1fr));
+                gap: 0.1rem;
             }
 
             .severity-item {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                padding: 10px;
-                border-radius: 8px;
+                padding: .8rem;
+                border-radius: .4rem;
                 transition: transform 0.2s ease-in-out;
             }
 
             .severity-item:hover {
-                transform: translateY(-2px);
+                transform: translateY(-.2rem);
             }
 
             .severity-badge {
-                padding: 4px 8px;
-                border-radius: 12px;
+                padding: .4rem .8rem;
+                border-radius: 1.2rem;
                 font-size: 0.85rem;
                 font-weight: 600;
-                margin-bottom: 5px;
+                margin-bottom: .5rem;
             }
 
             .severity-count {
@@ -454,10 +454,10 @@
 
             .fixable-vulnerabilities-note {
                 background-color: #e6f7ff;
-                border: 1px solid #91d5ff;
-                border-radius: 8px;
-                padding: 15px;
-                margin-top: 20px;
+                border: .1rem solid #91d5ff;
+                border-radius: .8rem;
+                padding: 1.5rem;
+                margin-top: 2.0rem;
             }
 
             .fixable-vulnerabilities-note p {
@@ -466,17 +466,17 @@
                 font-size: 0.95rem;
             }
             #pagination {
-                margin-top: 20px;
+                margin-top: 2.0rem;
                 text-align: center;
             }
 
             #pagination button {
-                padding: 5px 10px;
-                margin: 0 5px;
+                padding: .5rem 1.0rem;
+                margin: 0 .5rem;
                 background-color: #4CAF50;
                 color: white;
                 border: none;
-                border-radius: 3px;
+                border-radius: .3rem;
                 cursor: pointer;
             }
 
@@ -486,18 +486,18 @@
             }
 
             #pageInfo {
-                margin: 0 10px;
+                margin: 0 1.0rem;
             }
             .vulnerabilities-table {
                 width: 100%;
                 border-collapse: separate;
-                border-spacing: 0 8px;
+                border-spacing: 0 .8rem;
                 margin-bottom: 2rem;
             }
 
             .vulnerabilities-table th,
             .vulnerabilities-table td {
-                padding: 12px;
+                padding: 1.2rem;
                 text-align: left;
                 border: none;
             }
@@ -521,8 +521,8 @@
 
             .severity-badge,
             .status-badge {
-                padding: 4px 8px;
-                border-radius: 12px;
+                padding: .4rem .8rem;
+                border-radius: 1.2rem;
                 font-size: 0.85rem;
                 font-weight: 600;
             }
@@ -539,14 +539,14 @@
             .nist-identifiers {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 4px;
+                gap: .4rem;
             }
 
             .nist-link,
             .nist-id {
                 font-size: 0.85rem;
-                padding: 2px 6px;
-                border-radius: 4px;
+                padding: .2rem .6rem;
+                border-radius: .4rem;
                 background-color: #e9ecef;
                 color: #495057;
                 text-decoration: none;
@@ -557,7 +557,7 @@
             }
 
             .description-container {
-                max-width: 300px;
+                max-width: 30.0rem;
             }
 
             .description {
@@ -593,7 +593,7 @@
                 color: #343a40;
                 margin-top: 2rem;
                 margin-bottom: 1rem;
-                border-bottom: 2px solid #dee2e6;
+                border-bottom: .2rem solid #dee2e6;
                 padding-bottom: 0.5rem;
             }
 
