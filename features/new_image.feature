@@ -14,5 +14,5 @@ Feature: Create a new image
     Then I should see the title "New Container Image"
     When I fill in "Name" with "alpine"
     When I fill in "Description" with "test"
-    And I click "Submit" button
+    And I click "Create" button
     Then I should be on the image details page with title "alpine"

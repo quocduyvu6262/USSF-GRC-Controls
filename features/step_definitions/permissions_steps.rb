@@ -77,12 +77,20 @@ Then("I should not see the {string} button") do |button_text|
 end
 
 Then("I should see the {string} button") do |button_text|
-  if button_text == "Delete"
-    expect(page).to have_button(button_text)
+  case button_text
+  when "Edit"
+    expect(page).to have_selector('a i.fa-edit')
+  when "Delete"
+    expect(page).to have_selector('a i.fa-trash-alt')
+  when "New Tag"
+    expect(page).to have_selector('a i.fa-plus-circle')
+  when "Access"
+    expect(page).to have_selector('a i.fa-share-alt')
   else
-    expect(page).to have_link(button_text)
+    raise "No step defined for this button: #{button_text}"
   end
 end
+
 
 Then("I visit image {string}") do |image_name|
   image = Image.find_by(tag: image_name)

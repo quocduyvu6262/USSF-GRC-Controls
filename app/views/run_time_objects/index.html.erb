@@ -1,7 +1,12 @@
 <body>
-    <div class="image-page">
-        <p class="heading">Containers</p>
-        <%= link_to "New Container", new_run_time_object_path, class: "btn-create" %>
+    <div class="index-page-container">
+        <p class="heading">My Containers</p>
+        <div class="create-button-container">
+        <%= link_to new_run_time_object_path, class: "index-page-button" do %>
+          <i class="fas fa-plus-circle"></i>
+           Create New Container
+        <% end %>
+      </div>
         <div class="image-list">
             <% if @run_time_objects.present? %>
                 <% @run_time_objects.each do |object| %>
