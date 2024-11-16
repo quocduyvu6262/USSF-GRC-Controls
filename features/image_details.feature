@@ -8,8 +8,8 @@ Background: images in database
   Given I have successfully logged in
   Given the following tags exist:
     | tag         | report    | run_time_object_id  |
-    | image 1     | None      | 1                   |
-    | image 2     | None      | 1                   |
+    | image 1     | ""      | 1                   |
+    | image 2     | ""      | 1                   |
 
 Scenario: Viewing image details
   When I go to the details page for tag "image 1"
@@ -22,13 +22,13 @@ Scenario: Edit image tag
   When I go to the details page for tag "image 1"
   Then I should see the title "image 1"
   When I click "Edit" button
-  When I fill in "Tag URL" with "alpine:latest"
-  When I click "Update Image" button
+  When I fill in "Tag URL" with "alpine"
+  When I click "Update" button
   Then I should see the title "alpine"
 
 Scenario: Delete image tag
   When I go to the details page for tag "image 1"
   Then I should see the title "image 1"
   When I click "Delete" button
-  Then I should see the message "Image was successfully deleted"
+  Then I should see the message "Tag was successfully deleted"
 

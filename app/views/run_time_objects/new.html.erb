@@ -9,9 +9,14 @@
     <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
-    <%= form_with model: @run_time_object, url: run_time_objects_path, local: true do |form| %>
-        <div class="image-page">
-            <p style="text-align: center; font-size: 40px;">New Container Image</p>
+    <div class="index-page-container">
+        <div class="back-button">
+            <%= link_to run_time_objects_path, class: "index-page-button" do %>
+            <i class="fas fa-arrow-left"></i> Go Back
+            <% end %>
+        </div>
+        <p class="heading">New Container Image</p>
+        <%= form_with model: @run_time_object, url: run_time_objects_path, local: true do |form| %>
             <div class="form-container">
                 <div class="form-group">
                     <%= form.label :name, "Name", class: "form-label" %>
@@ -22,12 +27,11 @@
                     <%= form.text_field :description, class: "form-control-description", placeholder: "Value", description: nil %>
                 </div>
                 <div class="actions">
-                    <%= form.submit "Submit", class: "btn-submit" %>
-                    <%= link_to "Go back", run_time_objects_path, class: "btn-go-back" %>
+                    <%= form.submit "Create", class: "index-page-button" %>
                 </div>
             </div>
-        </div>
-    <% end %>
+        <% end %>
+    </div>
     
     <% if @run_time_object.errors.any? %>
         <div id="error_explanation">

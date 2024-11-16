@@ -11,7 +11,7 @@ class ImagesController < ApplicationController
   "HIGH" => 2,
   "MEDIUM" => 3,
   "LOW" => 4,
-  "UNKNOWN" => 5
+  "UNDEFINED" => 5
 }
   before_action :set_image, only: %i[ show edit update destroy rescan download ]
 
@@ -26,33 +26,9 @@ class ImagesController < ApplicationController
     @tag = params[:id]
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @user = current_user
-    begin
-      @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
-    rescue JSON::ParserError
-      @image_report = { "Results" => [ { "Target" => @image.report, "Vulnerabilities" => [] } ] }
-    end
-
-    cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
-
-    @vulnerability_summary = {}
-    @fixable_vulnerabilities_count = 0
-    @image_report["Results"].each do |result|
-      target = result["Target"]
-      next if result["Vulnerabilities"].nil?
-
-      result["Vulnerabilities"].each do |vuln|
-        # Add NIST Control Identifiers to each vulnerability
-        cve_id = vuln["VulnerabilityID"]
-        vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[cve_id] || []
-        if vuln["FixedVersion"].present? && vuln["FixedVersion"] != ""
-          @fixable_vulnerabilities_count += 1
-        end
-      end
-
-      result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
-      @vulnerability_summary[target] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
-                                                                .transform_values(&:count)
-    end
+    @image = @run_time_object.images.find(params[:id])
+    @image_report = JSON.parse(@image.report)
+    puts @image_report
   end
 
 
@@ -67,7 +43,7 @@ class ImagesController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.find(params[:id])
   end
-
+    
   def create
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.new(image_params)
@@ -93,15 +69,17 @@ class ImagesController < ApplicationController
     end
 
     #Rails.logger.debug "Executing scan command: #{scan_command}"
-    scan_result = `#{scan_command}`
-    success = $?.success?
+    #scan_result = `#{scan_command}`
+    #success = $?.success?
 
     # if success
-    @image.report = scan_result
+    @image.report = scan_and_save_image(scan_command)
     if @image.save
-      redirect_to run_time_object_image_path(@run_time_object.id, @image),
-                  notice: "Image was successfully created."
+      # redirect_to run_time_object_image_path(@run_time_object.id, @image),
+      #             notice: "Image was successfully created."
+      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Tag was successfully created."
     else
+      flash[:alert] = "Error saving the data. Please try again."
       render :new
     end
     # else
@@ -109,6 +87,7 @@ class ImagesController < ApplicationController
     #   render :new
     # end
   end
+
 
   def rescan
     image_name = @image.tag
@@ -134,10 +113,12 @@ class ImagesController < ApplicationController
     end
 
     #Rails.logger.debug "Executing rescan command: #{scan_command}"
-    scan_result = `#{scan_command}`
+    #scan_result = `#{scan_command}`
 
     # if $?.success?
-    @image.report = scan_result
+    @image.report = scan_and_save_image(scan_command)
+    Rails.logger.debug "New Report: #{@image.report}"
+
     if @image.save
       redirect_to run_time_object_image_path(@run_time_object.id, @image),
                   notice: "Rescan was successful."
@@ -153,71 +134,41 @@ class ImagesController < ApplicationController
       flash[:alert] = "No report available for this image."
       redirect_to run_time_object_image_path(@image.run_time_object, @image) and return
     end
-
-    begin
-      @image_report = JSON.parse(@image.report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, ""))
-    rescue JSON::ParserError
-      flash[:alert] = "Failed to parse the report. Invalid JSON format."
-      redirect_to run_time_object_image_path(@image.run_time_object, @image) and return
-    end
-
-    # Process and generate CSV content
-    cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
-    vulnerabilities_data = []
-
-    @image_report["Results"].each do |result|
-      target = result["Target"]
-      next if result["Vulnerabilities"].nil?
-
-      result["Vulnerabilities"].each do |vuln|
-        nist_ids = (cve_to_nist_mapping[vuln["VulnerabilityID"]] || []).map do |nist_id|
-          parts = nist_id.split("/")
-          if parts.length == 2
-            ActionController::Base.helpers.link_to(
-              nist_id,
-              "https://csf.tools/reference/nist-sp-800-53/r4/#{parts[0].downcase}/#{nist_id.downcase}/",
-              target: "_blank", class: "nist-link"
-            ).to_s
-          else
-            "<span class='nist-id'>#{nist_id}</span>"
-          end
-        end.join(" ")
-
-        vulnerabilities_data << {
-          title: vuln["Title"] || "N/A",
-          severity: vuln["Severity"] || "N/A",
-          id: vuln["VulnerabilityID"] || "N/A",
-          installed_version: vuln["InstalledVersion"] || "N/A",
-          fixed_version: vuln["FixedVersion"] || "N/A",
-          status: vuln["Status"] || "",
-          nist_identifiers: nist_ids,
-          description: vuln["Description"].to_s.gsub(/<\/?[^>]+?>/, "").strip || "N/A"
-        }
-      end
-    end
+    image_report = JSON.parse(@image.report)
 
     csv_content = CSV.generate(headers: true) do |csv|
-      csv << [ "Title", "Severity", "ID", "Installed Version", "Fixed Version", "Status", "NIST Identifiers", "Description" ]
-      vulnerabilities_data.each do |vuln|
-        csv << [
-          vuln[:title],
-          vuln[:severity],
-          vuln[:id],
-          vuln[:installed_version],
-          vuln[:fixed_version],
-          vuln[:status],
-          vuln[:nist_identifiers],
-          vuln[:description]
-        ]
+      csv << [ "Target", "Title", "Severity", "ID", "Installed Version", "Fixed Version", "Status", "NIST Identifiers", "Description" ]
+
+      image_report["Results"].each do |result|
+        target = result["Target"]
+
+        next if result["Vulnerabilities"].nil? || result["Vulnerabilities"].blank?
+
+        result["Vulnerabilities"].each do |vuln|
+          title = vuln["Title"] || "N/A"
+          severity = vuln["Severity"] || "N/A"
+          id = vuln["VulnerabilityID"] || "N/A"
+          installed_version = vuln["InstalledVersion"] || "N/A"
+          fixed_version = vuln["FixedVersion"] || "N/A"
+          status = vuln["Status"] || ""
+          nist_identifiers = (vuln["NISTControlIdentifiers"] || []).join(", ") || "N/A"
+          description = (vuln["Description"] || "").gsub(/<\/?[^>]+?>/, "").strip || "N/A"
+
+          csv << [ target, title, severity, id, installed_version, fixed_version, status, nist_identifiers, description ]
+        end
       end
     end
 
+    # Sanitize the image tag to create a safe file name
     new_name = @image.tag.gsub(/[^0-9A-Za-z.\-]/, "_")
+
+    # Send the generated CSV file as a download
     send_data csv_content,
               filename: "vulnerability_report_#{new_name}.csv",
               type: "text/csv",
               disposition: "attachment"
   end
+
 
   # PATCH/PUT /images/1 or /images/1.json
   def update
@@ -226,9 +177,33 @@ class ImagesController < ApplicationController
 
     if @image.update(image_params)
       image_name = @image.tag
-      @image.report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out`
-      @image.save
-      redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Image was successfully updated."
+
+      if is_private_registry?(image_name)
+        username = params[:registry_username]
+        password = params[:registry_password]
+  
+        if username.blank? || password.blank?
+          return redirect_to run_time_object_image_path(@run_time_object, @image),
+                            alert: "Username and password are required for private registries"
+        end
+  
+        unless valid_registry_credentials?(image_name, username, password)
+          return redirect_to run_time_object_image_path(@run_time_object, @image),
+                            alert: "Invalid registry credentials or registry not accessible"
+        end
+  
+        scan_command = generate_trivy_scan_command(image_name, username, password)
+      else
+        scan_command = generate_trivy_scan_command(image_name)
+      end
+
+      @image.report = scan_and_save_image(scan_command)
+      if @image.save
+        redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Tag was successfully updated."
+      else
+        flash[:alert] = "Error saving the data. Please try again."
+        render :new
+      end
     end
   end
 
@@ -238,7 +213,7 @@ class ImagesController < ApplicationController
 
     @image.destroy
 
-    redirect_to run_time_object_images_path(@run_time_object), notice: "Image was successfully deleted."
+    redirect_to run_time_object_images_path(@run_time_object), notice: "Tag was successfully deleted."
   end
 
   def authorize_view_permission
@@ -268,6 +243,114 @@ class ImagesController < ApplicationController
       Rails.logger.debug "Image found: #{@image.inspect}"
     end
 
+    def scan_and_save_image(scan_command)
+      # Perform trivy scan for the image from URL
+      raw_report = `#{scan_command}` # Run trivy scan
+    
+      begin
+        # First try to parse the raw output
+        parsed_report = JSON.parse(raw_report.gsub(/\e\[([;\d]+)?m/, "")
+                                           .gsub(/\n/, "")
+                                           .gsub(/[\u0000-\u001F]/, "")
+                                           .gsub("UNKNOWN", "UNDEFINED"))
+    
+        # Check if it's an error response
+        if parsed_report.key?("error")
+          return {
+            "Results" => [{
+              "Target" => "Error",
+              "Vulnerabilities" => [],
+              "Error" => parsed_report["error"]
+            }]
+          }.to_json
+        end
+    
+        # If it's not a properly structured report with Results
+        unless parsed_report.key?("Results")
+          return {
+            "Results" => [{
+              "Target" => "Error",
+              "Vulnerabilities" => [],
+              "Error" => "Invalid scan result format"
+            }]
+          }.to_json
+        end
+    
+        # Map CVEs to NIST controls
+        cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
+    
+        # Process vulnerabilities in the report
+        parsed_report["Results"].each do |result|
+          next if result["Vulnerabilities"].nil? || result["Vulnerabilities"].blank?
+    
+          result["Vulnerabilities"].each do |vuln|
+            # Add NIST Control Identifiers to each vulnerability
+            vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[vuln["VulnerabilityID"]] || []
+          end
+    
+          # Sort vulnerabilities by severity and generate a summary
+          result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
+          result["VulnerabilitySummary"] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
+                                                                    .transform_values(&:count)
+          result["FixableVulnerabilitiesCount"] = result["Vulnerabilities"].count { |v| v["FixedVersion"].present? }
+        end
+    
+        parsed_report.to_json
+      rescue JSON::ParserError => e
+        Rails.logger.error "JSON parsing failed: #{e.message}"
+        return {
+          "Results" => [{
+            "Target" => "Error",
+            "Vulnerabilities" => [],
+            "Error" => "JSON parsing failed: #{e.message}"
+          }]
+        }.to_json
+      rescue StandardError => e
+        Rails.logger.error "Error processing scan result: #{e.message}"
+        return {
+          "Results" => [{
+            "Target" => "Error",
+            "Vulnerabilities" => [],
+            "Error" => "Error processing scan result: #{e.message}"
+          }]
+        }.to_json
+      end
+    end
+
+    # def scan_and_save_image(scan_command)
+    #   # Perform trivy scan for the image from URL
+    #   report = `#{scan_command}` # Run trivy scan
+
+    #   begin
+    #     report = JSON.parse(report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, "").gsub("UNKNOWN", "UNDEFINED"))
+    #   rescue JSON::ParserError => e
+    #     Rails.logger.error "JSON parsing failed: #{e.message}"
+    #     flash[:alert] = "Parsing the report failed. Try again."
+    #     return
+    #   end
+
+    #   # Map CVEs to NIST controls
+    #   cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
+
+    #   # Process vulnerabilities in the report
+    #   report["Results"].each do |result|
+    #     next if result["Vulnerabilities"].nil? || result["Vulnerabilities"].blank?
+
+
+    #     result["Vulnerabilities"].each do |vuln|
+    #       # Add NIST Control Identifiers to each vulnerability
+    #       vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[vuln["VulnerabilityID"]] || []
+    #     end
+
+    #     # Sort vulnerabilities by severity and generate a summary
+    #     result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
+    #     result["VulnerabilitySummary"] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
+    #                                                                 .transform_values(&:count)
+    #     result["FixableVulnerabilitiesCount"] = result["Vulnerabilities"].count { |v| v["FixedVersion"].present? }
+    #   end
+
+    #   report.to_json
+    # end
 
     # Only allow a list of trusted parameters through.
     def image_params
