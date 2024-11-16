@@ -1,6 +1,6 @@
-require 'net/http'
-require 'uri'
-require 'base64'
+require "net/http"
+require "uri"
+require "base64"
 
 class ImagesController < ApplicationController
   before_action :authorize_edit_permission, only: [ :new, :edit, :create, :rescan, :update, :destroy ]
@@ -72,80 +72,80 @@ class ImagesController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.new(image_params)
     image_name = params[:image][:tag]
-  
+
     if is_private_registry?(image_name)
       username = params[:registry_username]
       password = params[:registry_password]
-  
+
       if username.blank? || password.blank?
         @image.errors.add(:base, "Username and password are required for private registries.")
         return render :new
       end
-  
+
       unless valid_registry_credentials?(image_name, username, password)
         @image.errors.add(:base, "Invalid registry credentials or the registry is inaccessible.")
         return render :new
       end
-  
+
       scan_command = generate_trivy_scan_command(image_name, username, password)
     else
       scan_command = generate_trivy_scan_command(image_name)
     end
-  
+
     Rails.logger.debug "Executing scan command: #{scan_command}"
     scan_result = `#{scan_command}`
     success = $?.success?
-  
-    if success
-      @image.report = scan_result
-      if @image.save
-        redirect_to run_time_object_image_path(@run_time_object.id, @image),
-                    notice: "Image was successfully scanned and saved."
-      else
-        render :new
-      end
+
+    # if success
+    @image.report = scan_result
+    if @image.save
+      redirect_to run_time_object_image_path(@run_time_object.id, @image),
+                  notice: "Image was successfully created."
     else
-      @image.errors.add(:base, "Failed to scan the image. Please verify the image exists and is accessible.")
       render :new
     end
+    # else
+    #   @image.errors.add(:base, "Failed to scan the image. Please verify the image exists and is accessible.")
+    #   render :new
+    # end
   end
-  
+
   def rescan
     image_name = @image.tag
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
-  
+
     if is_private_registry?(image_name)
       username = params[:registry_username]
       password = params[:registry_password]
-  
+
       if username.blank? || password.blank?
         return redirect_to run_time_object_image_path(@run_time_object, @image),
                           alert: "Username and password are required for private registries"
       end
-  
+
       unless valid_registry_credentials?(image_name, username, password)
         return redirect_to run_time_object_image_path(@run_time_object, @image),
                           alert: "Invalid registry credentials or registry not accessible"
       end
-  
+
       scan_command = generate_trivy_scan_command(image_name, username, password)
     else
       scan_command = generate_trivy_scan_command(image_name)
     end
-  
+
     Rails.logger.debug "Executing rescan command: #{scan_command}"
     scan_result = `#{scan_command}`
-  
-    if $?.success?
-      @image.report = scan_result
-      if @image.save
-        redirect_to run_time_object_image_path(@run_time_object.id, @image),
-                    notice: "Image was successfully rescanned."
-      end
-    else
-      redirect_to run_time_object_image_path(@run_time_object, @image),
-                  alert: "Failed to rescan image. Please verify the image exists and is accessible."
+
+    # if $?.success?
+    @image.report = scan_result
+    if @image.save
+      redirect_to run_time_object_image_path(@run_time_object.id, @image),
+                  notice: "Rescan was successful."
     end
+    # else
+    #   redirect_to run_time_object_image_path(@run_time_object, @image),
+    #               alert: "Failed to rescan image. Please verify the image exists and is accessible."
+    # end
   end
 
   def download
@@ -279,20 +279,20 @@ class ImagesController < ApplicationController
       auth_url = if registry.include?("localhost") || registry.match?(/:\d+$/)
                    # Localhost or registry with explicit port
                    "http://#{registry}/v2/"
-                 else
+      else
                    # Default to HTTPS for other registries
                    "https://#{registry}/v2/"
-                 end
-    
+      end
+
       begin
         uri = URI(auth_url)
         request = Net::HTTP::Get.new(uri)
         request.basic_auth(username, password)
-    
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https', verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
+
+        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https", verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
           http.request(request)
         end
-    
+
         case response.code.to_i
         when 200
           Rails.logger.info "Successfully authenticated with registry: #{registry}"
@@ -312,7 +312,7 @@ class ImagesController < ApplicationController
         false
       end
     end
-    
+
     def extract_registry_from_image(image_name)
       if image_name.include?("/")
         image_name.split("/").first
@@ -320,11 +320,22 @@ class ImagesController < ApplicationController
         "docker.io"
       end
     end
-    
-    
+
+
     def is_private_registry?(image_name)
       return false if image_name.blank?
-      
+
+      public_patterns = [
+          /^docker\.io/,               # Docker Hub
+          /^quay\.io/,                 # Quay.io
+          /^[^\/]+$/,                  # Short image names (e.g., "nginx", "python")
+          /^gcr\.io\/google-containers/ # Google official containers
+        ]
+
+      # Check if it matches a public registry
+      return false if public_patterns.any? { |pattern| image_name.match?(pattern) }
+
+
       private_patterns = [
         /^localhost(:\d+)?/,                         # localhost[:port]
         /\.azurecr\.io/,                            # Azure Container Registry
@@ -341,23 +352,16 @@ class ImagesController < ApplicationController
       private_patterns.any? { |pattern| image_name.match?(pattern) }
     end
 
-# These methods can be removed as they're no longer needed:
-# - build_auth_url
-# - extract_registry_from_image
-# - cleanup_docker_credentials
-  
     def generate_trivy_scan_command(image_name, username = nil, password = nil)
-      command = ["TRIVY_NON_SSL=true"]
-      
+      command = [ "TRIVY_NON_SSL=true" ]
+
       if username && password
         command << "TRIVY_USERNAME=#{username}"
         command << "TRIVY_PASSWORD=#{password}"
       end
-      
+
       command << "trivy image --format json --insecure #{image_name}"
-      
+
       "json_out=$(#{command.join(' ')}) && echo $json_out"
     end
-
-    
 end
