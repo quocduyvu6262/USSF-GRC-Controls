@@ -1,5 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+    .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        .tooltip-text {
+        visibility: hidden;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 0.5rem;
+        border-radius: 0.4rem;
+        position: absolute;
+        bottom: 120%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 1;
+        width: 10rem; 
+        word-wrap: break-word;  
+        white-space: normal;  
+        overflow: hidden;  
+    }
+
+</style>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,32 +38,71 @@
   <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
+  <% tag_parts = @image.tag.split(':') %>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const tooltipContainers = document.querySelectorAll('.tooltip-container');
+        
+        tooltipContainers.forEach(container => {
+            let hoverTimeout;
+            const tooltip = container.querySelector('.tooltip-text');
+
+            container.addEventListener('mouseenter', () => {
+                clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(() => {
+                    tooltip.style.visibility = 'visible';  
+                    tooltip.style.opacity = '0.85';        
+                }, 1000);
+            });
+
+            container.addEventListener('mouseleave', () => {
+                clearTimeout(hoverTimeout);
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+                });
+            });
+        });
+  </script>
+
+
+      <hr>
   <div class="report-page-container">
-    <div class="back-button">
-      <%= link_to run_time_object_images_path(@run_time_object), class: "index-page-button" do %>
-        <i class="fas fa-arrow-left"></i> 
-        Go back
-      <% end %>
+		
+			<div class="back-button">
+            <div class="tooltip-container">
+				<%= link_to run_time_object_images_path(@run_time_object), class: "index-page-button" do %>
+					<i class="fas fa-arrow-left"></i> 
+					Go back
+				<% end %>
+				<span class="tooltip-text">Return to the main image page for this tag</span>
+			</div>
     </div>
     <div class="index-title-container">
       <% tag_parts = @image.tag.split(':') %>
       <p class="heading"><%= tag_parts[0] %></p>
       <div style="button-container">
-        <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
-          <%= link_to edit_run_time_object_image_path(@run_time_object, @image), 
-                      class: 'index-page-button' do %>
-            <i class="fas fa-edit"></i>
-            Edit <!-- Font Awesome icon -->
-          <% end %>
-        <% end %>
-        <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
-          <%= button_to run_time_object_image_path(@run_time_object, @image), 
-                        method: :delete, 
-                        class: 'index-page-button delete-button' do %>
-              <i class="fas fa-trash-alt"></i>
-              Delete
-            <% end %>
-        <% end %>
+				<div class="tooltip-container">
+					<% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+						<%= link_to edit_run_time_object_image_path(@run_time_object, @image), 
+												class: 'index-page-button' do %>
+							<i class="fas fa-edit"></i>
+							Edit <!-- Font Awesome icon -->
+						<% end %>
+					<% end %>
+					<span class="tooltip-text">Modify the selected container image</span>
+				</div>
+				<div class="tooltip-container">
+					<% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+						<%= link_to run_time_object_image_path(@run_time_object, @image), 
+													method: :delete, 
+													data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this image tag?' }, 
+													class: 'index-page-button delete-button' do %>
+								<i class="fas fa-trash-alt"></i>
+								Delete
+							<% end %>
+					<% end %>
+					<span class="tooltip-text">Remove this specific image from the container</span>
+        </div>
       </div>
     </div>
     <hr>
@@ -46,19 +114,26 @@
 
         <div class="info-box" style="background-color: #f5f5f5; padding: 1.5rem; border-radius: .8rem;">
           <div class="button-container-tag-show">
+          <div class="tooltip-container" style="position: relative;">
             <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
               <%= form_with url: download_run_time_object_image_path(@run_time_object.id, @image), method: :get, local: true do %>
                 <%= button_tag 'Download Report', class: 'index-page-button' %>
               <% end %>
-
+          <span class="tooltip-text">Click to download the CSV report for this image</span>
+            </div>
+            <div class="tooltip-container" style="position: relative;">
               <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
                 <%= button_tag 'Rescan', class: 'index-page-button' %>
               <% end %>
+              <span class="tooltip-text">Click to rescan the container image</span>
             <% end %>
+            </div>
 
 
           </div>
         </div>
+    </div>
+
 
         <% if @image_report.present? %>
           <div id="summary" class="summary-container">

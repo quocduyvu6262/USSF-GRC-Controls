@@ -1,11 +1,55 @@
+<style>
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    position: absolute;
+    bottom: 100%; 
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap; 
+    z-index: 1;
+    width: 10rem; 
+    word-wrap: break-word;  
+    white-space: normal;  
+    overflow: hidden;  
+}
+
+
+.btn-create {
+    padding: 0.1rem 0.2rem;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s, opacity 0.3s;
+}
+
+.btn-create:hover {
+    background-color: #d3d3d3; 
+    opacity: 0.85; 
+}
+</style>
+
 <body>
     <div class="index-page-container">
         <p class="heading">My Containers</p>
         <div class="create-button-container">
-        <%= link_to new_run_time_object_path, class: "index-page-button" do %>
-          <i class="fas fa-plus-circle"></i>
-           Create New Container
-        <% end %>
+					<div class="tooltip-container">
+					<%= link_to new_run_time_object_path, class: "index-page-button" do %>
+					<i class="fas fa-plus-circle"></i>
+					Create New Container
+					<% end %>
+					<span class="tooltip-text">Create a new container image</span>
+					</div>
       </div>
         <div class="image-list">
             <% if @run_time_objects.present? %>
@@ -40,4 +84,30 @@
             </div>
         <% end %>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {  
+    const tooltipContainers = document.querySelectorAll('.tooltip-container');
+    
+    tooltipContainers.forEach(container => {
+        let hoverTimeout;
+        let tooltip = container.querySelector('.tooltip-text');
+
+        container.addEventListener('mouseenter', () => {
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(() => {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '0.85';
+            }, 1000);  
+        });
+
+        container.addEventListener('mouseleave', () => {
+            clearTimeout(hoverTimeout);
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.opacity = '0';
+        });
+    });
+});
+
+
+    </script>
 </body>
