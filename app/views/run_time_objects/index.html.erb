@@ -25,10 +25,6 @@
     overflow: hidden;  
 }
 
-.tooltip-container:hover .tooltip-text {
-    visibility: visible;
-    opacity: 0.85;
-}
 
 .btn-create {
     padding: 10px 20px;
@@ -89,31 +85,29 @@
         <% end %>
     </div>
     <script>
-        document.addEventListener("turbo:load", function() {  
-            const tooltipContainers = document.querySelectorAll('.tooltip-container');
-            
-            tooltipContainers.forEach(container => {
-                let hoverTimeout;
-                
-                container.addEventListener('mouseenter', () => {
-                    
-                    const tooltip = container.querySelector('.tooltip-text');
-                    tooltip.style.visibility = 'hidden';
-                    tooltip.style.opacity = '0';
+        document.addEventListener("DOMContentLoaded", function() {  
+    const tooltipContainers = document.querySelectorAll('.tooltip-container');
+    
+    tooltipContainers.forEach(container => {
+        let hoverTimeout;
+        let tooltip = container.querySelector('.tooltip-text');
 
-                    hoverTimeout = setTimeout(() => {
-                        tooltip.style.visibility = 'visible';
-                        tooltip.style.opacity = '0.85';
-                    }, 1000); 
-                });
-
-                container.addEventListener('mouseleave', () => {
-                    clearTimeout(hoverTimeout); 
-                    const tooltip = container.querySelector('.tooltip-text');
-                    tooltip.style.visibility = 'hidden';
-                    tooltip.style.opacity = '0';
-                });
-            });
+        container.addEventListener('mouseenter', () => {
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(() => {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '0.85';
+            }, 1000);  
         });
+
+        container.addEventListener('mouseleave', () => {
+            clearTimeout(hoverTimeout);
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.opacity = '0';
+        });
+    });
+});
+
+
     </script>
 </body>

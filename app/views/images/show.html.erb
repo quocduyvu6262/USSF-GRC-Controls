@@ -1,56 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-.tooltip-container {
-        position: relative;
-        display: inline-block;
-        margin: 0 5px;
+    .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        .tooltip-text {
+        visibility: hidden;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 5px;
+        border-radius: 4px;
+        position: absolute;
+        bottom: 120%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 1;
+        width: 100px; 
+        word-wrap: break-word;  
+        white-space: normal;  
+        overflow: hidden;  
     }
 
-    .tooltip-text {
-    visibility: hidden;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 5px;
-    border-radius: 4px;
-    position: absolute;
-    bottom: 120%;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 1;
-    width: 100px; 
-    word-wrap: break-word;  
-    white-space: normal;  
-    overflow: hidden;  
-}
-
-    .tooltip-container .tooltip-visible {
-        visibility: visible;
-        opacity: 0.85;
-    }
-
-    .btn-create {
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s, opacity 0.3s;
-        color: #333;
-        border: 1px solid #ccc;
-    }
-
-    .btn-create:hover {
-        background-color: #d3d3d3 !important;  
-        opacity: 0.85 !important;  
-        cursor: pointer;
-    }
-
-    .button-container {
-        display: flex;
-        gap: 10px;
-    }
 </style>
 
 <head>
@@ -64,37 +40,41 @@
 <body>
   <% tag_parts = @image.tag.split(':') %>
     <script>
-    document.addEventListener("turbo:load", function() {
+        document.addEventListener("DOMContentLoaded", function() {
         const tooltipContainers = document.querySelectorAll('.tooltip-container');
         
         tooltipContainers.forEach(container => {
             let hoverTimeout;
-            
+            const tooltip = container.querySelector('.tooltip-text');
+
             container.addEventListener('mouseenter', () => {
+                clearTimeout(hoverTimeout);
                 hoverTimeout = setTimeout(() => {
-                    container.querySelector('.tooltip-text').style.visibility = 'visible';
-                    container.querySelector('.tooltip-text').style.opacity = '0.85';
-                }, 1000); 
+                    tooltip.style.visibility = 'visible';  
+                    tooltip.style.opacity = '0.85';        
+                }, 1000);
             });
+
             container.addEventListener('mouseleave', () => {
-                clearTimeout(hoverTimeout); 
-                container.querySelector('.tooltip-text').style.visibility = 'hidden';
-                container.querySelector('.tooltip-text').style.opacity = '0';
+                clearTimeout(hoverTimeout);
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+                });
             });
         });
-    });
   </script>
 
 
       <hr>
   <div class="report-page-container">
-		<div class="tooltip-container">
+		
 			<div class="back-button">
+            <div class="tooltip-container">
 				<%= link_to run_time_object_images_path(@run_time_object), class: "index-page-button" do %>
 					<i class="fas fa-arrow-left"></i> 
 					Go back
 				<% end %>
-				<span class="tooltip-text">Return to the main image page for this object.</span>
+				<span class="tooltip-text">Return to the main image page for this tag</span>
 			</div>
     </div>
     <div class="index-title-container">
@@ -109,7 +89,7 @@
 							Edit <!-- Font Awesome icon -->
 						<% end %>
 					<% end %>
-					<span class="tooltip-text">Modify the selected container image.</span>
+					<span class="tooltip-text">Modify the selected container image</span>
 				</div>
 				<div class="tooltip-container">
 					<% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
@@ -121,7 +101,7 @@
 								Delete
 							<% end %>
 					<% end %>
-					<span class="tooltip-text">Remove this specific image from the container.</span>
+					<span class="tooltip-text">Remove this specific image from the container</span>
         </div>
       </div>
     </div>
