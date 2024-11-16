@@ -56,33 +56,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Image</title>
+  <title>Show Tag</title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <body>
   <% tag_parts = @image.tag.split(':') %>
-  <div style="width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
-  <h1 class="title" style="margin: 0;"> <%= tag_parts[0] %></h1>
-    <div class="button-container">
-        <div class="tooltip-container">
-            <%= link_to "Go back", run_time_object_images_path(@run_time_object), class: "btn-create" %>
-            <span class="tooltip-text">Return to the main image page for this object.</span>
-        </div>
-
-        <div class="tooltip-container">
-            <%= link_to "Edit", edit_run_time_object_image_path(@run_time_object, @image), class: "btn-create" %>
-            <span class="tooltip-text">Modify the selected container image.</span>
-        </div>
-
-        <div class="tooltip-container">
-            <%= button_to "Delete", run_time_object_image_path(@run_time_object, @image),
-                method: :delete,
-                class: "btn-create" %>
-            <span class="tooltip-text">Remove this specific image from the container.</span>
-        </div>
-    </div>
     <script>
     document.addEventListener("turbo:load", function() {
         const tooltipContainers = document.querySelectorAll('.tooltip-container');
@@ -105,8 +85,47 @@
     });
   </script>
 
-</div>
+
       <hr>
+  <div class="report-page-container">
+		<div class="tooltip-container">
+			<div class="back-button">
+				<%= link_to run_time_object_images_path(@run_time_object), class: "index-page-button" do %>
+					<i class="fas fa-arrow-left"></i> 
+					Go back
+				<% end %>
+				<span class="tooltip-text">Return to the main image page for this object.</span>
+			</div>
+    </div>
+    <div class="index-title-container">
+      <% tag_parts = @image.tag.split(':') %>
+      <p class="heading"><%= tag_parts[0] %></p>
+      <div style="button-container">
+				<div class="tooltip-container">
+					<% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+						<%= link_to edit_run_time_object_image_path(@run_time_object, @image), 
+												class: 'index-page-button' do %>
+							<i class="fas fa-edit"></i>
+							Edit <!-- Font Awesome icon -->
+						<% end %>
+					<% end %>
+					<span class="tooltip-text">Modify the selected container image.</span>
+				</div>
+				<div class="tooltip-container">
+					<% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+						<%= link_to run_time_object_image_path(@run_time_object, @image), 
+													method: :delete, 
+													data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this image tag?' }, 
+													class: 'index-page-button delete-button' do %>
+								<i class="fas fa-trash-alt"></i>
+								Delete
+							<% end %>
+					<% end %>
+					<span class="tooltip-text">Remove this specific image from the container.</span>
+        </div>
+      </div>
+    </div>
+    <hr>
       <div class="info-container">
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
           <label>Version:</label>
@@ -114,76 +133,89 @@
         </div>
 
         <div class="info-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 8px;">
-    <div class="button-container" style="display: flex; gap: 10px;">
+          <div class="button-container-tag-show">
+          <div class="tooltip-container" style="position: relative;">
+            <% if @run_time_object.user_id == @current_user.id || @run_time_object.run_time_objects_permissions.exists?(user_id: @current_user.id, permission: 'e') %>
+              <%= form_with url: download_run_time_object_image_path(@run_time_object.id, @image), method: :get, local: true do %>
+                <%= button_tag 'Download Report', class: 'index-page-button' %>
+              <% end %>
+          <span class="tooltip-text">Click to download the CSV report for this image</span>
+            </div>
             <div class="tooltip-container" style="position: relative;">
-                <%= link_to "Download Report", download_run_time_object_image_path(@run_time_object.id, @image), 
-                            id: "download-report-btn", 
-                            style: "display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px; border: none; text-decoration: none; cursor: pointer; width: 150px; text-align: center;" %>
-                <span class="tooltip-text">Click to download the CSV report for this image</span>
+              <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
+                <%= button_tag 'Rescan', class: 'index-page-button' %>
+              <% end %>
+              <span class="tooltip-text">Click to rescan the container image</span>
+            <% end %>
             </div>
 
-            <div class="tooltip-container" style="position: relative;">
-                <%= form_with url: rescan_run_time_object_image_path(@run_time_object.id, @image), method: :post, local: true do %>
-                    <%= button_tag 'Rescan', id: "rescan-btn", 
-                                    style: 'display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 150px; text-align: center;' %>
-                    <span class="tooltip-text">Click to rescan the container image</span>
-                <% end %>
-            </div>
+
+          </div>
         </div>
     </div>
 
 
-
-        <div id="summary" class="summary-container">
-          <h2 class="summary-title">Vulnerability Summary</h2>
-          <% @vulnerability_summary.each do |target, summary| %>
-            <div class="target-summary">
-              <h3 class="target-title"><%= target %></h3>
-              <div class="severity-grid">
-                <% summary.each do |severity, count| %>
-                  <div class="severity-item" data-severity="<%= severity.downcase %>">
-                    <span class="severity-badge <%= severity.downcase %>"><%= severity %></span>
-                    <span class="severity-count"><%= count %></span>
-                  </div>
-                <% end %>
+        <% if @image_report.present? %>
+          <div id="summary" class="summary-container">
+            <h2 class="summary-title">Vulnerability Summary</h2>
+            <% @image_report["Results"].each do |result| %>
+              <% target = result["Target"]%>
+              <% summary = result["VulnerabilitySummary"]%>
+              <div class="target-summary">
+                <h3 class="target-title"><%= target %></h3>
+                <div class="severity-grid">
+                  <% summary.each do |severity, count| %>
+                    <div class="severity-item" data-severity="<%= severity.downcase %>">
+                      <span class="severity-badge <%= severity.downcase %>"><%= severity %></span>
+                      <span class="severity-count"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
               </div>
-            </div>
-          <% end %>
+              <% if result["FixableVulnerabilitiesCount"] > 0 %>
+                <div class="fixable-vulnerabilities-note">
+                  <p>
+                    <strong>📢 Updates Available:</strong>
+                    <%= result["FixableVulnerabilitiesCount"] %> <%= 'vulnerability'.pluralize(result["FixableVulnerabilitiesCount"]) %>
+                    in this image can be fixed by updating to the fixed version!
+                  </p>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
 
-          <% if @fixable_vulnerabilities_count > 0 %>
-            <div class="fixable-vulnerabilities-note">
-              <p>
-                <strong>📢 Update Available:</strong>
-                <%= @fixable_vulnerabilities_count %> <%= 'vulnerability'.pluralize(@fixable_vulnerabilities_count) %>
-                in this image can be fixed by updating to the latest version!
-              </p>
-            </div>
-          <% end %>
+
+        <div id="filters">
+          <h2>Filters</h2>
+          <label>Severity:
+            <select id="severityFilter">
+              <option value="ALL">All</option>
+              <option value="CRITICAL">Critical</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+              <option value="UNDEFINED">Undefined</option>
+            </select>
+          </label>
+          <label>Status:
+            <select id="statusFilter">
+              <option value="ALL">All</option>
+              <option value="affected">Affected</option>
+              <option value="fixed">Fixed</option>
+              <!-- Add other status options as needed -->
+            </select>
+          </label>
+          <label>Sort by:
+            <select id="sortFilter">
+              <option value="title_asc">Title: ASC</option>
+              <option value="title_desc">Title: DESC</option>
+              <option value="id_asc">ID: ASC</option>
+              <option value="id_desc">ID: DESC</option>
+            </select>
+          </label>
         </div>
 
-<div id="filters">
-  <h2>Filters</h2>
-  <label>Severity:
-    <select id="severityFilter">
-      <option value="ALL">All</option>
-      <option value="CRITICAL">Critical</option>
-      <option value="HIGH">High</option>
-      <option value="MEDIUM">Medium</option>
-      <option value="LOW">Low</option>
-      <option value="UNKNOWN">Unknown</option>
-    </select>
-  </label>
-  <label>Status:
-    <select id="statusFilter">
-      <option value="ALL">All</option>
-      <option value="affected">Affected</option>
-      <option value="fixed">Fixed</option>
-      <!-- Add other status options as needed -->
-    </select>
-  </label>
-</div>
-
-<div id="vulnerabilities">
+        <div id="vulnerabilities">
           <h2>Vulnerabilities</h2>
           <% @image_report['Results'].each do |result| %>
             <div class="target-vulnerabilities">
@@ -191,20 +223,20 @@
               <% if result['Vulnerabilities'] %>
                 <table class="vulnerabilities-table">
                   <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Severity</th>
-                    <th>ID</th>
-                    <th>Installed Version</th>
-                    <th>Fixed Version</th>
-                    <th>Status</th>
-                    <th>NIST Identifiers</th>
-                    <th>Description</th>
-                    <th>More Info</th>
-                  </tr>
+                    <tr>
+                      <th>Title</th>
+                      <th>Severity</th>
+                      <th>ID</th>
+                      <th>Installed Version</th>
+                      <th>Fixed Version</th>
+                      <th>Status</th>
+                      <th>NIST Identifiers</th>
+                      <th>Description</th>
+                      <th>More Info</th>
+                    </tr>
                   </thead>
                   <tbody id="vulnerabilitiesTableBody">
-                  <!-- Table rows will be dynamically populated by JavaScript -->
+                    <!-- Table rows will be dynamically populated by JavaScript -->
                   </tbody>
                 </table>
                 <div id="pagination">
@@ -227,13 +259,25 @@
                 let filteredVulnerabilities = [...vulnerabilities];
 
                 const tableBody = document.getElementById('vulnerabilitiesTableBody');
+                const sortFilter = document.getElementById('sortFilter');
                 const prevButton = document.getElementById('prevPage');
                 const nextButton = document.getElementById('nextPage');
                 const pageInfo = document.getElementById('pageInfo');
                 const severityFilter = document.getElementById('severityFilter');
                 const statusFilter = document.getElementById('statusFilter');
 
+                function sortVulnerabilities(vulnerabilities) {
+                    const sortBy = sortFilter.value;
+                    return vulnerabilities.sort((a, b) => {
+                        if (sortBy === 'title_asc') return a.Title.localeCompare(b.Title);
+                        if (sortBy === 'title_desc') return b.Title.localeCompare(a.Title);
+                        if (sortBy === 'id_asc') return a.VulnerabilityID.localeCompare(b.VulnerabilityID);
+                        if (sortBy === 'id_desc') return b.VulnerabilityID.localeCompare(a.VulnerabilityID);
+                    });
+                }
+
                 function displayVulnerabilities(page) {
+                    const sortedVulnerabilities = sortVulnerabilities(filteredVulnerabilities);
                     const start = (page - 1) * itemsPerPage;
                     const end = start + itemsPerPage;
                     const pageVulnerabilities = filteredVulnerabilities.slice(start, end);
@@ -270,7 +314,10 @@
       `;
                         tableBody.innerHTML += row;
                     });
-
+                    sortFilter.addEventListener('change', () => {
+                        console.log('Sort filter changed');
+                        displayVulnerabilities(currentPage);
+                    });
                     pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(filteredVulnerabilities.length / itemsPerPage)}`;
                     prevButton.disabled = currentPage === 1;
                     nextButton.disabled = currentPage === Math.ceil(filteredVulnerabilities.length / itemsPerPage);
@@ -330,7 +377,7 @@
                 displayVulnerabilities(currentPage);
             });
         </script>
-
+        <% end %>
         <style>
             h1 {
                 font-size: 36px;
@@ -504,7 +551,7 @@
             .severity-badge.high { background-color: #ffeeba; color: #856404; }
             .severity-badge.medium { background-color: #fff3cd; color: #856404; }
             .severity-badge.low { background-color: #d4edda; color: #155724; }
-            .severity-badge.unknown { background-color: #e9ecef; color: #495057; }
+            .severity-badge.undefined { background-color: #e9ecef; color: #495057; }
 
             .status-badge.affected { background-color: #cce5ff; color: #004085; }
             .status-badge.fixed { background-color: #d4edda; color: #155724; }
@@ -575,7 +622,7 @@
                 font-style: italic;
             }
         </style>
-
+      </div>
 <script>
   // Get the button and the report element
   var rescan = document.getElementById('rescan');

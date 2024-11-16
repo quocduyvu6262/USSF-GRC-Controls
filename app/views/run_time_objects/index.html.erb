@@ -44,13 +44,17 @@
 </style>
 
 <body>
-    <div class="image-page">
-        <p class="heading">Container Images</p>
-        <div class="tooltip-container">
-            <%= link_to "New Container Image", new_run_time_object_path, class: "btn-create" %>
-            <span class="tooltip-text">Create a new container image</span>
-        </div>
-
+    <div class="index-page-container">
+        <p class="heading">My Containers</p>
+        <div class="create-button-container">
+					<div class="tooltip-container">
+					<%= link_to new_run_time_object_path, class: "index-page-button" do %>
+					<i class="fas fa-plus-circle"></i>
+					Create New Container
+					<% end %>
+					<span class="tooltip-text">Create a new container image</span>
+					</div>
+      </div>
         <div class="image-list">
             <% if @run_time_objects.present? %>
                 <% @run_time_objects.each do |object| %>
@@ -58,7 +62,14 @@
                         <div class="image-content">
                             <p>
                                 <%= link_to object.name, run_time_object_images_path(run_time_object_id: object.id) %>
-                                <% if object.user_id.present? && object.user_id != @current_user.id %>
+                                <% if @current_user.admin %>
+                                    <% if @current_user == object.user %>
+                                        (Created By: You)
+                                    <%else%>
+                                        (Created By: <%= "#{object.user.first_name} #{object.user.last_name}" %>)
+                                    <%end%>
+                                <%end %>
+                                <% if object.user_id.present? && object.user_id != @current_user.id  && !@current_user.admin%>
                                     (Shared By: <%= "#{object.user.first_name} #{object.user.last_name}" %>)
                                 <% end %>
                             </p>

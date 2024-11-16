@@ -5,6 +5,7 @@ RSpec.describe RunTimeObjectsController, type: :controller do
   let(:user) { User.create(email: "test@example.com", first_name: "Test", last_name: "User") }
   let(:user1) { User.create(email: "dummy@example.com", first_name: "Dummy", last_name: "User") }
   let(:user2) { User.create(email: "random@example.com", first_name: "Random", last_name: "User") }
+  let(:shared_user) { User.create(email: "shared@example.com", first_name: "Shared", last_name: "User") }
   let(:run_time_object) { RunTimeObject.create(name: "Sample Object", description: "A sample runtime object", user: user) }
 
   before do
@@ -91,7 +92,7 @@ RSpec.describe RunTimeObjectsController, type: :controller do
       end
 
       it "adds permissions for selected users" do
-        post :share_with_users, params: { id: run_time_object.id, user_ids: [ user1.id, user2.id ] }
+        post :share_with_users, params: { id: run_time_object.id, permissions: [ [ "view", user1.id ], [ "view", user2.id ] ] }
         expect(run_time_object.run_time_objects_permissions.exists?(user_id: user2.id)).to be_truthy
       end
     end
@@ -142,6 +143,24 @@ RSpec.describe RunTimeObjectsController, type: :controller do
     it "assigns the requested run_time_object to @run_time_object" do
       get :edit, params: { id: run_time_object.id }
       expect(assigns(:run_time_object)).to eq(run_time_object)
+    end
+
+    context "shared and unauthorized users try to edit runtime object" do
+      before do
+        session[:user_id] = shared_user.id
+      end
+
+      it "redirect response for shared user with view permission" do
+        RunTimeObjectsPermission.create(run_time_object: run_time_object, user_id: shared_user.id, permission: "r")
+        get :edit, params: { id: run_time_object.id }
+        expect(response).to redirect_to(run_time_objects_path)
+      end
+
+      it "returns a successful response for shared user with edit permission" do
+        RunTimeObjectsPermission.create(run_time_object: run_time_object, user_id: shared_user.id, permission: "e")
+        get :edit, params: { id: run_time_object.id }
+        expect(response).to be_successful
+      end
     end
   end
 
