@@ -23,7 +23,7 @@
             <%= check_box_tag 'admin_user_ids[]', user.id, user.admin? %>
           </td>
           <td class="centered">
-              <%= link_to 'Delete', delete_user_path(user.id),
+              <%= button_to 'Delete', delete_user_path(user.id),
               method: :delete,
               data: {
                 turbo_method: :delete,
@@ -38,10 +38,10 @@
     </tbody>
   </table>
 
-  <div class="submit-btn">
-    <%= submit_tag 'Update' %>
-    <%= link_to 'Back', root_path, class: 'btn btn-secondary', style: 'margin-top: 1.0rem;' %>
-  </div>
+  <div style="button-container">
+    <%= submit_tag 'Update', class: 'index-page-button'%>
+    <%= link_to 'Back', root_path, class: 'index-page-button' %>
+    </div>
   
 <% end %>
 
@@ -81,25 +81,7 @@
     cursor: pointer;
   }
 
-  .submit-btn {
-    margin-top: 2rem;
-    text-align: center;
-  }
 
-  .submit-btn input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    font-size: 0.9rem; 
-    padding: 0.7rem 1.3rem;
-    border: none;
-    border-radius: .5rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .submit-btn input[type="submit"]:hover {
-    background-color: #45a049;
-  }
 
   .user-table td.centered {
     display: flex;
@@ -108,10 +90,7 @@
   }
 
 
-  .submit-btn input[type="submit"] {
-    min-width: 8rem;
-  }
-  
+
 
   @media (max-width: 76.8rem) {
     .user-table th, .user-table td {
@@ -119,10 +98,6 @@
       padding: 0.8rem;
     }
 
-    .submit-btn input[type="submit"] {
-      font-size: 0.875rem;
-      padding: 0.6rem 1.1rem;
-    }
 
     .user-table td input[type="checkbox"] {
       transform: scale(1.3);
