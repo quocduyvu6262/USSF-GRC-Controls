@@ -61,7 +61,8 @@
             /.*\.registry\..*/,
             /localhost\:5001/,
             /harbor\.*/,
-            /nexus\.*/
+            /nexus\.*/,
+            /^docker\.io/,
         ];
         return privatePatterns.some(pattern => pattern.test(imageUrl));
     }

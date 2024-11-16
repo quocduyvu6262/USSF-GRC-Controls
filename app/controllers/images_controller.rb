@@ -92,7 +92,7 @@ class ImagesController < ApplicationController
       scan_command = generate_trivy_scan_command(image_name)
     end
 
-    Rails.logger.debug "Executing scan command: #{scan_command}"
+    #Rails.logger.debug "Executing scan command: #{scan_command}"
     scan_result = `#{scan_command}`
     success = $?.success?
 
@@ -133,7 +133,7 @@ class ImagesController < ApplicationController
       scan_command = generate_trivy_scan_command(image_name)
     end
 
-    Rails.logger.debug "Executing rescan command: #{scan_command}"
+    #Rails.logger.debug "Executing rescan command: #{scan_command}"
     scan_result = `#{scan_command}`
 
     # if $?.success?
@@ -274,32 +274,73 @@ class ImagesController < ApplicationController
       params.require(:image).permit(:tag, :run_time_object_id)
     end
 
+    def extract_registry_from_image(image_name)
+      # Split the image name and return the registry portion
+      parts = image_name.split('/')
+      return parts[0] if parts.size > 1 && (parts[0].include?('.') || parts[0].include?(':'))
+      'registry-1.docker.io' # Default to Docker Hub's actual registry hostname
+    end
+    
     def valid_registry_credentials?(image_name, username, password)
       registry = extract_registry_from_image(image_name)
-      auth_url = if registry.include?("localhost") || registry.match?(/:\d+$/)
-                   # Localhost or registry with explicit port
-                   "http://#{registry}/v2/"
-      else
-                   # Default to HTTPS for other registries
-                   "https://#{registry}/v2/"
+      
+      # Special handling for Docker Hub
+      if registry == "docker.io"
+        registry = "registry-1.docker.io"
       end
-
+      
+      auth_url = if registry.include?("localhost") || registry.match?(/:\d+$/)
+                   "http://#{registry}/v2/"
+                 else
+                   "https://#{registry}/v2/"
+                 end
+    
       begin
         uri = URI(auth_url)
         request = Net::HTTP::Get.new(uri)
-        request.basic_auth(username, password)
-
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https", verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
+        
+        # For Docker Hub, we need to handle authentication differently
+        if registry == "registry-1.docker.io"
+          # First, get the Bearer token
+          token_url = "https://auth.docker.io/token?service=registry.docker.io&scope=repository:#{username}/nginx:pull"
+          token_uri = URI(token_url)
+          token_request = Net::HTTP::Get.new(token_uri)
+          token_request.basic_auth(username, password)
+          
+          token_response = Net::HTTP.start(token_uri.hostname, token_uri.port, use_ssl: true) do |http|
+            http.request(token_request)
+          end
+          
+          if token_response.code.to_i == 200
+            token = JSON.parse(token_response.body)["token"]
+            request["Authorization"] = "Bearer #{token}"
+          else
+            Rails.logger.error "Failed to obtain token: #{token_response.code} - #{token_response.body}"
+            return false
+          end
+        else
+          # For other registries, use basic auth
+          request.basic_auth(username, password)
+        end
+    
+        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
+          if registry == "registry-1.docker.io"
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          end
           http.request(request)
         end
-
+    
         case response.code.to_i
-        when 200
-          Rails.logger.info "Successfully authenticated with registry: #{registry}"
+        when 200, 401
+          # 401 is expected for Docker Hub as it requires token authentication
+          Rails.logger.info "Successfully connected to registry: #{registry}"
           true
-        when 401, 403
-          Rails.logger.error "Authentication failed for registry: #{registry} - #{response.message}"
-          false
+        when 301, 302, 307, 308
+          # Handle redirects
+          redirect_uri = URI(response['location'])
+          Rails.logger.info "Following redirect to: #{redirect_uri}"
+          redirect_response = Net::HTTP.get_response(redirect_uri)
+          redirect_response.code.to_i == 200
         else
           Rails.logger.error "Unexpected response from registry: #{response.code} - #{response.body}"
           false
@@ -313,20 +354,11 @@ class ImagesController < ApplicationController
       end
     end
 
-    def extract_registry_from_image(image_name)
-      if image_name.include?("/")
-        image_name.split("/").first
-      else
-        "docker.io"
-      end
-    end
-
 
     def is_private_registry?(image_name)
       return false if image_name.blank?
 
       public_patterns = [
-          /^docker\.io/,               # Docker Hub
           /^quay\.io/,                 # Quay.io
           /^[^\/]+$/,                  # Short image names (e.g., "nginx", "python")
           /^gcr\.io\/google-containers/ # Google official containers
@@ -345,7 +377,8 @@ class ImagesController < ApplicationController
         /\.registry\./,                             # Generic private registry
         /^harbor\./,                                # Harbor
         /^nexus\./,                                 # Nexus
-        /:[\d]+/                                    # Any registry with port number
+        /:[\d]+/,                                    # Any registry with port number
+        /^docker\.io/,
       ]
 
       # Check if image name matches any private registry pattern
