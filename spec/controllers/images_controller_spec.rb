@@ -11,6 +11,17 @@ RSpec.describe ImagesController, type: :controller do
   end
   let(:invalid_json_report) { "{invalid JSON}" }
 
+  let(:private_registry_image) { "private.azurecr.io/myapp:latest" }
+  let(:valid_credentials) { { registry_username: "validuser", registry_password: "validpass" } }
+  let(:invalid_credentials) { { registry_username: "invaliduser", registry_password: "invalidpass" } }
+
+  # Mock successful Trivy output
+  let(:successful_trivy_output) { '{"Results":[{"Vulnerabilities":[]}]}' }
+  # Mock authentication failure Trivy output
+  let(:auth_failure_output) { "unauthorized: authentication required" }
+  # Mock connection failure Trivy output
+  let(:connection_failure_output) { "connection refused" }
+
   before do
     session[:user_id] = user.id
     RunTimeObject.destroy_all
@@ -309,6 +320,429 @@ RSpec.describe ImagesController, type: :controller do
         get :download, params: { run_time_object_id: run_time_object.id, id: image.id }
         expect(response).to redirect_to(run_time_object_image_path(run_time_object, image))
         expect(flash[:alert]).to eq("No report available for this image.")
+      end
+    end
+  end
+  #####
+  describe "private registry operations" do
+    describe "create with private registry" do
+      context "with valid credentials" do
+        let(:successful_trivy_output) { '{"Results": []}' }
+
+      it "creates image successfully" do
+        # Mock the registry validation
+        allow(controller).to receive(:valid_registry_credentials?)
+          .with(private_registry_image, valid_credentials[:registry_username], valid_credentials[:registry_password])
+          .and_return(true)
+
+        # Mock is_private_registry? check
+        allow(controller).to receive(:is_private_registry?)
+          .with(private_registry_image)
+          .and_return(true)
+
+        # Mock the command generation
+        allow(controller).to receive(:generate_trivy_scan_command)
+          .with(private_registry_image, valid_credentials[:registry_username], valid_credentials[:registry_password])
+          .and_return("trivy command string")
+
+        # Create a fake status object
+        process_status = instance_double(Process::Status, success?: true)
+
+        # Mock the kernel backtick method and process status together
+        allow(controller).to receive(:`)
+          .with("trivy command string") do
+            # Stub $? for this specific call
+            allow(Process).to receive(:last_status).and_return(process_status)
+            successful_trivy_output
+          end
+
+        expect {
+          post :create, params: {
+            run_time_object_id: run_time_object.id,
+            image: { tag: private_registry_image },
+            registry_username: valid_credentials[:registry_username],
+            registry_password: valid_credentials[:registry_password]
+          }
+        }.to change(Image, :count).by(1)
+
+        expect(Image.last).to be_present
+        expect(Image.last.tag).to eq(private_registry_image)
+        expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, Image.last))
+        expect(flash[:notice]).to eq("Tag was successfully created.")
+      end
+    end
+
+      context "with invalid credentials" do
+        it "fails to create image" do
+          # Mock the validation to fail
+          allow(controller).to receive(:valid_registry_credentials?)
+            .with(private_registry_image, invalid_credentials[:registry_username], invalid_credentials[:registry_password])
+            .and_return(false)
+
+          expect {
+            post :create, params: {
+              run_time_object_id: run_time_object.id,
+              image: { tag: private_registry_image },
+              registry_username: invalid_credentials[:registry_username],
+              registry_password: invalid_credentials[:registry_password]
+            }
+          }.not_to change(Image, :count)
+
+          expect(response).to render_template(:new)
+          expect(assigns(:image).errors[:base]).to include("Invalid registry credentials or the registry is inaccessible.")
+        end
+      end
+
+      context "with missing credentials" do
+        it "fails to create image" do
+          expect {
+            post :create, params: {
+              run_time_object_id: run_time_object.id,
+              image: { tag: private_registry_image }
+            }
+          }.not_to change(Image, :count)
+
+          expect(response).to render_template(:new)
+          expect(assigns(:image).errors[:base]).to include("Username and password are required for private registries.")
+        end
+      end
+    end
+
+    describe "rescan with private registry" do
+      let(:image) { Image.create(tag: private_registry_image, run_time_object: run_time_object) }
+
+      context "with valid credentials" do
+        it "rescans image successfully" do
+          # Mock the private registry check
+          allow(controller).to receive(:is_private_registry?)
+            .with(private_registry_image)
+            .and_return(true)
+
+          # Mock the registry validation
+          allow(controller).to receive(:valid_registry_credentials?)
+            .with(private_registry_image, valid_credentials[:registry_username], valid_credentials[:registry_password])
+            .and_return(true)
+
+          # Mock the command generation
+          allow(controller).to receive(:generate_trivy_scan_command)
+            .with(private_registry_image, valid_credentials[:registry_username], valid_credentials[:registry_password])
+            .and_return("trivy command string")
+
+          # Create a fake status object
+          process_status = instance_double(Process::Status, success?: true)
+
+          # Mock the kernel backtick method and process status together
+          allow(controller).to receive(:`)
+            .with("trivy command string") do
+              allow(Process).to receive(:last_status).and_return(process_status)
+              successful_trivy_output
+            end
+
+          post :rescan, params: {
+            run_time_object_id: run_time_object.id,
+            id: image.id,
+            registry_username: valid_credentials[:registry_username],
+            registry_password: valid_credentials[:registry_password]
+          }
+
+          expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, image))
+          expect(flash[:notice]).to eq("Rescan was successful.")
+
+          image.reload
+          expect(image.report).to eq(successful_trivy_output)
+        end
+      end
+
+      context "with invalid credentials" do
+        it "fails to rescan image" do
+          # Mock the private registry check
+          allow(controller).to receive(:is_private_registry?)
+            .with(private_registry_image)
+            .and_return(true)
+
+          # Mock the registry validation to fail
+          allow(controller).to receive(:valid_registry_credentials?)
+            .with(private_registry_image, invalid_credentials[:registry_username], invalid_credentials[:registry_password])
+            .and_return(false)
+
+          post :rescan, params: {
+            run_time_object_id: run_time_object.id,
+            id: image.id,
+            registry_username: invalid_credentials[:registry_username],
+            registry_password: invalid_credentials[:registry_password]
+          }
+
+          expect(response).to redirect_to(run_time_object_image_path(run_time_object, image))
+          expect(flash[:alert]).to eq("Invalid registry credentials or registry not accessible")
+        end
+      end
+
+      context "with missing credentials" do
+        it "fails to rescan image" do
+          # Mock the private registry check
+          allow(controller).to receive(:is_private_registry?)
+            .with(private_registry_image)
+            .and_return(true)
+
+          post :rescan, params: {
+            run_time_object_id: run_time_object.id,
+            id: image.id
+          }
+
+          expect(response).to redirect_to(run_time_object_image_path(run_time_object, image))
+          expect(flash[:alert]).to eq("Username and password are required for private registries")
+        end
+      end
+
+      context "with public registry" do
+        it "rescans without requiring credentials" do
+          # Mock the private registry check to return false
+          allow(controller).to receive(:is_private_registry?)
+            .with(private_registry_image)
+            .and_return(false)
+
+          # Mock the command generation without credentials
+          allow(controller).to receive(:generate_trivy_scan_command)
+            .with(private_registry_image)
+            .and_return("trivy command string")
+
+          # Create a fake status object
+          process_status = instance_double(Process::Status, success?: true)
+
+          # Mock the kernel backtick method and process status together
+          allow(controller).to receive(:`)
+            .with("trivy command string") do
+              allow(Process).to receive(:last_status).and_return(process_status)
+              successful_trivy_output
+            end
+
+          post :rescan, params: {
+            run_time_object_id: run_time_object.id,
+            id: image.id
+          }
+
+          expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, image))
+          expect(flash[:notice]).to eq("Rescan was successful.")
+
+          image.reload
+          expect(image.report).to eq(successful_trivy_output)
+        end
+      end
+    end
+  end
+#######
+  describe "various other private registry operations" do
+    let(:azure_registry_image) { "myazure.azurecr.io/app:v1" }
+    let(:aws_registry_image) { "123456789.dkr.ecr.us-east-1.amazonaws.com/myapp:latest" }
+    let(:harbor_registry_image) { "harbor.company.com/project/app:1.0" }
+    let(:custom_port_registry) { "registry.internal:5000/app:latest" }
+    
+    describe "#is_private_registry?" do
+      it "identifies Azure Container Registry as private" do
+        expect(controller.send(:is_private_registry?, azure_registry_image)).to be true
+      end
+  
+      it "identifies AWS ECR as private" do
+        expect(controller.send(:is_private_registry?, aws_registry_image)).to be true
+      end
+  
+      it "identifies Harbor registry as private" do
+        expect(controller.send(:is_private_registry?, harbor_registry_image)).to be true
+      end
+  
+      it "identifies custom port registry as private" do
+        expect(controller.send(:is_private_registry?, custom_port_registry)).to be true
+      end
+  
+      it "identifies official Docker Hub images as public" do
+        expect(controller.send(:is_private_registry?, "nginx:latest")).to be false
+      end
+  
+      it "handles empty image names" do
+        expect(controller.send(:is_private_registry?, "")).to be false
+      end
+    end
+  
+    describe "#valid_registry_credentials?" do
+      context "with Azure Container Registry" do
+        it "validates credentials successfully" do
+          allow(Net::HTTP).to receive(:start).and_return(
+            double(code: "200", body: "")
+          )
+          
+          expect(
+            controller.send(:valid_registry_credentials?, azure_registry_image, "user", "pass")
+          ).to be true
+        end
+  
+      end
+  
+      context "with AWS ECR" do
+        it "validates credentials successfully" do
+          allow(Net::HTTP).to receive(:start).and_return(
+            double(code: "200", body: "")
+          )
+          
+          expect(
+            controller.send(:valid_registry_credentials?, aws_registry_image, "aws", "token")
+          ).to be true
+        end
+      end
+    end
+  
+    describe "create with various private registries" do
+      context "with Azure Container Registry" do
+        it "creates image with valid Azure credentials" do
+          allow(controller).to receive(:valid_registry_credentials?).and_return(true)
+          allow(controller).to receive(:generate_trivy_scan_command)
+            .with(azure_registry_image, valid_credentials[:registry_username], valid_credentials[:registry_password])
+            .and_return("trivy command")
+          allow(controller).to receive(:`).and_return(successful_trivy_output)
+          
+          post :create, params: {
+            run_time_object_id: run_time_object.id,
+            image: { tag: azure_registry_image },
+            registry_username: valid_credentials[:registry_username],
+            registry_password: valid_credentials[:registry_password]
+          }
+          
+          expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, Image.last))
+          expect(flash[:notice]).to eq("Tag was successfully created.")
+        end
+      end
+  
+      context "with AWS ECR" do
+        it "creates image with temporary token" do
+          allow(controller).to receive(:valid_registry_credentials?).and_return(true)
+          allow(controller).to receive(:generate_trivy_scan_command)
+            .with(aws_registry_image, "AWS", "temporary_token")
+            .and_return("trivy command")
+          allow(controller).to receive(:`).and_return(successful_trivy_output)
+          
+          post :create, params: {
+            run_time_object_id: run_time_object.id,
+            image: { tag: aws_registry_image },
+            registry_username: "AWS",
+            registry_password: "temporary_token"
+          }
+          
+          expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, Image.last))
+        end
+      end
+    end
+  
+    describe "rescan with various private registries" do
+      let(:azure_image) { Image.create(tag: azure_registry_image, run_time_object: run_time_object) }
+      
+      context "with rate limiting" do
+        it "handles registry rate limit errors" do
+          allow(controller).to receive(:is_private_registry?).and_return(true)
+          allow(controller).to receive(:valid_registry_credentials?).and_return(true)
+          allow(controller).to receive(:`).and_return('{"error":"rate limit exceeded"}')
+          
+          post :rescan, params: {
+            run_time_object_id: run_time_object.id,
+            id: azure_image.id,
+            registry_username: valid_credentials[:registry_username],
+            registry_password: valid_credentials[:registry_password]
+          }
+          
+          azure_image.reload
+          expect(azure_image.report).to include("rate limit exceeded")
+        end
+      end
+  
+      context "with SSL/TLS issues" do
+        it "handles SSL certificate validation errors" do
+          allow(controller).to receive(:is_private_registry?).and_return(true)
+          allow(Net::HTTP).to receive(:start)
+            .and_raise(OpenSSL::SSL::SSLError.new("certificate verify failed"))
+            
+          post :rescan, params: {
+            run_time_object_id: run_time_object.id,
+            id: azure_image.id,
+            registry_username: valid_credentials[:registry_username],
+            registry_password: valid_credentials[:registry_password]
+          }
+          
+          expect(response).to redirect_to(run_time_object_image_path(run_time_object, azure_image))
+          expect(flash[:alert]).to eq("Invalid registry credentials or registry not accessible")
+        end
+      end
+    end
+  
+    describe "generate_trivy_scan_command" do
+      it "includes non-SSL flag for private registries" do
+        command = controller.send(:generate_trivy_scan_command, 
+                                private_registry_image, 
+                                valid_credentials[:registry_username], 
+                                valid_credentials[:registry_password])
+        expect(command).to include("TRIVY_NON_SSL=true")
+      end
+  
+      it "includes credentials for private registry" do
+        command = controller.send(:generate_trivy_scan_command, 
+                                private_registry_image, 
+                                "testuser", 
+                                "testpass")
+        expect(command).to include("TRIVY_USERNAME=testuser")
+        expect(command).to include("TRIVY_PASSWORD=testpass")
+      end
+  
+      it "includes insecure flag" do
+        command = controller.send(:generate_trivy_scan_command, private_registry_image)
+        expect(command).to include("--insecure")
+      end
+    end
+  end
+
+  describe "error handling" do
+    context "when runtime object doesn't exist" do
+      it "handles missing runtime object gracefully" do
+        expect {
+          get :index, params: { run_time_object_id: 99999 }
+        }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context "when image doesn't exist" do
+      it "handles missing image gracefully" do
+        expect {
+          get :show, params: { run_time_object_id: run_time_object.id, id: 99999 }
+        }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+  end
+
+  describe "registry authentication" do
+    describe "Docker Hub specific authentication" do
+      let(:docker_hub_image) { "docker.io/myuser/myapp:latest" }
+
+      it "handles Docker Hub token authentication" do
+        token_response = double(
+          code: "200",
+          body: '{"token": "mock_token"}'
+        )
+        registry_response = double(
+          code: "200",
+          body: ""
+        )
+
+        allow_any_instance_of(Net::HTTP).to receive(:request)
+          .and_return(token_response, registry_response)
+
+        expect(
+          controller.send(:valid_registry_credentials?, docker_hub_image, "user", "pass")
+        ).to be true
+      end
+
+      it "handles Docker Hub token fetch failure" do
+        allow_any_instance_of(Net::HTTP).to receive(:request)
+          .and_return(double(code: "401", body: "Invalid credentials"))
+
+        expect(
+          controller.send(:valid_registry_credentials?, docker_hub_image, "user", "pass")
+        ).to be false
       end
     end
   end

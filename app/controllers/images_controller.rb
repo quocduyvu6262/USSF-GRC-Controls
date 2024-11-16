@@ -1,3 +1,7 @@
+require "net/http"
+require "uri"
+require "base64"
+
 class ImagesController < ApplicationController
   before_action :authorize_edit_permission, only: [ :new, :edit, :create, :rescan, :update, :destroy ]
   before_action :authorize_view_permission, only: [ :index, :show ]
@@ -39,34 +43,90 @@ class ImagesController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.find(params[:id])
   end
-
+    
   def create
-    @run_time_object = RunTimeObject.find(params[:run_time_object_id])  # Fetch the parent resource
-    @image = @run_time_object.images.new(image_params)  # Associate the image with the parent
-
+    @run_time_object = RunTimeObject.find(params[:run_time_object_id])
+    @image = @run_time_object.images.new(image_params)
     image_name = params[:image][:tag]
 
-    @image.report = scan_and_save_image(image_name)
+    if is_private_registry?(image_name)
+      username = params[:registry_username]
+      password = params[:registry_password]
 
+      if username.blank? || password.blank?
+        @image.errors.add(:base, "Username and password are required for private registries.")
+        return render :new
+      end
+
+      unless valid_registry_credentials?(image_name, username, password)
+        @image.errors.add(:base, "Invalid registry credentials or the registry is inaccessible.")
+        return render :new
+      end
+
+      scan_command = generate_trivy_scan_command(image_name, username, password)
+    else
+      scan_command = generate_trivy_scan_command(image_name)
+    end
+
+    #Rails.logger.debug "Executing scan command: #{scan_command}"
+    #scan_result = `#{scan_command}`
+    #success = $?.success?
+
+    # if success
+    @image.report = scan_and_save_image(scan_command)
     if @image.save
+      # redirect_to run_time_object_image_path(@run_time_object.id, @image),
+      #             notice: "Image was successfully created."
       redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Tag was successfully created."
     else
       flash[:alert] = "Error saving the data. Please try again."
       render :new
     end
+    # else
+    #   @image.errors.add(:base, "Failed to scan the image. Please verify the image exists and is accessible.")
+    #   render :new
+    # end
   end
 
 
   def rescan
     image_name = @image.tag
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
-    @image.report = scan_and_save_image(image_name)
+
+    if is_private_registry?(image_name)
+      username = params[:registry_username]
+      password = params[:registry_password]
+
+      if username.blank? || password.blank?
+        return redirect_to run_time_object_image_path(@run_time_object, @image),
+                          alert: "Username and password are required for private registries"
+      end
+
+      unless valid_registry_credentials?(image_name, username, password)
+        return redirect_to run_time_object_image_path(@run_time_object, @image),
+                          alert: "Invalid registry credentials or registry not accessible"
+      end
+
+      scan_command = generate_trivy_scan_command(image_name, username, password)
+    else
+      scan_command = generate_trivy_scan_command(image_name)
+    end
+
+    #Rails.logger.debug "Executing rescan command: #{scan_command}"
+    #scan_result = `#{scan_command}`
+
+    # if $?.success?
+    @image.report = scan_and_save_image(scan_command)
     Rails.logger.debug "New Report: #{@image.report}"
 
     if @image.save
-      redirect_to run_time_object_image_path(@run_time_object.id, @image)
-      flash[:notice] ="Rescan was successful."
+      redirect_to run_time_object_image_path(@run_time_object.id, @image),
+                  notice: "Rescan was successful."
     end
+    # else
+    #   redirect_to run_time_object_image_path(@run_time_object, @image),
+    #               alert: "Failed to rescan image. Please verify the image exists and is accessible."
+    # end
   end
 
   def download
@@ -117,7 +177,27 @@ class ImagesController < ApplicationController
 
     if @image.update(image_params)
       image_name = @image.tag
-      @image.report = scan_and_save_image(image_name)
+
+      if is_private_registry?(image_name)
+        username = params[:registry_username]
+        password = params[:registry_password]
+  
+        if username.blank? || password.blank?
+          return redirect_to run_time_object_image_path(@run_time_object, @image),
+                            alert: "Username and password are required for private registries"
+        end
+  
+        unless valid_registry_credentials?(image_name, username, password)
+          return redirect_to run_time_object_image_path(@run_time_object, @image),
+                            alert: "Invalid registry credentials or registry not accessible"
+        end
+  
+        scan_command = generate_trivy_scan_command(image_name, username, password)
+      else
+        scan_command = generate_trivy_scan_command(image_name)
+      end
+
+      @image.report = scan_and_save_image(scan_command)
       if @image.save
         redirect_to run_time_object_image_path(@run_time_object.id, @image), notice: "Tag was successfully updated."
       else
@@ -164,43 +244,241 @@ class ImagesController < ApplicationController
       Rails.logger.debug "Image found: #{@image.inspect}"
     end
 
-    def scan_and_save_image(image_name)
+    def scan_and_save_image(scan_command)
       # Perform trivy scan for the image from URL
-      report = `json_out=$(trivy image --format json #{image_name}) && echo $json_out` # Run trivy scan
-
+      raw_report = `#{scan_command}` # Run trivy scan
+    
       begin
-        report = JSON.parse(report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, "").gsub("UNKNOWN", "UNDEFINED"))
+        # First try to parse the raw output
+        parsed_report = JSON.parse(raw_report.gsub(/\e\[([;\d]+)?m/, "")
+                                           .gsub(/\n/, "")
+                                           .gsub(/[\u0000-\u001F]/, "")
+                                           .gsub("UNKNOWN", "UNDEFINED"))
+    
+        # Check if it's an error response
+        if parsed_report.key?("error")
+          return {
+            "Results" => [{
+              "Target" => "Error",
+              "Vulnerabilities" => [],
+              "Error" => parsed_report["error"]
+            }]
+          }.to_json
+        end
+    
+        # If it's not a properly structured report with Results
+        unless parsed_report.key?("Results")
+          return {
+            "Results" => [{
+              "Target" => "Error",
+              "Vulnerabilities" => [],
+              "Error" => "Invalid scan result format"
+            }]
+          }.to_json
+        end
+    
+        # Map CVEs to NIST controls
+        cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
+    
+        # Process vulnerabilities in the report
+        parsed_report["Results"].each do |result|
+          next if result["Vulnerabilities"].nil? || result["Vulnerabilities"].blank?
+    
+          result["Vulnerabilities"].each do |vuln|
+            # Add NIST Control Identifiers to each vulnerability
+            vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[vuln["VulnerabilityID"]] || []
+          end
+    
+          # Sort vulnerabilities by severity and generate a summary
+          result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
+          result["VulnerabilitySummary"] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
+                                                                    .transform_values(&:count)
+          result["FixableVulnerabilitiesCount"] = result["Vulnerabilities"].count { |v| v["FixedVersion"].present? }
+        end
+    
+        parsed_report.to_json
       rescue JSON::ParserError => e
         Rails.logger.error "JSON parsing failed: #{e.message}"
-        flash[:alert] = "Parsing the report failed. Try again."
-        return
+        return {
+          "Results" => [{
+            "Target" => "Error",
+            "Vulnerabilities" => [],
+            "Error" => "JSON parsing failed: #{e.message}"
+          }]
+        }.to_json
+      rescue StandardError => e
+        Rails.logger.error "Error processing scan result: #{e.message}"
+        return {
+          "Results" => [{
+            "Target" => "Error",
+            "Vulnerabilities" => [],
+            "Error" => "Error processing scan result: #{e.message}"
+          }]
+        }.to_json
       end
-
-      # Map CVEs to NIST controls
-      cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
-
-      # Process vulnerabilities in the report
-      report["Results"].each do |result|
-        next if result["Vulnerabilities"].nil? || result["Vulnerabilities"].blank?
-
-
-        result["Vulnerabilities"].each do |vuln|
-          # Add NIST Control Identifiers to each vulnerability
-          vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[vuln["VulnerabilityID"]] || []
-        end
-
-        # Sort vulnerabilities by severity and generate a summary
-        result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
-        result["VulnerabilitySummary"] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
-                                                                    .transform_values(&:count)
-        result["FixableVulnerabilitiesCount"] = result["Vulnerabilities"].count { |v| v["FixedVersion"].present? }
-      end
-
-      report.to_json
     end
+
+    # def scan_and_save_image(scan_command)
+    #   # Perform trivy scan for the image from URL
+    #   report = `#{scan_command}` # Run trivy scan
+
+    #   begin
+    #     report = JSON.parse(report.gsub(/\e\[([;\d]+)?m/, "").gsub(/\n/, "").gsub(/[\u0000-\u001F]/, "").gsub("UNKNOWN", "UNDEFINED"))
+    #   rescue JSON::ParserError => e
+    #     Rails.logger.error "JSON parsing failed: #{e.message}"
+    #     flash[:alert] = "Parsing the report failed. Try again."
+    #     return
+    #   end
+
+    #   # Map CVEs to NIST controls
+    #   cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
+
+    #   # Process vulnerabilities in the report
+    #   report["Results"].each do |result|
+    #     next if result["Vulnerabilities"].nil? || result["Vulnerabilities"].blank?
+
+
+    #     result["Vulnerabilities"].each do |vuln|
+    #       # Add NIST Control Identifiers to each vulnerability
+    #       vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[vuln["VulnerabilityID"]] || []
+    #     end
+
+    #     # Sort vulnerabilities by severity and generate a summary
+    #     result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
+    #     result["VulnerabilitySummary"] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
+    #                                                                 .transform_values(&:count)
+    #     result["FixableVulnerabilitiesCount"] = result["Vulnerabilities"].count { |v| v["FixedVersion"].present? }
+    #   end
+
+    #   report.to_json
+    # end
 
     # Only allow a list of trusted parameters through.
     def image_params
       params.require(:image).permit(:tag, :run_time_object_id)
+    end
+
+    def extract_registry_from_image(image_name)
+      # Split the image name and return the registry portion
+      parts = image_name.split('/')
+      return parts[0] if parts.size > 1 && (parts[0].include?('.') || parts[0].include?(':'))
+      'registry-1.docker.io' # Default to Docker Hub's actual registry hostname
+    end
+    
+    def valid_registry_credentials?(image_name, username, password)
+      registry = extract_registry_from_image(image_name)
+      
+      # Special handling for Docker Hub
+      if registry == "docker.io"
+        registry = "registry-1.docker.io"
+      end
+      
+      auth_url = if registry.include?("localhost") || registry.match?(/:\d+$/)
+                   "http://#{registry}/v2/"
+                 else
+                   "https://#{registry}/v2/"
+                 end
+    
+      begin
+        uri = URI(auth_url)
+        request = Net::HTTP::Get.new(uri)
+        
+        # For Docker Hub, we need to handle authentication differently
+        if registry == "registry-1.docker.io"
+          # First, get the Bearer token
+          token_url = "https://auth.docker.io/token?service=registry.docker.io&scope=repository:#{username}/nginx:pull"
+          token_uri = URI(token_url)
+          token_request = Net::HTTP::Get.new(token_uri)
+          token_request.basic_auth(username, password)
+          
+          token_response = Net::HTTP.start(token_uri.hostname, token_uri.port, use_ssl: true) do |http|
+            http.request(token_request)
+          end
+          
+          if token_response.code.to_i == 200
+            token = JSON.parse(token_response.body)["token"]
+            request["Authorization"] = "Bearer #{token}"
+          else
+            Rails.logger.error "Failed to obtain token: #{token_response.code} - #{token_response.body}"
+            return false
+          end
+        else
+          # For other registries, use basic auth
+          request.basic_auth(username, password)
+        end
+    
+        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
+          if registry == "registry-1.docker.io"
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          end
+          http.request(request)
+        end
+    
+        case response.code.to_i
+        when 200, 401
+          # 401 is expected for Docker Hub as it requires token authentication
+          Rails.logger.info "Successfully connected to registry: #{registry}"
+          true
+        when 301, 302, 307, 308
+          # Handle redirects
+          redirect_uri = URI(response['location'])
+          Rails.logger.info "Following redirect to: #{redirect_uri}"
+          redirect_response = Net::HTTP.get_response(redirect_uri)
+          redirect_response.code.to_i == 200
+        else
+          Rails.logger.error "Unexpected response from registry: #{response.code} - #{response.body}"
+          false
+        end
+      rescue SocketError => e
+        Rails.logger.error "Unable to connect to registry: #{registry} - #{e.message}"
+        false
+      rescue StandardError => e
+        Rails.logger.error "Error connecting to registry: #{registry} - #{e.message}"
+        false
+      end
+    end
+
+
+    def is_private_registry?(image_name)
+      return false if image_name.blank?
+
+      public_patterns = [
+          /^quay\.io/,                 # Quay.io
+          /^[^\/]+$/,                  # Short image names (e.g., "nginx", "python")
+          /^gcr\.io\/google-containers/ # Google official containers
+        ]
+
+      # Check if it matches a public registry
+      return false if public_patterns.any? { |pattern| image_name.match?(pattern) }
+
+
+      private_patterns = [
+        /^localhost(:\d+)?/,                         # localhost[:port]
+        /\.azurecr\.io/,                            # Azure Container Registry
+        /\.dkr\.ecr\..*\.amazonaws\.com/,           # AWS ECR
+        /^gcr\.io/,                                 # Google Container Registry
+        /\.jfrog\.io/,                             # JFrog Artifactory
+        /\.registry\./,                             # Generic private registry
+        /^harbor\./,                                # Harbor
+        /^nexus\./,                                 # Nexus
+        /:[\d]+/,                                    # Any registry with port number
+        /^docker\.io/,
+      ]
+
+      # Check if image name matches any private registry pattern
+      private_patterns.any? { |pattern| image_name.match?(pattern) }
+    end
+
+    def generate_trivy_scan_command(image_name, username = nil, password = nil)
+      command = [ "TRIVY_NON_SSL=true" ]
+
+      if username && password
+        command << "TRIVY_USERNAME=#{username}"
+        command << "TRIVY_PASSWORD=#{password}"
+      end
+
+      command << "trivy image --format json --insecure #{image_name}"
+
+      "json_out=$(#{command.join(' ')}) && echo $json_out"
     end
 end
