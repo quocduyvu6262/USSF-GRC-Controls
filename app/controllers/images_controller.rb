@@ -42,7 +42,7 @@ class ImagesController < ApplicationController
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.find(params[:id])
   end
-    
+
   def create
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.new(image_params)
@@ -67,9 +67,9 @@ class ImagesController < ApplicationController
       scan_command = generate_trivy_scan_command(image_name)
     end
 
-    #Rails.logger.debug "Executing scan command: #{scan_command}"
-    #scan_result = `#{scan_command}`
-    #success = $?.success?
+    # Rails.logger.debug "Executing scan command: #{scan_command}"
+    # scan_result = `#{scan_command}`
+    # success = $?.success?
 
     # if success
     @image.report = scan_and_save_image(scan_command)
@@ -111,8 +111,8 @@ class ImagesController < ApplicationController
       scan_command = generate_trivy_scan_command(image_name)
     end
 
-    #Rails.logger.debug "Executing rescan command: #{scan_command}"
-    #scan_result = `#{scan_command}`
+    # Rails.logger.debug "Executing rescan command: #{scan_command}"
+    # scan_result = `#{scan_command}`
 
     # if $?.success?
     @image.report = scan_and_save_image(scan_command)
@@ -180,17 +180,17 @@ class ImagesController < ApplicationController
       if is_private_registry?(image_name)
         username = params[:registry_username]
         password = params[:registry_password]
-  
+
         if username.blank? || password.blank?
           return redirect_to run_time_object_image_path(@run_time_object, @image),
                             alert: "Username and password are required for private registries"
         end
-  
+
         unless valid_registry_credentials?(image_name, username, password)
           return redirect_to run_time_object_image_path(@run_time_object, @image),
                             alert: "Invalid registry credentials or registry not accessible"
         end
-  
+
         scan_command = generate_trivy_scan_command(image_name, username, password)
       else
         scan_command = generate_trivy_scan_command(image_name)
@@ -246,73 +246,73 @@ class ImagesController < ApplicationController
     def scan_and_save_image(scan_command)
       # Perform trivy scan for the image from URL
       raw_report = `#{scan_command}` # Run trivy scan
-    
+
       begin
         # First try to parse the raw output
         parsed_report = JSON.parse(raw_report.gsub(/\e\[([;\d]+)?m/, "")
                                            .gsub(/\n/, "")
                                            .gsub(/[\u0000-\u001F]/, "")
                                            .gsub("UNKNOWN", "UNDEFINED"))
-    
+
         # Check if it's an error response
         if parsed_report.key?("error")
           return {
-            "Results" => [{
+            "Results" => [ {
               "Target" => "Error",
               "Vulnerabilities" => [],
               "Error" => parsed_report["error"]
-            }]
+            } ]
           }.to_json
         end
-    
+
         # If it's not a properly structured report with Results
         unless parsed_report.key?("Results")
           return {
-            "Results" => [{
+            "Results" => [ {
               "Target" => "Error",
               "Vulnerabilities" => [],
               "Error" => "Invalid scan result format"
-            }]
+            } ]
           }.to_json
         end
-    
+
         # Map CVEs to NIST controls
         cve_to_nist_mapping = CveNistMapping.pluck(:cve_id, :nist_control_identifiers).to_h
-    
+
         # Process vulnerabilities in the report
         parsed_report["Results"].each do |result|
           next if result["Vulnerabilities"].nil? || result["Vulnerabilities"].blank?
-    
+
           result["Vulnerabilities"].each do |vuln|
             # Add NIST Control Identifiers to each vulnerability
             vuln["NISTControlIdentifiers"] = cve_to_nist_mapping[vuln["VulnerabilityID"]] || []
           end
-    
+
           # Sort vulnerabilities by severity and generate a summary
           result["Vulnerabilities"].sort_by! { |vuln| SEVERITY_ORDER[vuln["Severity"]] || 99 }
           result["VulnerabilitySummary"] = result["Vulnerabilities"].group_by { |v| v["Severity"] }
                                                                     .transform_values(&:count)
           result["FixableVulnerabilitiesCount"] = result["Vulnerabilities"].count { |v| v["FixedVersion"].present? }
         end
-    
+
         parsed_report.to_json
       rescue JSON::ParserError => e
         Rails.logger.error "JSON parsing failed: #{e.message}"
-        return {
-          "Results" => [{
+        {
+          "Results" => [ {
             "Target" => "Error",
             "Vulnerabilities" => [],
             "Error" => "JSON parsing failed: #{e.message}"
-          }]
+          } ]
         }.to_json
       rescue StandardError => e
         Rails.logger.error "Error processing scan result: #{e.message}"
-        return {
-          "Results" => [{
+        {
+          "Results" => [ {
             "Target" => "Error",
             "Vulnerabilities" => [],
             "Error" => "Error processing scan result: #{e.message}"
-          }]
+          } ]
         }.to_json
       end
     end
@@ -359,29 +359,29 @@ class ImagesController < ApplicationController
 
     def extract_registry_from_image(image_name)
       # Split the image name and return the registry portion
-      parts = image_name.split('/')
-      return parts[0] if parts.size > 1 && (parts[0].include?('.') || parts[0].include?(':'))
-      'registry-1.docker.io' # Default to Docker Hub's actual registry hostname
+      parts = image_name.split("/")
+      return parts[0] if parts.size > 1 && (parts[0].include?(".") || parts[0].include?(":"))
+      "registry-1.docker.io" # Default to Docker Hub's actual registry hostname
     end
-    
+
     def valid_registry_credentials?(image_name, username, password)
       registry = extract_registry_from_image(image_name)
-      
+
       # Special handling for Docker Hub
       if registry == "docker.io"
         registry = "registry-1.docker.io"
       end
-      
+
       auth_url = if registry.include?("localhost") || registry.match?(/:\d+$/)
                    "http://#{registry}/v2/"
-                 else
+      else
                    "https://#{registry}/v2/"
-                 end
-    
+      end
+
       begin
         uri = URI(auth_url)
         request = Net::HTTP::Get.new(uri)
-        
+
         # For Docker Hub, we need to handle authentication differently
         if registry == "registry-1.docker.io"
           # First, get the Bearer token
@@ -389,11 +389,11 @@ class ImagesController < ApplicationController
           token_uri = URI(token_url)
           token_request = Net::HTTP::Get.new(token_uri)
           token_request.basic_auth(username, password)
-          
+
           token_response = Net::HTTP.start(token_uri.hostname, token_uri.port, use_ssl: true) do |http|
             http.request(token_request)
           end
-          
+
           if token_response.code.to_i == 200
             token = JSON.parse(token_response.body)["token"]
             request["Authorization"] = "Bearer #{token}"
@@ -405,14 +405,14 @@ class ImagesController < ApplicationController
           # For other registries, use basic auth
           request.basic_auth(username, password)
         end
-    
+
         response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
           if registry == "registry-1.docker.io"
             http.verify_mode = OpenSSL::SSL::VERIFY_PEER
           end
           http.request(request)
         end
-    
+
         case response.code.to_i
         when 200, 401
           # 401 is expected for Docker Hub as it requires token authentication
@@ -420,7 +420,7 @@ class ImagesController < ApplicationController
           true
         when 301, 302, 307, 308
           # Handle redirects
-          redirect_uri = URI(response['location'])
+          redirect_uri = URI(response["location"])
           Rails.logger.info "Following redirect to: #{redirect_uri}"
           redirect_response = Net::HTTP.get_response(redirect_uri)
           redirect_response.code.to_i == 200
@@ -461,7 +461,7 @@ class ImagesController < ApplicationController
         /^harbor\./,                                # Harbor
         /^nexus\./,                                 # Nexus
         /:[\d]+/,                                    # Any registry with port number
-        /^docker\.io/,
+        /^docker\.io/
       ]
 
       # Check if image name matches any private registry pattern

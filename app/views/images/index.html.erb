@@ -76,18 +76,16 @@
                         </div>
 					</div>
 					<div class="tooltip-container">
-                        <div class="index-page-button">
 						<% if @current_user.admin? || @run_time_object.user_id == @current_user.id %>
-							<%= link_to run_time_object_path(@run_time_object), 
+							<%= button_to run_time_object_path(@run_time_object), 
 													method: :delete, 
-													data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this runtime object?' } do %>
+													data: { turbo_method: :delete, turbo_confirm: 'Are you sure you want to delete this runtime object?' }, class: 'index-page-button ' do %>
 								<i class="fas fa-trash-alt"></i> <!-- Font Awesome icon -->
 								Delete
 							<% end %>
 						<% end %>
 						<span class="tooltip-text">Delete this container image and all the tags associated with it.</span>
                         </div>
-					</div>
         </div>
       </div>
       <p> <%= "#{@run_time_object.description}" %> </p>
