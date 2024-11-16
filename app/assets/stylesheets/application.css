@@ -159,6 +159,8 @@ hr.divider {
   grid-template-columns: 4fr 2fr;
 }
 
+
+
 .button-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, auto); /* Makes each item flexible */

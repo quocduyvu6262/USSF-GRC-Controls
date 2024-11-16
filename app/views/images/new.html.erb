@@ -8,12 +8,44 @@
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", media: "all" %>
 </head>
+<style>
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 0.4rem;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            z-index: 1;
+            width: 10rem; 
+            word-wrap: break-word;  
+            white-space: normal;  
+            overflow: hidden;  
+        }
+       
+    </style>
 <body>
     <div class="index-page-container">
         <div class="back-button">
+        <div class="tooltip-container">
             <%= link_to run_time_object_images_path(@run_time_object.id), class: "index-page-button" do %>
             <i class="fas fa-arrow-left"></i> Go Back
             <% end %>
+            <span class="tooltip-text">Return to the main image page for this tag</span>
+            </div>
         </div>
         <p class="heading">New Tag</p>
         <%= form_with model: @image, url: run_time_object_images_path(@run_time_object.id), local: true do |form| %>
@@ -165,5 +197,30 @@
     }
 });
     </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {  
+    const tooltipContainers = document.querySelectorAll('.tooltip-container');
+    
+    tooltipContainers.forEach(container => {
+        let hoverTimeout;
+        let tooltip = container.querySelector('.tooltip-text');
+
+        container.addEventListener('mouseenter', () => {
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(() => {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '0.85';
+            }, 1000); 
+        });
+
+        container.addEventListener('mouseleave', () => {
+            clearTimeout(hoverTimeout);
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.opacity = '0';
+            });
+        });
+    });
+
+</script>
 </body>
 </html>
