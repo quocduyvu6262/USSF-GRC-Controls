@@ -194,6 +194,38 @@
         </select>
       </label>
     </div>
+        <% if @image_report.present? %>
+          <div id="summary" class="summary-container">
+            <h2 class="summary-title">Vulnerability Summary</h2>
+            <% if @image_report["Results"].present? %>
+            <% @image_report["Results"].each do |result| %>
+              <% target = result["Target"]%>
+              <% summary = result["VulnerabilitySummary"]%>
+              <div class="target-summary">
+                <h3 class="target-title"><%= target %></h3>
+                <div class="severity-grid">
+                <% if summary.present? %>
+                  <% summary.each do |severity, count| %>
+                    <div class="severity-item" data-severity="<%= severity.downcase %>">
+                      <span class="severity-badge <%= severity.downcase %>"><%= severity %></span>
+                      <span class="severity-count"><%= count %></span>
+                    </div>
+                  <% end %>
+                  <% end %>
+                </div>
+              </div>
+              <% if result["FixableVulnerabilitiesCount"].present? && result["FixableVulnerabilitiesCount"] > 0 %>
+                <div class="fixable-vulnerabilities-note">
+                  <p>
+                    <strong>📢 Updates Available:</strong>
+                    <%= result["FixableVulnerabilitiesCount"] %> <%= 'vulnerability'.pluralize(result["FixableVulnerabilitiesCount"]) %>
+                    in this image can be fixed by updating to the fixed version!
+                  </p>
+                </div>
+              <% end %>
+            <% end %>
+            <% end %>
+          </div>
 
     <div id="vulnerabilities">
       <h2>Vulnerabilities</h2>
