@@ -14,6 +14,7 @@ group :development, :test do
 end
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
+gem "turbo-rails"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]

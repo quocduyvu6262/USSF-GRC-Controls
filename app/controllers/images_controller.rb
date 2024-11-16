@@ -208,6 +208,7 @@ class ImagesController < ApplicationController
   end
 
   def destroy
+    puts "deleting"
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.find(params[:id])
 
