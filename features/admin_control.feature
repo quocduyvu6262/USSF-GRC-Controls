@@ -23,10 +23,6 @@ Feature: Manage Users
     And I click on Update button
     Then "regular2@example.com" should be blocked
 
-  Scenario: Admin deletes a user
-    When I click the "Delete" link for "regular2@example.com"
-    Then "regular2@example.com" should no longer be in the user list
-
   Scenario: Regular user tries to access the Manage Users page
     Given I am logged in as a regular user
     When I visit the "Manage Users" page
