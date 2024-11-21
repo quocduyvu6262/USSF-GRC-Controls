@@ -73,9 +73,9 @@ class ImagesController < ApplicationController
 
     # Rails.logger.debug "Executing scan command: #{scan_command}"
     # scan_result = `#{scan_command}`
-    
 
-    
+
+
     @image.report = scan_and_save_image(scan_command)
     success = $?.success?
     if success
