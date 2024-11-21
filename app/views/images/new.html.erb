@@ -9,42 +9,123 @@
     <%= stylesheet_link_tag "application", media: "all" %>
 </head>
 <style>
-        .tooltip-container {
-            position: relative;
-            display: inline-block;
-            margin: 0 0.5rem;
-        }
+    .tooltip-container {
+        position: relative;
+        display: inline-block;
+        margin: 0 0.5rem;
+    }
 
-        .tooltip-text {
-            visibility: hidden;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 0.5rem;
-            border-radius: 0.4rem;
-            position: absolute;
-            bottom: 120%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            white-space: nowrap;
-            z-index: 1;
-            width: 10rem; 
-            word-wrap: break-word;  
-            white-space: normal;  
-            overflow: hidden;  
-        }
-       
-    </style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        padding: 1.5rem;
+        border-radius: 8px;
+        width: 30%;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        position: relative;
+        margin: 0 auto;
+    }
+
+    .close-btn {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+        color: black;
+        cursor: pointer;
+    }
+
+    .modal-content p {
+        margin: 10px 0;
+    }
+
+    .index-page-button {
+        position: relative;
+    }
+
+    .submit-credentials, .cancel-credentials {
+    padding: 10px 20px;
+    background-color: white;
+    color: black;
+    border: 2px solid #7e2dbe;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    margin-bottom: 10px;
+}
+
+.submit-credentials:hover, .cancel-credentials:hover {
+    background-color: #7e2dbe;
+    color: white;
+}
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .tooltip-text {
+        visibility: hidden;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 0.5rem;
+        border-radius: 0.4rem;
+        position: absolute;
+        bottom: 120%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        white-space: nowrap;
+        z-index: 1;
+        width: 10rem; 
+        word-wrap: break-word;  
+        white-space: normal;  
+        overflow: hidden;  
+    }
+
+</style>
 <body>
     <div class="index-page-container">
         <div class="back-button">
-        <div class="tooltip-container">
-            <%= link_to run_time_object_images_path(@run_time_object.id), class: "index-page-button" do %>
-            <i class="fas fa-arrow-left"></i> Go Back
-            <% end %>
-            <span class="tooltip-text">Return to the main image page for this tag</span>
+            <div class="tooltip-container">
+                <%= link_to run_time_object_images_path(@run_time_object.id), class: "index-page-button" do %>
+                <i class="fas fa-arrow-left"></i> Go Back
+                <% end %>
+                <span class="tooltip-text">Return to the main image page for this tag</span>
             </div>
         </div>
         <p class="heading">New Tag</p>
@@ -55,172 +136,190 @@
                     <%= form.text_field :tag, class: "form-control", placeholder: "Value", required: true %>
                 </div>
                 <div class="actions">
-                    <%= form.submit "Create", class: "index-page-button" %>
+                    <%= form.submit "Create", class: "index-page-button", id: "submit_button" %>
+                    <div id="loading_spinner" class="loading-spinner" style="display: none;"></div>
                 </div>
             </div>
         <% end %>
     </div>
     <% if @image.errors.any? %>
-        <div id="error_explanation">
-            <h2><%= pluralize(@image.errors.count, "error") %> prohibited this image from being saved:</h2>
-            <ul>
+        <div id="error_popup" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
                 <% @image.errors.full_messages.each do |message| %>
-                    <li><%= message %></li>
+                    <p><%= message %></p>
                 <% end %>
-            </ul>
+            </div>
         </div>
     <% end %>
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('form');
-    const imageTagInput = document.querySelector('input[name="image[tag]"]');
-
-    form.addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent form from submitting immediately
-
-        const imageUrl = imageTagInput.value;
-        if (isPrivateRegistry(imageUrl)) {
-            handlePrivateRegistry(imageUrl, this);
-        } else {
-            this.submit(); // Submit form normally for public registry
+        const form = document.querySelector('form');
+        const submitButton = document.getElementById("submit_button");
+        const loadingSpinner = document.getElementById("loading_spinner");
+        const imageTagInput = document.querySelector('input[name="image[tag]"]');
+    
+        form.addEventListener('submit', function () {
+            submitButton.disabled = true;
+            loadingSpinner.style.display = "inline-block";
+        });
+    
+        <% if @image.errors.any? %>
+        const modal = document.getElementById("error_popup");
+        modal.style.display = "block";
+    
+        const closeButton = modal.querySelector(".close-btn");
+    
+        closeButton.onclick = function(event) {
+            event.stopPropagation();
+            modal.style.display = "none";
         }
-    });
-
-    function isPrivateRegistry(imageUrl) {
-        const privatePatterns = [
-            /.*\.azurecr\.io/,
-            /.*\.dkr\.ecr\..*\.amazonaws\.com/,
-            /gcr\.io/,
-            /.*\.jfrog\.io/,
-            /.*\.registry\..*/,
-            /localhost\:5001/,
-            /harbor\.*/,
-            /nexus\.*/,
-            /^docker\.io/,
-        ];
-        return privatePatterns.some(pattern => pattern.test(imageUrl));
-    }
-
-    function handlePrivateRegistry(imageUrl, form) {
-        const registry = imageUrl.split('/')[0];
-        const credentialsPopup = createCredentialsPopup(registry);
-        document.body.appendChild(credentialsPopup);
-
-        const usernameInput = credentialsPopup.querySelector('input[name="username"]');
-        const passwordInput = credentialsPopup.querySelector('input[name="password"]');
-        const toggleButton = credentialsPopup.querySelector('.toggle-password');
-        const submitButton = credentialsPopup.querySelector('.submit-credentials');
-
-        // Toggle password visibility
-        toggleButton.addEventListener('click', () => {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleButton.textContent = 'Hide';
+        <% end %>
+    
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+    
+            const imageUrl = imageTagInput.value;
+            if (isPrivateRegistry(imageUrl)) {
+                handlePrivateRegistry(imageUrl, this);
             } else {
-                passwordInput.type = 'password';
-                toggleButton.textContent = 'Show';
+                this.submit();
             }
         });
-
-        // Handle credentials submission
-        submitButton.addEventListener('click', () => {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-
-            if (!username || !password) {
-                alert('Both username and password are required.');
-                return;
-            }
-
-            // Add hidden fields for credentials
-            const usernameField = document.createElement('input');
-            usernameField.type = 'hidden';
-            usernameField.name = 'registry_username';
-            usernameField.value = username;
-            form.appendChild(usernameField);
-
-            const passwordField = document.createElement('input');
-            passwordField.type = 'hidden';
-            passwordField.name = 'registry_password';
-            passwordField.value = password;
-            form.appendChild(passwordField);
-
-            document.body.removeChild(credentialsPopup); // Remove popup
-            form.submit(); // Submit the form with credentials
-        });
-    }
-
-    function createCredentialsPopup(registry) {
-        const popup = document.createElement('div');
-        popup.style.position = 'fixed';
-        popup.style.top = '50%';
-        popup.style.left = '50%';
-        popup.style.transform = 'translate(-50%, -50%)';
-        popup.style.backgroundColor = '#fff';
-        popup.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-        popup.style.borderRadius = '8px';
-        popup.style.padding = '20px';
-        popup.style.zIndex = '1000';
-        popup.style.width = '350px';
-        popup.style.textAlign = 'center';
-
-        popup.innerHTML = `
-            <h3 style="margin-bottom: 15px;">Enter Credentials for ${registry}</h3>
-            <input
-                type="text"
-                name="username"
-                placeholder="Enter username"
-                style="width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box;"
-            />
-            <div style="position: relative; margin-bottom: 15px;">
+    
+        function isPrivateRegistry(imageUrl) {
+            const privatePatterns = [
+                /.*\.azurecr\.io/,
+                /.*\.dkr\.ecr\..*\.amazonaws\.com/,
+                /gcr\.io/,
+                /.*\.jfrog\.io/,
+                /.*\.registry\..*/,
+                /localhost\:5001/,
+                /harbor\.*/,
+                /nexus\.*/,
+                /^docker\.io/,
+            ];
+            return privatePatterns.some(pattern => pattern.test(imageUrl));
+        }
+    
+        function handlePrivateRegistry(imageUrl, form) {
+            const registry = imageUrl.split('/')[0];
+            const credentialsPopup = createCredentialsPopup(registry);
+            document.body.appendChild(credentialsPopup);
+    
+            const usernameInput = credentialsPopup.querySelector('input[name="username"]');
+            const passwordInput = credentialsPopup.querySelector('input[name="password"]');
+            const toggleButton = credentialsPopup.querySelector('.toggle-password');
+            const submitButton = credentialsPopup.querySelector('.submit-credentials');
+            const cancelButton = credentialsPopup.querySelector('.cancel-credentials');
+    
+            cancelButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                window.location.reload();
+            });
+    
+            toggleButton.addEventListener('click', () => {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleButton.textContent = 'Hide';
+                } else {
+                    passwordInput.type = 'password';
+                    toggleButton.textContent = 'Show';
+                }
+            });
+    
+            submitButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+    
+                if (!username || !password) {
+                    alert('Both username and password are required.');
+                    return;
+                }
+    
+                const usernameField = document.createElement('input');
+                usernameField.type = 'hidden';
+                usernameField.name = 'registry_username';
+                usernameField.value = username;
+                form.appendChild(usernameField);
+    
+                const passwordField = document.createElement('input');
+                passwordField.type = 'hidden';
+                passwordField.name = 'registry_password';
+                passwordField.value = password;
+                form.appendChild(passwordField);
+    
+                document.body.removeChild(credentialsPopup);
+                form.submit();
+            });
+    
+            window.addEventListener('click', (event) => {
+                if (event.target === credentialsPopup) {
+                    event.stopPropagation();
+                    credentialsPopup.remove();
+                }
+            });
+        }
+    
+        function createCredentialsPopup(registry) {
+            const popup = document.createElement('div');
+            popup.style.position = 'fixed';
+            popup.style.top = '50%';
+            popup.style.left = '50%';
+            popup.style.transform = 'translate(-50%, -50%)';
+            popup.style.backgroundColor = '#fff';
+            popup.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+            popup.style.borderRadius = '12px';
+            popup.style.padding = '20px';
+            popup.style.zIndex = '1000';
+            popup.style.width = '350px';
+            popup.style.textAlign = 'center';
+    
+            popup.innerHTML = `
+                <h3 style="margin-bottom: 15px;">Enter Credentials for ${registry}</h3>
                 <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter password"
-                    style="width: 100%; padding: 10px; box-sizing: border-box;"
+                    type="text"
+                    name="username"
+                    placeholder="Enter username"
+                    style="width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ddd;"
                 />
-                <button type="button" class="toggle-password" 
-                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #007BFF; cursor: pointer;">
-                    Show
-                </button>
-            </div>
-            <button 
+                <div style="position: relative; margin-bottom: 15px;">
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Enter password"
+                        style="width: 100%; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ddd;"
+                    />
+                    <button type="button" class="toggle-password" 
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #007BFF; cursor: pointer;">
+                        Show
+                    </button>
+                </div>
+                <button 
                 type="button" 
                 class="submit-credentials" 
-                style="padding: 10px 20px; background-color: #007BFF; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+                style="background-color: white; color: black; border: 0.1rem solid black; border-radius: 1rem; padding: 0.7rem; text-align: center; font-family: 'Times New Roman', Times, serif; font-size: medium; cursor: pointer; transition: background-color 0.3s, color 0.3s; margin-bottom: 10px;"
+                onmouseover="this.style.backgroundColor='#ab69d4'; this.style.color='black';"
+                onmouseout="this.style.backgroundColor='white'; this.style.color='black';">
                 Submit
             </button>
-        `;
-
-        return popup;
-    }
-});
-    </script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {  
-    const tooltipContainers = document.querySelectorAll('.tooltip-container');
+            
+            <button 
+                type="button" 
+                class="cancel-credentials" 
+                style="background-color: white; color: black; border: 0.1rem solid black; border-radius: 1rem; padding: 0.7rem; text-align: center; font-family: 'Times New Roman', Times, serif; font-size: medium; cursor: pointer; transition: background-color 0.3s, color 0.3s;"
+                onmouseover="this.style.backgroundColor='#ab69d4'; this.style.color='black';"
+                onmouseout="this.style.backgroundColor='white'; this.style.color='black';">
+                Cancel
+            </button>
+            `;
     
-    tooltipContainers.forEach(container => {
-        let hoverTimeout;
-        let tooltip = container.querySelector('.tooltip-text');
-
-        container.addEventListener('mouseenter', () => {
-            clearTimeout(hoverTimeout);
-            hoverTimeout = setTimeout(() => {
-                tooltip.style.visibility = 'visible';
-                tooltip.style.opacity = '0.85';
-            }, 1000); 
-        });
-
-        container.addEventListener('mouseleave', () => {
-            clearTimeout(hoverTimeout);
-            tooltip.style.visibility = 'hidden';
-            tooltip.style.opacity = '0';
-            });
-        });
+            return popup;
+        }
     });
-
-</script>
-</body>
-</html>
+    </script>
+    
+    
+    

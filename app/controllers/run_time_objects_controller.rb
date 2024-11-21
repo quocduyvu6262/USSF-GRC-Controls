@@ -107,7 +107,7 @@ class RunTimeObjectsController < ApplicationController
   def authorize_share_permission
     @run_time_object = RunTimeObject.find(params[:id])
     user_obj = User.find(session[:user_id])
-    if user_obj.admin? || @run_time_object.user.id != user_obj.id
+    if !user_obj.admin? && @run_time_object.user.id != user_obj.id
       flash[:alert] = "You are not authorized to share this run time object."
       redirect_to run_time_objects_path
     end
