@@ -70,9 +70,8 @@ RSpec.describe ImagesController, type: :controller do
     it 'creates image with invalid parameters' do
       post :create, params: { run_time_object_id: run_time_object.id, image: {
         tag: '',
-        run_time_object_id: ''
       } }
-      expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, Image.last))
+      expect(response).to redirect_to(new_run_time_object_image_path(run_time_object.id))
     end
 
     context "shared and unauthorized users try to create/edit image" do
@@ -92,8 +91,7 @@ RSpec.describe ImagesController, type: :controller do
       it "returns a successful response for shared user with edit permission" do
         RunTimeObjectsPermission.create(run_time_object: run_time_object, user_id: shared_user.id, permission: "e")
         post :create, params: { run_time_object_id: run_time_object.id, image: {
-          tag: '',
-          run_time_object_id: ''
+          tag: 'alpine',
         } }
         expect(response).to redirect_to(run_time_object_image_path(run_time_object.id, Image.last))
       end
