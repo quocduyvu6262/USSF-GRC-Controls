@@ -257,8 +257,10 @@
             function sortVulnerabilities(vulnerabilities) {
                 const sortBy = sortFilter.value;
                 return vulnerabilities.sort((a, b) => {
-                    if (sortBy === 'title_asc') return a.Title.localeCompare(b.Title);
-                    if (sortBy === 'title_desc') return b.Title.localeCompare(a.Title);
+                    const compa = a.Title ? a.Title.localeCompare(b.Title) : 0;
+                    const compb = b.Title ? b.Title.localeCompare(a.Title) : 0;
+                    if (sortBy === 'title_asc') return compa;
+                    if (sortBy === 'title_desc') return compb;
                     if (sortBy === 'id_asc') return a.VulnerabilityID.localeCompare(b.VulnerabilityID);
                     if (sortBy === 'id_desc') return b.VulnerabilityID.localeCompare(a.VulnerabilityID);
                 });
@@ -334,8 +336,8 @@
             function applyFilters() {
                 const selectedSeverity = severityFilter.value;
                 const selectedStatus = statusFilter.value;
-                const status = vuln.Status ? vuln.Status.toLowerCase() : 'unknown';
                 filteredVulnerabilities = vulnerabilities.filter(vuln => {
+                    const status = vuln.Status ? vuln.Status.toLowerCase() : 'unknown';
                     const severityMatch = selectedSeverity === 'ALL' || vuln.Severity === selectedSeverity;
                     const statusMatch = selectedStatus === 'ALL' || status === selectedStatus;
                     return severityMatch && statusMatch;
