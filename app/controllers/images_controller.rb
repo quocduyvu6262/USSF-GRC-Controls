@@ -46,6 +46,10 @@ class ImagesController < ApplicationController
   def create
     @run_time_object = RunTimeObject.find(params[:run_time_object_id])
     @image = @run_time_object.images.new(image_params)
+    if image_params[:tag].blank?
+      redirect_to new_run_time_object_image_path, alert: "Tag can't be blank." and
+      return
+    end
     image_name = params[:image][:tag]
 
     if is_private_registry?(image_name)
@@ -69,9 +73,9 @@ class ImagesController < ApplicationController
 
     # Rails.logger.debug "Executing scan command: #{scan_command}"
     # scan_result = `#{scan_command}`
-    
 
-    
+
+
     @image.report = scan_and_save_image(scan_command)
     success = $?.success?
     if success
