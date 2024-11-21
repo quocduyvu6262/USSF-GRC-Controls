@@ -637,6 +637,165 @@
     }
 </script>
 
+<!-- Add this script block right before the closing </body> tag -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rescanForm = document.querySelector('form[action*="rescan"]');
+    const rescanButton = rescanForm?.querySelector('button');
+    const imageTag = '<%= @image.tag %>';
+    
+    if (rescanForm && rescanButton) {
+        rescanForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (isPrivateRegistry(imageTag)) {
+                handlePrivateRegistryRescan(imageTag, this);
+            } else {
+                this.submit();
+            }
+        });
+    }
+    
+    function isPrivateRegistry(imageUrl) {
+        const privatePatterns = [
+            /.*\.azurecr\.io/,
+            /.*\.dkr\.ecr\..*\.amazonaws\.com/,
+            /gcr\.io/,
+            /.*\.jfrog\.io/,
+            /.*\.registry\..*/,
+            /localhost\:5001/,
+            /harbor\.*/,
+            /nexus\.*/,
+            /^docker\.io/,
+        ];
+        return privatePatterns.some(pattern => pattern.test(imageUrl));
+    }
+    
+    function handlePrivateRegistryRescan(imageUrl, form) {
+        const registry = imageUrl.split('/')[0];
+        const credentialsPopup = createCredentialsPopup(registry);
+        document.body.appendChild(credentialsPopup);
+        
+        const submitButton = credentialsPopup.querySelector('.submit-credentials');
+        const cancelButton = credentialsPopup.querySelector('.cancel-credentials');
+        const toggleButton = credentialsPopup.querySelector('.toggle-password');
+        const passwordInput = credentialsPopup.querySelector('input[name="password"]');
+        
+        toggleButton.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.textContent = 'Show';
+            }
+        });
+        
+        cancelButton.addEventListener('click', () => {
+            credentialsPopup.remove();
+        });
+        
+        submitButton.addEventListener('click', () => {
+            const username = credentialsPopup.querySelector('input[name="username"]').value;
+            const password = credentialsPopup.querySelector('input[name="password"]').value;
+            
+            if (!username || !password) {
+                alert('Both username and password are required.');
+                return;
+            }
+            
+            // Add credentials to form
+            let usernameField = form.querySelector('input[name="registry_username"]');
+            let passwordField = form.querySelector('input[name="registry_password"]');
+            
+            if (!usernameField) {
+                usernameField = document.createElement('input');
+                usernameField.type = 'hidden';
+                usernameField.name = 'registry_username';
+                form.appendChild(usernameField);
+            }
+            
+            if (!passwordField) {
+                passwordField = document.createElement('input');
+                passwordField.type = 'hidden';
+                passwordField.name = 'registry_password';
+                form.appendChild(passwordField);
+            }
+            
+            usernameField.value = username;
+            passwordField.value = password;
+            
+            credentialsPopup.remove();
+            form.submit();
+        });
+    }
+    
+    function createCredentialsPopup(registry) {
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1000;
+            width: 350px;
+            text-align: center;
+        `;
+        
+        popup.innerHTML = `
+            <h3 style="margin-bottom: 15px;">Enter Credentials for ${registry}</h3>
+            <input
+                type="text"
+                name="username"
+                placeholder="Enter username"
+                style="width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ddd;"
+            />
+            <div style="position: relative; margin-bottom: 15px;">
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter password"
+                    style="width: 100%; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ddd;"
+                />
+                <button type="button" class="toggle-password" 
+                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #007BFF; cursor: pointer;">
+                    Show
+                </button>
+            </div>
+            <button class="submit-credentials" 
+                    style="background-color: white; color: black; border: 0.1rem solid black; border-radius: 1rem; padding: 0.7rem; text-align: center; font-family: 'Times New Roman', Times, serif; font-size: medium; cursor: pointer; margin-right: 10px;">Submit</button>
+            <button class="cancel-credentials"
+                    style="background-color: white; color: black; border: 0.1rem solid black; border-radius: 1rem; padding: 0.7rem; text-align: center; font-family: 'Times New Roman', Times, serif; font-size: medium; cursor: pointer;">Cancel</button>
+        `;
+        
+        popup.querySelector('.submit-credentials').addEventListener('mouseover', function() {
+            this.style.backgroundColor = '#ab69d4';
+            this.style.color = 'black';
+        });
+        
+        popup.querySelector('.submit-credentials').addEventListener('mouseout', function() {
+            this.style.backgroundColor = 'white';
+            this.style.color = 'black';
+        });
+        
+        popup.querySelector('.cancel-credentials').addEventListener('mouseover', function() {
+            this.style.backgroundColor = '#ab69d4';
+            this.style.color = 'black';
+        });
+        
+        popup.querySelector('.cancel-credentials').addEventListener('mouseout', function() {
+            this.style.backgroundColor = 'white';
+            this.style.color = 'black';
+        });
+        
+        return popup;
+    }
+});
+</script>
 
 </body>
 </html>
