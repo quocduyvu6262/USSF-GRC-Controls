@@ -69,10 +69,12 @@ class ImagesController < ApplicationController
 
     # Rails.logger.debug "Executing scan command: #{scan_command}"
     # scan_result = `#{scan_command}`
-    # success = $?.success?
+    
 
-    # if success
+    
     @image.report = scan_and_save_image(scan_command)
+    success = $?.success?
+    if success
     if @image.save
       # redirect_to run_time_object_image_path(@run_time_object.id, @image),
       #             notice: "Image was successfully created."
@@ -81,10 +83,10 @@ class ImagesController < ApplicationController
       flash[:alert] = "Error saving the data. Please try again."
       render :new
     end
-    # else
-    #   @image.errors.add(:base, "Failed to scan the image. Please verify the image exists and is accessible.")
-    #   render :new
-    # end
+    else
+      @image.errors.add(:base, "Scanning Failed: Please Re-try")
+      render :new
+    end
   end
 
 
@@ -476,7 +478,7 @@ class ImagesController < ApplicationController
         command << "TRIVY_PASSWORD=#{password}"
       end
 
-      command << "trivy image --format json --insecure #{image_name}"
+      command << "trivy image --format json --insecure #{image_name} --timeout 45s"
 
       "json_out=$(#{command.join(' ')}) && echo $json_out"
     end

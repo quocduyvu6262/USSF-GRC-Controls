@@ -150,15 +150,17 @@
         <div class="target-summary">
           <h3 class="target-title"><%= target %></h3>
           <div class="severity-grid">
+          <% if summary.present? %>
             <% summary.each do |severity, count| %>
               <div class="severity-item" data-severity="<%= severity.downcase %>">
                 <span class="severity-badge <%= severity.downcase %>"><%= severity %></span>
                 <span class="severity-count"><%= count %></span>
               </div>
             <% end %>
+            <% end %>
           </div>
         </div>
-        <% if result["FixableVulnerabilitiesCount"] > 0 %>
+        <% if result["FixableVulnerabilitiesCount"].present? && result["FixableVulnerabilitiesCount"] > 0 %>
           <div class="fixable-vulnerabilities-note">
             <p>
               <strong>📢 Updates Available:</strong>
