@@ -58,8 +58,11 @@ Buildpacks installs `trivy` for scanning container images in addition to depened
 Custom Buildpack for installing trivy : [GitHub](https://github.com/tamu-edu-students/buildpack-trivy)
 
 
-## updates tp application
+#### Updates to application
 
 1. verify heroku - git remote -v
 2. git add . && git commit -m "commit message" && git push heroku master
+
+#### Contacts
+- Sahil Fayaz - [sf08@tamu.edu](sf08@tamu.edu)
 
