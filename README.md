@@ -51,6 +51,7 @@ sudo apt-get update && sudo apt-get install pkg-config
 9. If we still have pending migration, `heroku run rake db:migrate:up VERSION=<version of the pending migration>`, to check status of migrations run `heroku run rake db:migrate:status`
 9. heroku run rails db:seed (Will take few minutes)
 10. git push heroku main
+11. In the google developer console we need to add heroku URL(Reach out to Sahil Fayaz)
 
 #### Additional info on buildpacks:
 Buildpacks installs `trivy` for scanning container images in addition to depenedencies listed in Gemfile. [Documentation]()
