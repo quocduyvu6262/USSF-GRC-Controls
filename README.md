@@ -42,11 +42,11 @@ sudo apt-get update && sudo apt-get install pkg-config
 
 1. heroku login
 2. git init && git add . && git commit -m "initial commit"
-3. heroku create <app-name>
+3. heroku create app-name
 4. Login to Heroku UI, navigate to the resources under your newly created app and add heroku-postres add-on
-5. heroku buildpacks:set heroku/ruby --index 1 -a <app-name>
-6. heroku buildpacks:add https://github.com/tamu-edu-students/buildpack-trivy --index 2 -a <app-name>
-7. heroku config:set RAILS_MASTER_KEY=`cat config/master.key`
+5. heroku buildpacks:set heroku/ruby --index 1 -a app-name
+6. heroku buildpacks:add https://github.com/tamu-edu-students/buildpack-trivy --index 2 -a app-name
+7. heroku config:set RAILS_MASTER_KEY="$(cat config/master.key)"
 8. heroku run rails db:migrate
 9. If we still have pending migration, `heroku run rake db:migrate:up VERSION=<version of the pending migration>`, to check status of migrations run `heroku run rake db:migrate:status`
 9. heroku run rails db:seed (Will take few minutes)

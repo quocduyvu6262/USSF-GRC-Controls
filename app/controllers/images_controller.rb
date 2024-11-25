@@ -140,7 +140,7 @@ class ImagesController < ApplicationController
       redirect_to run_time_object_image_path(@image.run_time_object, @image) and return
     end
     image_report = JSON.parse(@image.report)
-
+#
     csv_content = CSV.generate(headers: true) do |csv|
       csv << [ "Target", "Title", "Severity", "ID", "Installed Version", "Fixed Version", "Status", "NIST Identifiers", "Description" ]
 
