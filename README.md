@@ -7,10 +7,8 @@
 
 ---
 
-### Application Link : [https://csce606-ussf-d5f4faa6ca5f.herokuapp.com/](https://csce606-ussf-d5f4faa6ca5f.herokuapp.com/)
+### Application Link : [https://ussf-grc-controls-c8b296cd76e1.herokuapp.com](https://ussf-grc-controls-c8b296cd76e1.herokuapp.com)
 
 ### Code Climate : [View RubyCritic Report](https://aditya-s-gourishetty.github.io/csce606-report-ussf-report.github.io/)
-
-### Project Tracker: [Tracker](https://github.com/orgs/tamu-edu-students/projects/69/views/2)
 
 ### Team Working Agreement : [Team Working Agreement](documentation/Fall2024/TeamWorkingAgreement.md)
